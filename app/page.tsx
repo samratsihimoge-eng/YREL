@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -17,7 +16,6 @@ import {
   Zap,
   Navigation,
   CalendarDays,
-  Route,
 } from "lucide-react";
 
 type Ride = "Auto" | "Hatchback" | "Sedan" | "SUV";
@@ -58,9 +56,8 @@ const money = (n: number) =>
 
 export default function Home() {
   const [session, setSession] = useState<any>(null);
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
+  const [email, setEmail] = useState("");
+  const [linkSent, setLinkSent] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
 
   const [tab, setTab] = useState<"cab" | "driver">("cab");
@@ -352,9 +349,14 @@ export default function Home() {
     if (!error) setBookings(data || []);
   }
 
-  async function sendOtp() {
-    if (!phone.trim()) {
-      setNotice("Please enter your mobile number.");
+  async function sendLoginLink() {
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (
+      !cleanEmail ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)
+    ) {
+      setNotice("Please enter a valid email address.");
       return;
     }
 
@@ -362,7 +364,10 @@ export default function Home() {
     setNotice("");
 
     const { error } = await supabase.auth.signInWithOtp({
-      phone: phone.startsWith("+") ? phone : "+91" + phone,
+      email: cleanEmail,
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
     });
 
     setBusy(false);
@@ -370,34 +375,8 @@ export default function Home() {
     if (error) {
       setNotice(error.message);
     } else {
-      setOtpSent(true);
-      setNotice("OTP sent. Check your phone.");
-    }
-  }
-
-  async function verifyOtp() {
-    if (!otp.trim()) {
-      setNotice("Please enter the OTP.");
-      return;
-    }
-
-    setBusy(true);
-
-    const { error } = await supabase.auth.verifyOtp({
-      phone: phone.startsWith("+") ? phone : "+91" + phone,
-      token: otp,
-      type: "sms",
-    });
-
-    setBusy(false);
-
-    if (error) {
-      setNotice(error.message);
-    } else {
-      setAuthOpen(false);
-      setOtp("");
-      setOtpSent(false);
-      setNotice("You’re signed in.");
+      setLinkSent(true);
+      setNotice("Login link sent. Please check your email inbox.");
     }
   }
 
@@ -484,7 +463,7 @@ export default function Home() {
             <>
               <span className="userchip">
                 <UserRound size={15} />
-                {session.user.phone || "Member"}
+                {session.user.email || "Member"}
               </span>
               <button className="textbtn" onClick={signOut}>
                 Sign out
@@ -953,72 +932,53 @@ export default function Home() {
             </div>
 
             <h2>
-              {otpSent ? "Verify your number" : "Welcome aboard."}
+              {linkSent ? "Check your inbox" : "Welcome aboard."}
             </h2>
 
             <p>
-              {otpSent
-                ? "Enter the one-time code sent to your phone."
-                : "Sign in with your mobile number to book your next ride."}
+              {linkSent
+                ? "Open the login link we sent to your email to sign in."
+                : "Sign in with your email address to book your next ride."}
             </p>
 
             <label className="field">
-              <span>MOBILE NUMBER</span>
+              <span>EMAIL ADDRESS</span>
 
               <input
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                placeholder="10-digit number"
-                disabled={otpSent}
-                inputMode="tel"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@example.com"
+                disabled={linkSent}
+                autoComplete="email"
               />
             </label>
-
-            {otpSent && (
-              <label className="field">
-                <span>ONE-TIME PASSWORD</span>
-
-                <input
-                  value={otp}
-                  onChange={(event) => setOtp(event.target.value)}
-                  placeholder="6-digit OTP"
-                  inputMode="numeric"
-                  maxLength={6}
-                />
-              </label>
-            )}
 
             <button
               className="bookbtn"
               disabled={busy}
-              onClick={otpSent ? verifyOtp : sendOtp}
+              onClick={sendLoginLink}
             >
-              {busy
-                ? "Please wait…"
-                : otpSent
-                ? "Verify & continue"
-                : "Send OTP"}
-
+              {busy ? "Please wait…" : "Send login link"}
               <ArrowRight size={16} />
             </button>
 
             {notice && <p className="notice">{notice}</p>}
 
-            {otpSent && (
+            {linkSent && (
               <button
                 className="textbtn"
                 onClick={() => {
-                  setOtpSent(false);
-                  setOtp("");
+                  setLinkSent(false);
                   setNotice("");
                 }}
               >
-                Change mobile number
+                Use another email address
               </button>
             )}
 
             <small className="modalhint">
-              SMS authentication is provided securely by Supabase.
+              A secure sign-in link will be sent by Supabase to your email.
             </small>
           </div>
         </div>
