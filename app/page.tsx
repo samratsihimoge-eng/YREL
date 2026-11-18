@@ -237,7 +237,7 @@ export default function Home() {
           } as Place;
         })
         .filter(
-          (place) =>
+          (place: Place) =>
             isIndia(place.country) &&
             isInsideIndia(place.lat, place.lon)
         );
