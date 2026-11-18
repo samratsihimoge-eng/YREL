@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "./global.css";
 export const metadata: Metadata = {
   title: "YREL — Your city, your ride",
   description: "Book a cab or a professional driver with YREL."
