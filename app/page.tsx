@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -111,8 +110,11 @@ export default function Home() {
 
   const [pickupPlaces, setPickupPlaces] = useState<Place[]>([]);
   const [dropPlaces, setDropPlaces] = useState<Place[]>([]);
+
+  // Controls whether each suggestion box is visible.
   const [pickupSuggestionsOpen, setPickupSuggestionsOpen] = useState(false);
   const [dropSuggestionsOpen, setDropSuggestionsOpen] = useState(false);
+
   const [pickupPoint, setPickupPoint] = useState<Place | null>(null);
   const [dropPoint, setDropPoint] = useState<Place | null>(null);
 
@@ -154,7 +156,7 @@ export default function Home() {
   const photonLang =
     language === "kn" ? "kn" : language === "hi" ? "hi" : "en";
 
-  // Capture GPS for nearby search without changing the pickup field.
+  // Get GPS location for nearby search suggestions.
   useEffect(() => {
     if (!navigator.geolocation) return;
 
@@ -168,7 +170,7 @@ export default function Home() {
         }
       },
       () => {
-        // User can still search Indian locations manually.
+        // Manual India-wide search remains available.
       },
       {
         enableHighAccuracy: true,
@@ -244,7 +246,7 @@ export default function Home() {
             isInsideIndia(place.lat, place.lon)
         );
 
-      // When GPS is available, show nearer matching results first.
+      // Show nearby matching results first when GPS is available.
       if (searchCenter) {
         places.sort((a, b) => {
           const distanceA = Math.hypot(
@@ -265,11 +267,19 @@ export default function Home() {
 
       setter(places.slice(0, 8));
     } catch (error: any) {
-      if (error.name !== "AbortError") setter([]);
+      if (error.name !== "AbortError") {
+        setter([]);
+      }
     }
   }
 
+  // Pickup suggestions open only while the user is typing.
   useEffect(() => {
+    if (!pickupSuggestionsOpen || pickup.trim().length < 3) {
+      setPickupPlaces([]);
+      return;
+    }
+
     const controller = new AbortController();
 
     const timer = setTimeout(() => {
@@ -280,9 +290,15 @@ export default function Home() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [pickup, photonLang, searchCenter]);
+  }, [pickup, photonLang, searchCenter, pickupSuggestionsOpen]);
 
+  // Drop suggestions open only while the user is typing.
   useEffect(() => {
+    if (!dropSuggestionsOpen || drop.trim().length < 3) {
+      setDropPlaces([]);
+      return;
+    }
+
     const controller = new AbortController();
 
     const timer = setTimeout(() => {
@@ -293,18 +309,19 @@ export default function Home() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [drop, photonLang, searchCenter]);
+  }, [drop, photonLang, searchCenter, dropSuggestionsOpen]);
 
   function choosePlace(place: Place, type: "pickup" | "drop") {
     if (type === "pickup") {
       setPickup(place.label);
       setPickupPoint(place);
       setPickupPlaces([]);
-      setSearchCenter({ lat: place.lat, lon: place.lon });
+      setPickupSuggestionsOpen(false);
     } else {
       setDrop(place.label);
       setDropPoint(place);
       setDropPlaces([]);
+      setDropSuggestionsOpen(false);
     }
 
     setDistance("0");
@@ -312,6 +329,10 @@ export default function Home() {
   }
 
   async function useCurrentLocation() {
+    // Close pickup suggestions immediately when current location is pressed.
+    setPickupSuggestionsOpen(false);
+    setPickupPlaces([]);
+
     if (!navigator.geolocation) {
       setNotice("Your browser does not support GPS.");
       return;
@@ -337,7 +358,9 @@ export default function Home() {
             `https://photon.komoot.io/reverse?lat=${latitude}&lon=${longitude}&lang=en`
           );
 
-          if (!response.ok) throw new Error("Reverse search failed");
+          if (!response.ok) {
+            throw new Error("Reverse search failed");
+          }
 
           const data = await response.json();
           const p = data.features?.[0]?.properties || {};
@@ -369,6 +392,7 @@ export default function Home() {
           setPickup(place.label);
           setPickupPoint(place);
           setPickupPlaces([]);
+          setPickupSuggestionsOpen(false);
           setDistance("0");
           setDistanceReady(false);
         } catch {
@@ -383,6 +407,9 @@ export default function Home() {
           setPickup(place.label);
           setPickupPoint(place);
           setPickupPlaces([]);
+          setPickupSuggestionsOpen(false);
+          setDistance("0");
+          setDistanceReady(false);
         }
 
         setLocating(false);
@@ -404,7 +431,7 @@ export default function Home() {
     );
   }
 
-  // Calculate route only after both locations have been selected.
+  // Calculate road distance only after both locations are selected.
   useEffect(() => {
     if (!pickupPoint || !dropPoint) return;
 
@@ -416,7 +443,6 @@ export default function Home() {
     setNotice("");
 
     const directKm = straightDistance(pickupPoint, dropPoint);
-
     const controller = new AbortController();
 
     fetch(
@@ -424,7 +450,10 @@ export default function Home() {
       { signal: controller.signal }
     )
       .then((response) => {
-        if (!response.ok) throw new Error("Route service unavailable");
+        if (!response.ok) {
+          throw new Error("Route service unavailable");
+        }
+
         return response.json();
       })
       .then((data) => {
@@ -439,8 +468,6 @@ export default function Home() {
 
         const km = Number(route.distance) / 1000;
 
-        // Reject obviously incorrect routes, such as 449 km
-        // between two places only a few kilometres apart.
         const maximumReasonableKm = Math.max(
           directKm * 5,
           directKm + 30,
@@ -474,7 +501,9 @@ export default function Home() {
         }
       })
       .finally(() => {
-        if (!cancelled) setRouteLoading(false);
+        if (!cancelled) {
+          setRouteLoading(false);
+        }
       });
 
     return () => {
@@ -495,7 +524,10 @@ export default function Home() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      if (data.session) loadBookings(data.session.user.id);
+
+      if (data.session) {
+        loadBookings(data.session.user.id);
+      }
     });
 
     const {
@@ -521,7 +553,9 @@ export default function Home() {
       .order("created_at", { ascending: false })
       .limit(20);
 
-    if (!error) setBookings(data || []);
+    if (!error) {
+      setBookings(data || []);
+    }
   }
 
   async function sendLoginLink() {
@@ -627,6 +661,8 @@ export default function Home() {
     setDropPoint(null);
     setPickupPlaces([]);
     setDropPlaces([]);
+    setPickupSuggestionsOpen(false);
+    setDropSuggestionsOpen(false);
     setDistance("0");
     setDistanceReady(false);
   }
@@ -635,8 +671,7 @@ export default function Home() {
     await supabase.auth.signOut();
     setNotice("You’re signed out.");
   }
-
-  return (
+    return (
     <main>
       <header className="nav">
         <a className="brand" href="#">
@@ -657,6 +692,7 @@ export default function Home() {
                 <UserRound size={15} />
                 {session.user.email || "Member"}
               </span>
+
               <button className="textbtn" onClick={signOut}>
                 Sign out
               </button>
@@ -682,9 +718,11 @@ export default function Home() {
           <a href="#services" onClick={() => setMenu(false)}>
             Services
           </a>
+
           <a href="#how" onClick={() => setMenu(false)}>
             How it works
           </a>
+
           <a href="#bookings" onClick={() => setMenu(false)}>
             My bookings
           </a>
@@ -714,6 +752,7 @@ export default function Home() {
             <span>
               <ShieldCheck size={16} /> Thoughtful, reliable rides
             </span>
+
             <span>
               <Zap size={15} /> Simple booking
             </span>
@@ -788,6 +827,7 @@ export default function Home() {
           </div>
 
           <div className="formgrid">
+            {/* PICKUP LOCATION */}
             <div className="locationbox">
               <label className="field">
                 <span>
@@ -796,9 +836,18 @@ export default function Home() {
 
                 <input
                   value={pickup}
+                  onFocus={() => {
+                    if (pickup.trim().length >= 3 && !pickupPoint) {
+                      setPickupSuggestionsOpen(true);
+                    }
+                  }}
                   onChange={(event) => {
                     setPickup(event.target.value);
                     setPickupPoint(null);
+                    setPickupSuggestionsOpen(
+                      event.target.value.trim().length >= 3
+                    );
+                    setPickupPlaces([]);
                     setDistance("0");
                     setDistanceReady(false);
                   }}
@@ -806,11 +855,12 @@ export default function Home() {
                 />
               </label>
 
-              {pickupPlaces.length > 0 && (
+              {pickupSuggestionsOpen && pickupPlaces.length > 0 && (
                 <div className="suggestions">
                   {pickupPlaces.map((place, index) => (
                     <button
                       key={`${place.label}-${index}`}
+                      type="button"
                       onClick={() => choosePlace(place, "pickup")}
                     >
                       <MapPin size={14} />
@@ -822,6 +872,7 @@ export default function Home() {
 
               <button
                 className="gpsbtn"
+                type="button"
                 onClick={useCurrentLocation}
                 disabled={locating}
               >
@@ -830,6 +881,7 @@ export default function Home() {
               </button>
             </div>
 
+            {/* DROP LOCATION */}
             {tab === "cab" && (
               <div className="locationbox">
                 <label className="field">
@@ -839,9 +891,18 @@ export default function Home() {
 
                   <input
                     value={drop}
+                    onFocus={() => {
+                      if (drop.trim().length >= 3 && !dropPoint) {
+                        setDropSuggestionsOpen(true);
+                      }
+                    }}
                     onChange={(event) => {
                       setDrop(event.target.value);
                       setDropPoint(null);
+                      setDropSuggestionsOpen(
+                        event.target.value.trim().length >= 3
+                      );
+                      setDropPlaces([]);
                       setDistance("0");
                       setDistanceReady(false);
                     }}
@@ -849,11 +910,12 @@ export default function Home() {
                   />
                 </label>
 
-                {dropPlaces.length > 0 && (
+                {dropSuggestionsOpen && dropPlaces.length > 0 && (
                   <div className="suggestions">
                     {dropPlaces.map((place, index) => (
                       <button
                         key={`${place.label}-${index}`}
+                        type="button"
                         onClick={() => choosePlace(place, "drop")}
                       >
                         <MapPin size={14} />
@@ -921,9 +983,11 @@ export default function Home() {
               <div className="fare">
                 <div>
                   <small>ESTIMATED FARE</small>
+
                   <strong>
                     {distanceReady ? money(estimate) : "Calculating…"}
                   </strong>
+
                   <small className="muted">
                     Indicative estimate · final fare may vary
                   </small>
@@ -1001,8 +1065,7 @@ export default function Home() {
           </p>
         </div>
       </section>
-
-      <section className="features" id="how">
+            <section className="features" id="how">
         <div className="sectionintro">
           <div className="eyebrow dark">THE YREL DIFFERENCE</div>
 
@@ -1119,7 +1182,10 @@ export default function Home() {
           className="modalback"
           onClick={() => setAuthOpen(false)}
         >
-          <div className="modal" onClick={(event) => event.stopPropagation()}>
+          <div
+            className="modal"
+            onClick={(event) => event.stopPropagation()}
+          >
             <button
               className="close"
               onClick={() => setAuthOpen(false)}
