@@ -111,6 +111,8 @@ export default function Home() {
 
   const [pickupPlaces, setPickupPlaces] = useState<Place[]>([]);
   const [dropPlaces, setDropPlaces] = useState<Place[]>([]);
+  const [pickupSuggestionsOpen, setPickupSuggestionsOpen] = useState(false);
+  const [dropSuggestionsOpen, setDropSuggestionsOpen] = useState(false);
   const [pickupPoint, setPickupPoint] = useState<Place | null>(null);
   const [dropPoint, setDropPoint] = useState<Place | null>(null);
 
