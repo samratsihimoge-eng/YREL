@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -25,6 +26,9 @@ type Place = {
   label: string;
   lat: number;
   lon: number;
+  city?: string;
+  state?: string;
+  country?: string;
 };
 
 type Booking = {
@@ -54,6 +58,35 @@ const money = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
+const isIndia = (country?: string) =>
+  !!country &&
+  ["india", "ಭಾರತ", "भारत"].includes(country.trim().toLowerCase());
+
+function isInsideIndia(lat: number, lon: number) {
+  return (
+    Number.isFinite(lat) &&
+    Number.isFinite(lon) &&
+    lat >= 6 &&
+    lat <= 38.5 &&
+    lon >= 68 &&
+    lon <= 97.5
+  );
+}
+
+function straightDistance(a: Place, b: Place) {
+  const rad = (value: number) => (value * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLon = rad(b.lon - a.lon);
+
+  const x =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(rad(a.lat)) *
+      Math.cos(rad(b.lat)) *
+      Math.sin(dLon / 2) ** 2;
+
+  return 6371 * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+
 export default function Home() {
   const [session, setSession] = useState<any>(null);
   const [email, setEmail] = useState("");
@@ -67,7 +100,8 @@ export default function Home() {
   const [when, setWhen] = useState<"now" | "later">("now");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [distance, setDistance] = useState("12");
+  const [distance, setDistance] = useState("0");
+  const [distanceReady, setDistanceReady] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
 
   const [busy, setBusy] = useState(false);
@@ -79,6 +113,11 @@ export default function Home() {
   const [dropPlaces, setDropPlaces] = useState<Place[]>([]);
   const [pickupPoint, setPickupPoint] = useState<Place | null>(null);
   const [dropPoint, setDropPoint] = useState<Place | null>(null);
+
+  const [searchCenter, setSearchCenter] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
 
   const [locating, setLocating] = useState(false);
   const [routeLoading, setRouteLoading] = useState(false);
@@ -113,29 +152,66 @@ export default function Home() {
   const photonLang =
     language === "kn" ? "kn" : language === "hi" ? "hi" : "en";
 
+  // Capture GPS for nearby search without changing the pickup field.
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        if (isInsideIndia(lat, lon)) {
+          setSearchCenter({ lat, lon });
+        }
+      },
+      () => {
+        // User can still search Indian locations manually.
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 60000,
+      }
+    );
+  }, []);
+
   async function searchPlaces(
     query: string,
-    setter: (places: Place[]) => void
+    setter: (places: Place[]) => void,
+    signal: AbortSignal
   ) {
-    if (query.trim().length < 3) {
+    const cleanQuery = query.trim();
+
+    if (cleanQuery.length < 3) {
       setter([]);
       return;
     }
 
     try {
-      const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(
-        query
-      )}&lang=${photonLang}&limit=6&lat=20.5937&lon=78.9629`;
+      const lat = searchCenter?.lat ?? 20.5937;
+      const lon = searchCenter?.lon ?? 78.9629;
 
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Location search unavailable");
+      const url =
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(cleanQuery)}` +
+        `&lang=en&limit=20&lat=${lat}&lon=${lon}&zoom=14`;
+
+      const response = await fetch(url, { signal });
+
+      if (!response.ok) {
+        throw new Error("Location search unavailable");
+      }
 
       const data = await response.json();
 
-      const places = (data.features || [])
+      const places: Place[] = (data.features || [])
         .map((feature: any) => {
           const p = feature.properties || {};
           const coordinates = feature.geometry?.coordinates || [];
+
+          const resultLat = Number(coordinates[1]);
+          const resultLon = Number(coordinates[0]);
+          const country = p.country || "";
 
           const parts = [
             p.name,
@@ -144,56 +220,93 @@ export default function Home() {
             p.city,
             p.state,
             p.postcode,
-            p.country,
+            country,
           ].filter(
             (value: string, index: number, array: string[]) =>
               value && array.indexOf(value) === index
           );
 
           return {
-            name: p.name || parts[0] || "Location",
+            name: p.name || "Location",
             label: parts.join(", "),
-            lon: Number(coordinates[0]),
-            lat: Number(coordinates[1]),
+            lat: resultLat,
+            lon: resultLon,
+            city: p.city || p.district || "",
+            state: p.state || "",
+            country,
           } as Place;
         })
         .filter(
-          (p: Place) =>
-            Number.isFinite(p.lat) && Number.isFinite(p.lon)
+          (place) =>
+            isIndia(place.country) &&
+            isInsideIndia(place.lat, place.lon)
         );
 
-      setter(places);
-    } catch {
-      setter([]);
+      // When GPS is available, show nearer matching results first.
+      if (searchCenter) {
+        places.sort((a, b) => {
+          const distanceA = Math.hypot(
+            a.lat - searchCenter.lat,
+            (a.lon - searchCenter.lon) *
+              Math.cos((searchCenter.lat * Math.PI) / 180)
+          );
+
+          const distanceB = Math.hypot(
+            b.lat - searchCenter.lat,
+            (b.lon - searchCenter.lon) *
+              Math.cos((searchCenter.lat * Math.PI) / 180)
+          );
+
+          return distanceA - distanceB;
+        });
+      }
+
+      setter(places.slice(0, 8));
+    } catch (error: any) {
+      if (error.name !== "AbortError") setter([]);
     }
   }
 
   useEffect(() => {
-    const timer = setTimeout(
-      () => searchPlaces(pickup, setPickupPlaces),
-      450
-    );
-    return () => clearTimeout(timer);
-  }, [pickup, photonLang]);
+    const controller = new AbortController();
+
+    const timer = setTimeout(() => {
+      searchPlaces(pickup, setPickupPlaces, controller.signal);
+    }, 450);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [pickup, photonLang, searchCenter]);
 
   useEffect(() => {
-    const timer = setTimeout(
-      () => searchPlaces(drop, setDropPlaces),
-      450
-    );
-    return () => clearTimeout(timer);
-  }, [drop, photonLang]);
+    const controller = new AbortController();
+
+    const timer = setTimeout(() => {
+      searchPlaces(drop, setDropPlaces, controller.signal);
+    }, 450);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [drop, photonLang, searchCenter]);
 
   function choosePlace(place: Place, type: "pickup" | "drop") {
     if (type === "pickup") {
       setPickup(place.label);
       setPickupPoint(place);
       setPickupPlaces([]);
+      setSearchCenter({ lat: place.lat, lon: place.lon });
     } else {
       setDrop(place.label);
       setDropPoint(place);
       setDropPlaces([]);
     }
+
+    setDistance("0");
+    setDistanceReady(false);
   }
 
   async function useCurrentLocation() {
@@ -209,12 +322,25 @@ export default function Home() {
       async (position) => {
         const { latitude, longitude } = position.coords;
 
+        if (!isInsideIndia(latitude, longitude)) {
+          setLocating(false);
+          setNotice("YREL currently supports locations within India only.");
+          return;
+        }
+
+        setSearchCenter({ lat: latitude, lon: longitude });
+
         try {
           const response = await fetch(
-            `https://photon.komoot.io/reverse?lat=${latitude}&lon=${longitude}&lang=${photonLang}`
+            `https://photon.komoot.io/reverse?lat=${latitude}&lon=${longitude}&lang=en`
           );
+
+          if (!response.ok) throw new Error("Reverse search failed");
+
           const data = await response.json();
           const p = data.features?.[0]?.properties || {};
+
+          const country = p.country || "India";
 
           const parts = [
             p.name,
@@ -223,7 +349,7 @@ export default function Home() {
             p.city,
             p.state,
             p.postcode,
-            p.country,
+            country,
           ].filter(Boolean);
 
           const place: Place = {
@@ -233,26 +359,35 @@ export default function Home() {
               `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`,
             lat: latitude,
             lon: longitude,
+            city: p.city || p.district || "",
+            state: p.state || "",
+            country,
           };
 
           setPickup(place.label);
           setPickupPoint(place);
+          setPickupPlaces([]);
+          setDistance("0");
+          setDistanceReady(false);
         } catch {
           const place: Place = {
             name: "Current location",
             label: `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`,
             lat: latitude,
             lon: longitude,
+            country: "India",
           };
 
           setPickup(place.label);
           setPickupPoint(place);
+          setPickupPlaces([]);
         }
 
         setLocating(false);
       },
       (error) => {
         setLocating(false);
+
         setNotice(
           error.code === 1
             ? "Location permission was denied. Please allow location access in your browser settings."
@@ -267,35 +402,72 @@ export default function Home() {
     );
   }
 
+  // Calculate route only after both locations have been selected.
   useEffect(() => {
     if (!pickupPoint || !dropPoint) return;
 
     let cancelled = false;
+
     setRouteLoading(true);
+    setDistance("0");
+    setDistanceReady(false);
+    setNotice("");
+
+    const directKm = straightDistance(pickupPoint, dropPoint);
+
+    const controller = new AbortController();
 
     fetch(
-      `https://router.project-osrm.org/route/v1/driving/${pickupPoint.lon},${pickupPoint.lat};${dropPoint.lon},${dropPoint.lat}?overview=false`
+      `https://router.project-osrm.org/route/v1/driving/${pickupPoint.lon},${pickupPoint.lat};${dropPoint.lon},${dropPoint.lat}?overview=false`,
+      { signal: controller.signal }
     )
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("Route service unavailable");
+        return response.json();
+      })
       .then((data) => {
         if (cancelled) return;
 
         const route = data.routes?.[0];
 
-        if (route) {
-          const km = route.distance / 1000;
-          setDistance(km.toFixed(1));
-          setNotice(
-            `Road distance: ${km.toFixed(1)} km · Approx. ${Math.round(
-              route.duration / 60
-            )} min`
-          );
-        } else {
-          setNotice("Road route not found for these locations.");
+        if (data.code !== "Ok" || !route) {
+          setNotice("Road route not found. Please select another location.");
+          return;
         }
+
+        const km = Number(route.distance) / 1000;
+
+        // Reject obviously incorrect routes, such as 449 km
+        // between two places only a few kilometres apart.
+        const maximumReasonableKm = Math.max(
+          directKm * 5,
+          directKm + 30,
+          40
+        );
+
+        if (
+          !Number.isFinite(km) ||
+          km <= 0 ||
+          km > 3000 ||
+          km > maximumReasonableKm
+        ) {
+          setNotice(
+            "The road distance looks incorrect. Please select the pickup and drop locations again."
+          );
+          return;
+        }
+
+        setDistance(km.toFixed(1));
+        setDistanceReady(true);
+
+        setNotice(
+          `Road distance: ${km.toFixed(1)} km · Approx. ${Math.round(
+            route.duration / 60
+          )} min`
+        );
       })
-      .catch(() => {
-        if (!cancelled) {
+      .catch((error) => {
+        if (!cancelled && error.name !== "AbortError") {
           setNotice("Could not calculate road distance right now.");
         }
       })
@@ -305,6 +477,7 @@ export default function Home() {
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, [pickupPoint, dropPoint]);
 
@@ -391,6 +564,20 @@ export default function Home() {
       return;
     }
 
+    if (tab === "cab" && (!pickupPoint || !dropPoint)) {
+      setNotice(
+        "Please select pickup and destination from the India location suggestions."
+      );
+      return;
+    }
+
+    if (tab === "cab" && (!distanceReady || Number(distance) <= 0)) {
+      setNotice(
+        "Please wait until the correct road distance is calculated."
+      );
+      return;
+    }
+
     if (when === "later" && (!date || !time)) {
       setNotice("Choose your preferred date and time.");
       return;
@@ -427,6 +614,7 @@ export default function Home() {
     }
 
     setBookings((current) => [data, ...current]);
+
     setNotice(
       `Request received — ${data.booking_code}. We’ll confirm your booking shortly.`
     );
@@ -437,6 +625,8 @@ export default function Home() {
     setDropPoint(null);
     setPickupPlaces([]);
     setDropPlaces([]);
+    setDistance("0");
+    setDistanceReady(false);
   }
 
   async function signOut() {
@@ -607,6 +797,8 @@ export default function Home() {
                   onChange={(event) => {
                     setPickup(event.target.value);
                     setPickupPoint(null);
+                    setDistance("0");
+                    setDistanceReady(false);
                   }}
                   placeholder={labels.pickupHint}
                 />
@@ -648,6 +840,8 @@ export default function Home() {
                     onChange={(event) => {
                       setDrop(event.target.value);
                       setDropPoint(null);
+                      setDistance("0");
+                      setDistanceReady(false);
                     }}
                     placeholder={labels.dropHint}
                   />
@@ -718,14 +912,16 @@ export default function Home() {
                   min="1"
                   max="3000"
                   value={distance}
-                  onChange={(event) => setDistance(event.target.value)}
+                  readOnly
                 />
               </label>
 
               <div className="fare">
                 <div>
                   <small>ESTIMATED FARE</small>
-                  <strong>{money(estimate)}</strong>
+                  <strong>
+                    {distanceReady ? money(estimate) : "Calculating…"}
+                  </strong>
                   <small className="muted">
                     Indicative estimate · final fare may vary
                   </small>
@@ -781,7 +977,11 @@ export default function Home() {
             </div>
           )}
 
-          <button className="bookbtn" disabled={busy} onClick={book}>
+          <button
+            className="bookbtn"
+            disabled={busy || routeLoading}
+            onClick={book}
+          >
             {busy
               ? "Please wait…"
               : session
