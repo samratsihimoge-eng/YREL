@@ -5,3 +5,277 @@
 .languagebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px}.languagebar>span{font-size:9px;letter-spacing:1px;font-weight:800;color:#7d8a80;margin-right:5px}.languagebar button{border:1px solid #e2e9df;background:#fff;border-radius:20px;padding:7px 12px;font-size:11px;color:#536257}.languagebar button.langactive{background:#174d3b;color:white;border-color:#174d3b}.locationbox{position:relative;min-width:0}.gpsbtn{border:0;background:transparent;color:#28634b;font-size:11px;font-weight:700;display:flex;align-items:center;gap:7px;padding:9px 4px}.gpsbtn:disabled{opacity:.6}.suggestions{position:absolute;top:100%;left:0;right:0;z-index:8;background:#fff;border:1px solid #e2e9df;border-radius:12px;box-shadow:0 12px 28px #17251f18;overflow:hidden}.suggestions button{width:100%;display:flex;align-items:flex-start;gap:9px;padding:12px;border:0;border-bottom:1px solid #eef1ec;background:white;text-align:left;color:#35473c;font-size:12px;line-height:1.45}.suggestions button:last-child{border-bottom:0}.suggestions button:hover{background:#f3f7ed}.suggestions svg{flex:0 0 auto;margin-top:1px;color:#71933d}
 
 .mapcredit{font-size:9px;color:#8a968d;margin:-5px 0 12px 2px}
+
+/* YREL DEMO ORANGE & CREAM THEME */
+:root {
+  --ink: #24130B;
+  --muted: #7A5A44;
+  --green: #FF6B00;
+  --lime: #FFB020;
+  --paper: #FFFBF8;
+  --line: #FFD9BE;
+}
+
+body {
+  background: #FFFBF8;
+  color: #24130B;
+  font-family: 'Nunito', 'DM Sans', sans-serif;
+}
+
+.nav {
+  background: #FFFFFF;
+  border-bottom: 1px solid #FFD9BE;
+}
+
+.brandmark {
+  background: #FF6B00;
+  color: #FFFFFF;
+  border-radius: 10px;
+}
+
+.branddot {
+  color: #FF6B00;
+}
+
+.hero {
+  background: linear-gradient(110deg, #FFF0E3 0%, #FFFBF8 60%, #FFE2CC 100%);
+}
+
+.eyebrow {
+  color: #FF6B00;
+}
+
+.eyebrow.dark {
+  color: #C84D00;
+}
+
+.hero h1 em,
+.sectionintro h2 em {
+  color: #FF6B00;
+}
+
+.lead,
+.trust {
+  color: #7A5A44;
+}
+
+.orbit {
+  border-color: #FFD0B0;
+}
+
+.art-glow {
+  background: #FFD9BE;
+}
+
+.floating {
+  border-color: #FFD9BE;
+  color: #7A2A00;
+}
+
+.dotgreen {
+  background: #FF6B00;
+}
+
+.booking-card {
+  background: #FFFFFF;
+  border: 1px solid #FFD9BE;
+  box-shadow: 0 20px 60px rgba(255, 107, 0, .10);
+}
+
+.switch,
+.schedule {
+  background: #FFF0E3;
+}
+
+.switch button,
+.schedule button {
+  color: #7A5A44;
+}
+
+.switch .active,
+.schedule .chosen {
+  background: #FF6B00;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, .25);
+}
+
+.field {
+  background: #FFFBF8;
+  border-color: #FFD9BE;
+}
+
+.field span,
+.ride-label {
+  color: #9A6545;
+}
+
+.field input {
+  color: #24130B;
+}
+
+.field input::placeholder {
+  color: #B99A86;
+}
+
+.ride {
+  background: #FFFFFF;
+  border-color: #FFD9BE;
+}
+
+.ride.selected {
+  border: 2px solid #FF6B00;
+  background: #FFF0E3;
+}
+
+.tick {
+  background: #FF6B00;
+}
+
+.fare {
+  background: #FFF0E3;
+}
+
+.fare small {
+  color: #9A6545;
+}
+
+.fare strong {
+  color: #FF6B00;
+}
+
+.farebadge {
+  background: #FFD9BE;
+  color: #8A3500;
+}
+
+.bookbtn {
+  background: linear-gradient(100deg, #FF6B00, #FF3D2E);
+  color: #FFFFFF;
+  border-radius: 14px;
+}
+
+.bookbtn:hover {
+  background: linear-gradient(100deg, #E85D00, #E83225);
+}
+
+.notice {
+  background: #FFF0E3;
+  color: #8A3500;
+}
+
+.languagebar > span {
+  color: #9A6545;
+}
+
+.languagebar button {
+  border-color: #FFD9BE;
+  color: #7A5A44;
+}
+
+.languagebar button.langactive {
+  background: #FF6B00;
+  color: #FFFFFF;
+  border-color: #FF6B00;
+}
+
+.gpsbtn {
+  color: #E85D00;
+}
+
+.suggestions {
+  border-color: #FFD9BE;
+  box-shadow: 0 12px 28px rgba(255, 107, 0, .12);
+}
+
+.suggestions button {
+  color: #4B2918;
+  border-color: #FFE8D9;
+}
+
+.suggestions button:hover {
+  background: #FFF0E3;
+}
+
+.suggestions svg {
+  color: #FF6B00;
+}
+
+.features {
+  background: #FFFBF8;
+}
+
+.featuregrid article {
+  border-color: #FFD9BE;
+}
+
+.featuregrid article > span,
+.featureicon {
+  color: #FF6B00;
+}
+
+.featuregrid p {
+  color: #7A5A44;
+}
+
+.history {
+  background: linear-gradient(110deg, #FF6B00, #E94B24);
+  color: #FFFFFF;
+}
+
+.history .eyebrow,
+.history p {
+  color: #FFF0E3;
+}
+
+.historylist article {
+  background: rgba(255, 255, 255, .16);
+  border: 1px solid rgba(255, 255, 255, .2);
+}
+
+.status {
+  color: #FFF0C2;
+}
+
+.status.completed {
+  color: #D5FFE4;
+}
+
+.status.cancelled {
+  color: #FFE0E0;
+}
+
+.outline,
+.login {
+  border-color: #FFD9BE;
+  color: #C84D00;
+}
+
+.modalback {
+  background: rgba(36, 19, 11, .72);
+}
+
+.modal {
+  border: 1px solid #FFD9BE;
+  background: #FFFBF8;
+}
+
+.close {
+  background: #FFF0E3;
+  color: #C84D00;
+}
+
+footer {
+  background: #FFF0E3;
+  color: #7A5A44;
+}
+
+footer .brand {
+  color: #24130B;
+}
+
+@media (max-width: 800px) {
+  .mobilemenu {
+    background: #FFFFFF;
+    border-color: #FFD9BE;
+  }
+}
