@@ -37,6 +37,11 @@ const RENTAL_CITY: Record<string, { fares: number[]; km: number; extraKm: number
 };
 const DRIVER_VEHICLES = ["Hatchback", "Sedan", "SUV"];
 const money = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
+const normalizeCity = (value?: string) => (value || "").trim().toLocaleLowerCase("en-IN").replace(/\\s+/g, " ");
+const getAutoCabArea = (pickup: Place | null, drop: Place | null): Area | null => {
+  if (!pickup?.city || !drop?.city) return null;
+  return normalizeCity(pickup.city) === normalizeCity(drop.city) ? "city" : "outstation";
+};
 const isIndia = (lat: number, lon: number) => lat >= 6 && lat <= 38.5 && lon >= 68 && lon <= 97.5;
 const distanceBetween = (a: Place, b: Place) => {
   const r = 6371, rad = (v: number) => (v * Math.PI) / 180;
@@ -81,7 +86,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
 
-  const words = {
+  const autoCabArea = getAutoCabArea(pickupPoint, dropPoint);\n  const bookingArea: Area | null = service === "cab" ? autoCabArea : area;\n\n  const words = {
     en: { tagline: "Your ride. Your way.", pickup: "Pickup location", drop: "Destination", book: "Book now", login: "Login with email", history: "Your bookings" },
     kn: { tagline: "ನಿಮ್ಮ ಪ್ರಯಾಣ, ನಿಮ್ಮ ಆಯ್ಕೆ.", pickup: "ಪಿಕಪ್ ಸ್ಥಳ", drop: "ತಲುಪುವ ಸ್ಥಳ", book: "ಈಗ ಬುಕ್ ಮಾಡಿ", login: "ಇಮೇಲ್ ಮೂಲಕ ಲಾಗಿನ್", history: "ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳು" },
     hi: { tagline: "आपकी सवारी, आपका तरीका।", pickup: "पिकअप स्थान", drop: "गंतव्य", book: "अभी बुक करें", login: "ईमेल से लॉगिन", history: "आपकी बुकिंग" },
@@ -117,7 +122,7 @@ export default function Home() {
       const json = await res.json();
       const options: Place[] = (json.features || []).map((f: any) => {
         const p = f.properties || {};
-        const city = p.city || p.town || p.village || p.county || "";
+        const city = p.city || p.town || p.village || p.municipality || "";
         const state = p.state || "";
         const name = p.name || p.street || p.postcode || city || "Location";
         return { name, city, state, country: p.country, label: [name, city, state].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(", "), lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0] };
@@ -159,7 +164,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (!pickupPoint || !dropPoint || area !== "city" && service === "cab") { setDistance(null); setEta(null); return; }
+    if (!pickupPoint || !dropPoint) { setDistance(null); setEta(null); return; }
     let cancelled = false;
     setRouteLoading(true);
     fetch(`https://router.project-osrm.org/route/v1/driving/${pickupPoint.lon},${pickupPoint.lat};${dropPoint.lon},${dropPoint.lat}?overview=false`)
@@ -178,7 +183,7 @@ export default function Home() {
     const hour = travelDate.getHours();
     const autoNight = hour >= 22 || hour < 5;
     const cabNight = hour >= 23 || hour < 5;
-    if (service === "cab" && area === "city") {
+    if (service === "cab" && bookingArea === "city") {
       if (ride === "Auto") {
         const base = distance ? Math.max(36, 36 + Math.max(0, distance - 2) * 18) : 0;
         return base ? (autoNight ? base * 1.5 : base) : 0;
@@ -187,10 +192,9 @@ export default function Home() {
       const base = rate && distance ? Math.max(rate.min, rate.min + Math.max(0, distance - 4) * (ac === "AC" ? rate.ac : rate.nonAc)) : 0;
       return base ? base + (cabNight ? 50 : 0) : 0;
     }
-    if (service === "cab" && area === "outstation") {
+    if (service === "cab" && bookingArea === "outstation") {
       const rate = OUTSTATION[ride];
-      const totalKm = distance ? (tripType === "round-trip" ? distance * 2 : distance) : 0;
-      return rate && totalKm ? (tripType === "round-trip" ? Math.max(totalKm, 300 * days) * rate.round + rate.bata * days : totalKm * rate.one + rate.bata) : 0;
+      return rate && distance ? distance * rate.one + rate.bata : 0;
     }
     if (service === "driver" && area === "city") return tripType === "round-trip" ? 299 + Math.max(0, hours - 2) * 60 * 2.5 : 399 + Math.max(0, hours - 2) * 60 * 2.5;
     if (service === "driver" && area === "outstation") return days === 1 ? 1300 : 1499 * days;
@@ -201,7 +205,7 @@ export default function Home() {
       return rate ? (Math.max(totalKm, days * 300) * rate.round) + rate.bata * days : 0;
     }
     return 0;
-  }, [service, area, ride, ac, distance, tripType, days, hours, packageIndex, date, time]);
+  }, [service, bookingArea, area, ride, ac, distance, tripType, days, hours, packageIndex, date, time]);
 
   function choosePlace(place: Place, kind: "pickup" | "drop") {
     if (kind === "pickup") { setPickup(place.label); setPickupPoint(place); setPickupOptions([]); }
@@ -210,7 +214,7 @@ export default function Home() {
   }
 
   function changeService(next: Service) {
-    setService(next); setArea("city"); setTripType("round-trip");
+    setService(next); setArea("city"); setTripType(next === "cab" ? "one-way" : "round-trip");
     setDistance(null); setEta(null); setNotice("");
     if (next === "cab") setRide("Sedan");
     if (next === "driver") setRide("Sedan");
@@ -227,7 +231,7 @@ export default function Home() {
   }
 
   function getScheduledAt() {
-    if (schedule === "now" && service === "cab" && area === "city") return null;
+    if (schedule === "now" && service === "cab" && bookingArea === "city") return null;
     if (!date || !time) return undefined;
     return new Date(`${date}T${time}`).toISOString();
   }
@@ -238,18 +242,18 @@ export default function Home() {
     if (!pickup.trim()) { setNotice("Please select a pickup location."); return; }
     if (!drop.trim()) { setNotice("Please select a destination."); return; }
     if (!pickupPoint || !dropPoint) { setNotice("Please choose both locations from the suggestions."); return; }
-    if (distance === null || routeLoading) { setNotice("Please wait while we calculate the road distance."); return; }
+    if (service === "cab" && !bookingArea) { setNotice("Please select both locations from the suggestions so we can detect City / Outstation."); return; }\n    if (distance === null || routeLoading) { setNotice("Please wait while we calculate the road distance."); return; }
     if (schedule === "later" && (!date || !time)) { setNotice("Please select your pickup date and time."); return; }
-    if ((service !== "cab" || area === "outstation") && (!date || !time)) { setNotice("Please select your travel date and time."); return; }
+    if ((service !== "cab" || bookingArea === "outstation") && (!date || !time)) { setNotice("Please select your travel date and time."); return; }
     if (!fare) { setNotice("Fare could not be calculated. Please check your locations."); return; }
 
     const scheduledAt = getScheduledAt();
     if (scheduledAt === undefined) { setNotice("Please select date and time."); return; }
-    const serviceLabel = service === "cab" ? (area === "city" ? "cab_city" : "cab_outstation") : service === "driver" ? (area === "city" ? "driver_city" : "driver_outstation") : (area === "city" ? "rental_city" : "rental_outstation");
+    const serviceLabel = service === "cab" ? (bookingArea === "city" ? "cab_city" : "cab_outstation") : service === "driver" ? (area === "city" ? "driver_city" : "driver_outstation") : (area === "city" ? "rental_city" : "rental_outstation");
     const details = {
-      service, area, trip_type: tripType, ac_preference: service === "rental" || service === "cab" ? ac : null,
+      service, area: bookingArea, trip_type: service === "cab" ? "one-way" : tripType, ac_preference: service === "rental" || service === "cab" ? ac : null,
       distance_km: distance, eta_minutes: eta, hours: service === "driver" && area === "city" ? hours : null,
-      days: area === "outstation" ? days : null,
+      days: service !== "cab" && area === "outstation" ? days : null,
       rental_package: service === "rental" && area === "city" ? ["1 hour / 10 km", "2 hours / 20 km", "3 hours / 30 km"][packageIndex] : null,
       gear: service === "driver" ? gear : null,
       customer_vehicle_class: service === "driver" ? driverVehicle : null,
@@ -270,8 +274,8 @@ export default function Home() {
 
   async function signOut() { await supabase.auth.signOut(); setSession(null); setBookings([]); }
 
-  const vehicleOptions = service === "cab" ? (area === "city" ? ["Auto", "Hatchback", "Sedan", "Ertiga", "Innova Crysta"] : ["Hatchback", "Sedan", "Ertiga", "Innova Crysta"]) : service === "rental" ? (area === "city" ? ["Hatchback", "Sedan", "MPV", "SUV"] : ["Hatchback", "Sedan", "Ertiga", "Innova Crysta"]) : [];
-  const needsDate = service !== "cab" || area === "outstation" || schedule === "later";
+  const vehicleOptions = service === "cab" ? (bookingArea === "city" ? ["Auto", "Hatchback", "Sedan", "Ertiga", "Innova Crysta"] : ["Hatchback", "Sedan", "Ertiga", "Innova Crysta"]) : service === "rental" ? (area === "city" ? ["Hatchback", "Sedan", "MPV", "SUV"] : ["Hatchback", "Sedan", "Ertiga", "Innova Crysta"]) : [];
+  const needsDate = service !== "cab" || bookingArea === "outstation" || schedule === "later";
 
   return (
     <main className="site-shell">
@@ -303,20 +307,22 @@ export default function Home() {
 
         <div className="booking-card">
           <div className="card-topline"><div><span className="step-label">01 / SERVICE DETAILS</span><h3>{service === "cab" ? "Where are you heading?" : service === "driver" ? "Hire a driver for your car" : "Rent a cab for your journey"}</h3></div><span className="card-icon"><CarFront/></span></div>
-          <div className="choice-row">
-            <button className={area === "city" ? "choice active" : "choice"} onClick={() => {setArea("city"); setDistance(null);}}>City</button>
-            <button className={area === "outstation" ? "choice active" : "choice"} onClick={() => {setArea("outstation"); setDistance(null);}}>Outstation</button>
-          </div>
+          {service === "cab" ? (
+            <div className="auto-area-note">
+              <span className="auto-area-dot" />
+              {bookingArea === "city" ? "City ride detected" : bookingArea === "outstation" ? "Outstation ride detected · One Way" : "Select pickup and destination to detect City / Outstation"}
+            </div>
+          ) : (
+            <div className="choice-row">
+              <button className={area === "city" ? "choice active" : "choice"} onClick={() => {setArea("city"); setDistance(null);}}>City</button>
+              <button className={area === "outstation" ? "choice active" : "choice"} onClick={() => {setArea("outstation"); setDistance(null);}}>Outstation</button>
+            </div>
+          )}
 
           {service === "driver" && <div className="choice-row secondary-choice">
             <button className={tripType === "one-way" ? "choice active" : "choice"} onClick={() => setTripType("one-way")}>One Way</button>
             <button className={tripType === "round-trip" ? "choice active" : "choice"} onClick={() => setTripType("round-trip")}>Round Trip</button>
           </div>}
-          {service === "cab" && area === "outstation" && <div className="choice-row secondary-choice">
-            <button className={tripType === "one-way" ? "choice active" : "choice"} onClick={() => setTripType("one-way")}>One Way</button>
-            <button className={tripType === "round-trip" ? "choice active" : "choice"} onClick={() => setTripType("round-trip")}>Round Trip</button>
-          </div>}
-
           <div className="location-grid">
             <div className="field-wrap">
               <label>{words.pickup}</label>
@@ -336,16 +342,16 @@ export default function Home() {
 
           {service === "rental" && area === "city" && <><div className="field-label">Select rental package</div><div className="package-grid">{(RENTAL_CITY[ride] || RENTAL_CITY.Hatchback).fares.map((f, i) => <button key={i} className={packageIndex === i ? "package-option selected" : "package-option"} onClick={() => setPackageIndex(i)}><b>{i + 1} {i === 0 ? "Hour" : "Hours"}</b><small>{(i + 1) * 10} KM included</small><strong>{money(f)}</strong></button>)}</div><p className="hint">Extra kilometres and extra time are charged separately. AC / Non-AC has the same fare.</p></>}
           {service === "driver" && <><div className="field-label">Your car details</div><div className="option-fields"><label>Gear<select value={gear} onChange={e => setGear(e.target.value as any)}><option>Manual</option><option>Automatic</option></select></label><label>Vehicle type<select value={driverVehicle} onChange={e => setDriverVehicle(e.target.value)}>{DRIVER_VEHICLES.map(v => <option key={v}>{v}</option>)}</select></label></div>{area === "city" && <label className="wide-field">Required hours (minimum 2)<input type="number" min="2" max="24" value={hours} onChange={e => setHours(Math.max(2, Number(e.target.value) || 2))}/></label>}</>}
-          {area === "outstation" && <label className="wide-field">Number of days<input type="number" min="1" max="30" value={days} onChange={e => setDays(Math.max(1, Math.min(30, Number(e.target.value) || 1)))}/></label>}
+          {service !== "cab" && area === "outstation" && <label className="wide-field">Number of days<input type="number" min="1" max="30" value={days} onChange={e => setDays(Math.max(1, Math.min(30, Number(e.target.value) || 1)))}/></label>}
 
-          {service === "cab" && area === "city" && <div className="schedule-row"><span><CalendarDays size={17}/> When do you need the cab?</span><button className={schedule === "now" ? "pill active" : "pill"} onClick={() => setSchedule("now")}>Now</button><button className={schedule === "later" ? "pill active" : "pill"} onClick={() => setSchedule("later")}>Later</button></div>}
+          {service === "cab" && bookingArea === "city" && <div className="schedule-row"><span><CalendarDays size={17}/> When do you need the cab?</span><button className={schedule === "now" ? "pill active" : "pill"} onClick={() => setSchedule("now")}>Now</button><button className={schedule === "later" ? "pill active" : "pill"} onClick={() => setSchedule("later")}>Later</button></div>}
           {needsDate && <div className="option-fields date-fields"><label>Travel date<input type="date" value={date} min={new Date().toISOString().slice(0,10)} onChange={e => setDate(e.target.value)}/></label><label>Pickup time<input type="time" value={time} onChange={e => setTime(e.target.value)}/></label></div>}
 
           <div className="fare-panel">
             <div className="fare-info"><span className="step-label">ESTIMATED FARE</span><strong>{fare ? money(fare) : "—"}</strong><small>{routeLoading ? "Calculating road distance…" : distance !== null ? `${distance.toFixed(1)} km${eta ? ` · ${eta} min approx.` : ""}` : "Select pickup and destination to estimate"}</small></div>
             <button className="book-button" onClick={book} disabled={busy || routeLoading}>{busy ? <Loader2 className="spin"/> : null}{words.book}<ArrowRight size={18}/></button>
           </div>
-          {service === "cab" && area === "outstation" && <p className="hint">Round trip minimum billing is 300 km per day. Toll and parking are extra at actuals. Final fare may vary based on completed trip.</p>}
+          {service === "cab" && bookingArea === "outstation" && <p className="hint">One-way outstation fare. Toll and parking are extra at actuals. Final fare may vary based on completed trip.</p>}
           {service === "driver" && area === "outstation" && <p className="hint">One day (up to 12 hours): ₹1,300. Two or more days: ₹1,499 per day. For 2+ days, food is to be provided separately by the customer. Extra hour on a one-day booking: ₹130.</p>}
           {service === "rental" && area === "outstation" && <p className="hint">Round trip only. Minimum 300 km per day. AC / Non-AC is a preference at the same fare. Toll and parking are extra at actuals.</p>}
           {notice && <div className={notice.toLowerCase().includes("successful") || notice.toLowerCase().includes("sent") ? "notice success" : "notice"}>{notice}</div>}
