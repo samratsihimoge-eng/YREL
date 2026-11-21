@@ -71,20 +71,32 @@ export async function POST(request: NextRequest) {
         method: "POST",
         headers: {
           authkey: authKey,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Accept: "application/json"
         },
         body: JSON.stringify({
-          var1: "YREL "
+          var1: "YREL"
         }),
         cache: "no-store",
-        signal: AbortSignal.timeout(4500)
+        signal: AbortSignal.timeout(4000)
       }
     );
 
-    const result = await response.json();
+    const responseText = await response.text();
+
+    let result: { type?: string };
+
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      result = {};
+    }
 
     if (!response.ok || result.type !== "success") {
-      console.error("MSG91 delivery failed:", result);
+      console.error("MSG91 SMS request failed:", {
+        status: response.status,
+        type: result.type
+      });
 
       return NextResponse.json(
         { error: "SMS delivery failed" },
@@ -92,10 +104,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true });
+    return new NextResponse(null, { status: 200 });
 
   } catch (error) {
-    console.error("Send SMS hook error:", error);
+    console.error(
+      "Send SMS hook error:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
 
     return NextResponse.json(
       { error: "Unable to process SMS request" },
