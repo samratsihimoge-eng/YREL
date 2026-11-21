@@ -97,7 +97,7 @@ export default function Home() {
   const bookingArea: Area | null = service === "cab" ? autoCabArea : area;
 
   const words = {
-    en: { tagline: "Your ride. Your way.", pickup: "Pickup location", drop: "Destination", book: "Book now", login: "Continue with Google", history: "Your bookings" },
+    en: { tagline: "Your city. Your ride. Your time.", pickup: "Pickup location", drop: "Destination", book: "Book now", login: "Continue with Google", history: "Your bookings" },
     kn: { tagline: "ನಿಮ್ಮ ಪ್ರಯಾಣ, ನಿಮ್ಮ ಆಯ್ಕೆ.", pickup: "ಪಿಕಪ್ ಸ್ಥಳ", drop: "ತಲುಪುವ ಸ್ಥಳ", book: "ಈಗ ಬುಕ್ ಮಾಡಿ", login: "Google ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ", history: "ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳು" },
     hi: { tagline: "आपकी सवारी, आपका तरीका।", pickup: "पिकअप स्थान", drop: "गंतव्य", book: "अभी बुक करें", login: "Google से जारी रखें", history: "आपकी बुकिंग" },
   }[language];
@@ -405,7 +405,7 @@ export default function Home() {
   return (
     <main className="site-shell">
       <header className="topbar">
-        <a className="brand" href="#"><span className="brand-mark">Y</span><span>YREL<small>RIDE WITH EASE</small></span></a>
+        <a className="brand" href="#" aria-label="YREL home"><img className="brand-logo" src="https://plain-apac-prod-public.komododecks.com/202611/21/ql4TUh04MfEfkh9a43JX/image.png" alt="YREL — Run with Fun" /></a>
         <nav className="desktop-nav"><a href="#services">Services</a><a href="#how">How it works</a><a href="#history">My bookings</a></nav>
         <div className="top-actions">
           <select className="language-select" value={language} onChange={e => setLanguage(e.target.value as any)} aria-label="Language">
@@ -418,7 +418,7 @@ export default function Home() {
       {menuOpen && <nav className="mobile-nav"><a href="#services" onClick={() => setMenuOpen(false)}>Services</a><a href="#how" onClick={() => setMenuOpen(false)}>How it works</a><a href="#history" onClick={() => setMenuOpen(false)}>My bookings</a></nav>}
 
       <section className="hero">
-        <div className="hero-copy"><span className="eyebrow"><span className="eyebrow-dot"/> SIMPLE. SAFE. RELIABLE.</span><h1>{words.tagline}<br/><em>Go places with YREL.</em></h1><p>Book a cab, hire a professional driver, or reserve a rental car — all in one place.</p><div className="hero-points"><span><ShieldCheck size={17}/> Reliable service</span><span><MapPin size={17}/> Across India</span></div></div>
+        <div className="hero-copy"><span className="eyebrow"><span className="eyebrow-dot"/> SIMPLE. SAFE. RELIABLE.</span><h1>{language === "en" ? <>Your city.<br/><em>Your ride.</em><br/>Your time.</> : words.tagline}</h1><p>Book a cab, hire a professional driver, or reserve a rental car — all in one place.</p><div className="hero-points"><span><ShieldCheck size={17}/> Reliable service</span><span><MapPin size={17}/> Across India</span></div></div>
         <div className="hero-art"><div className="sun-disc"/><div className="road-line"/><div className="hero-car"><CarFront size={104} strokeWidth={1.2}/></div><div className="floating-tag"><span className="tag-icon"><Navigation size={17}/></span><span><b>Your journey starts here</b><small>Book in a few simple steps</small></span></div></div>
       </section>
 
@@ -486,7 +486,7 @@ export default function Home() {
         {profileLoading ? <div className="empty-history">Loading your customer account…</div> : !customer ? <div className="empty-history">Complete your customer profile to view bookings and book a ride.</div> : <><div className="empty-history" style={{marginBottom:16,textAlign:"left"}}><b>{customer.full_name}</b><br/>Customer ID: <b>{customer.customer_code}</b><br/><small>Mobile: {customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</small></div>{bookings.length === 0 ? <div className="empty-history">Your bookings will appear here after you book a service.</div> : <div className="history-list">{bookings.map(b => <article className="history-item" key={b.id}><div className="history-icon"><CarFront/></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_", " ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString()}</small></div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className="status">{b.status}</span></div></article>)}</div>}</>}
       </section>}
 
-      <footer className="footer"><a className="brand" href="#"><span className="brand-mark">Y</span><span>YREL<small>RIDE WITH EASE</small></span></a><span>© {new Date().getFullYear()} YREL. All rights reserved.</span><span>Made for easier journeys.</span></footer>
+      <footer className="footer"><a className="brand" href="#" aria-label="YREL home"><img className="brand-logo" src="https://plain-apac-prod-public.komododecks.com/202611/21/ql4TUh04MfEfkh9a43JX/image.png" alt="YREL — Run with Fun" /></a><span>© {new Date().getFullYear()} YREL. All rights reserved.</span><span className="footer-tagline">Your ride. Your fun. Just YREL it.</span></footer>
 
       {authOpen && <div className="modal-backdrop" onClick={closeAuth}><div className="auth-modal" onClick={e => e.stopPropagation()}><button className="modal-close" onClick={closeAuth}><X/></button><div className="modal-symbol"><UserRound/></div><span className="eyebrow">WELCOME TO YREL</span><h2>Continue with Google</h2><p>Enter your 10-digit mobile number, then sign in securely with your Google Account.</p><label className="wide-field">Mobile number<div className="location-input"><span>+91</span><input className="email-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number"/></div></label><p className="hint">Your mobile number is saved as unverified until phone verification is added.</p><button className="book-button full" onClick={startGoogleLogin} disabled={busy}>{busy ? <Loader2 className="spin"/> : null}<span>Continue with Google</span><ArrowRight size={18}/></button>{notice && <div className="notice">{notice}</div>}</div></div>}
 
