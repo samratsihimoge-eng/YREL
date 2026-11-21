@@ -16,6 +16,15 @@ type Booking = {
   pickup: string; dropoff: string | null; scheduled_at: string | null;
   estimated_fare: number; status: string; created_at: string; booking_details?: Record<string, unknown>;
 };
+type Customer = {
+  id: string;
+  customer_code: string;
+  full_name: string;
+  phone: string | null;
+  phone_verified: boolean;
+};
+
+const PHONE_STORAGE_KEY = "yrel_pending_customer_phone";
 
 const CITY_CAB: Record<string, { min: number; nonAc: number; ac: number }> = {
   Hatchback: { min: 105, nonAc: 18, ac: 22 },
@@ -43,12 +52,6 @@ const getAutoCabArea = (pickup: Place | null, drop: Place | null): Area | null =
   return normalizeCity(pickup.city) === normalizeCity(drop.city) ? "city" : "outstation";
 };
 const isIndia = (lat: number, lon: number) => lat >= 6 && lat <= 38.5 && lon >= 68 && lon <= 97.5;
-const distanceBetween = (a: Place, b: Place) => {
-  const r = 6371, rad = (v: number) => (v * Math.PI) / 180;
-  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
-  const x = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
-  return r * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
-};
 
 export default function Home() {
   const [service, setService] = useState<Service>("cab");
@@ -76,11 +79,14 @@ export default function Home() {
   const [packageIndex, setPackageIndex] = useState(0);
   const [gear, setGear] = useState<"Manual" | "Automatic">("Manual");
   const [driverVehicle, setDriverVehicle] = useState("Sedan");
+
   const [session, setSession] = useState<any>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
+  const [fullName, setFullName] = useState("");
   const [authOpen, setAuthOpen] = useState(false);
+  const [profileSetupOpen, setProfileSetupOpen] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
@@ -91,28 +97,73 @@ export default function Home() {
   const bookingArea: Area | null = service === "cab" ? autoCabArea : area;
 
   const words = {
-    en: { tagline: "Your ride. Your way.", pickup: "Pickup location", drop: "Destination", book: "Book now", login: "Login with mobile", history: "Your bookings" },
-    kn: { tagline: "ನಿಮ್ಮ ಪ್ರಯಾಣ, ನಿಮ್ಮ ಆಯ್ಕೆ.", pickup: "ಪಿಕಪ್ ಸ್ಥಳ", drop: "ತಲುಪುವ ಸ್ಥಳ", book: "ಈಗ ಬುಕ್ ಮಾಡಿ", login: "ಮೊಬೈಲ್ ಮೂಲಕ ಲಾಗಿನ್", history: "ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳು" },
-    hi: { tagline: "आपकी सवारी, आपका तरीका।", pickup: "पिकअप स्थान", drop: "गंतव्य", book: "अभी बुक करें", login: "मोबाइल से लॉगिन", history: "आपकी बुकिंग" },
+    en: { tagline: "Your ride. Your way.", pickup: "Pickup location", drop: "Destination", book: "Book now", login: "Continue with Google", history: "Your bookings" },
+    kn: { tagline: "ನಿಮ್ಮ ಪ್ರಯಾಣ, ನಿಮ್ಮ ಆಯ್ಕೆ.", pickup: "ಪಿಕಪ್ ಸ್ಥಳ", drop: "ತಲುಪುವ ಸ್ಥಳ", book: "ಈಗ ಬುಕ್ ಮಾಡಿ", login: "Google ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ", history: "ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳು" },
+    hi: { tagline: "आपकी सवारी, आपका तरीका।", pickup: "पिकअप स्थान", drop: "गंतव्य", book: "अभी बुक करें", login: "Google से जारी रखें", history: "आपकी बुकिंग" },
   }[language];
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      if (data.session?.user) loadBookings(data.session.user.id);
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, next) => {
-      setSession(next);
-      if (next?.user) loadBookings(next.user.id);
-      else setBookings([]);
-    });
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
   async function loadBookings(userId: string) {
-    const { data } = await supabase.from("bookings").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(20);
-    if (data) setBookings(data as Booking[]);
+    const { data, error } = await supabase.from("bookings").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(20);
+    if (!error && data) setBookings(data as Booking[]);
   }
+
+  async function loadCustomer(userId: string) {
+    setProfileLoading(true);
+    const { data, error } = await supabase
+      .from("customers")
+      .select("id, customer_code, full_name, phone, phone_verified")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (error) {
+      setNotice(`Customer profile error: ${error.message}`);
+      setCustomer(null);
+      setProfileLoading(false);
+      return;
+    }
+
+    if (data) {
+      setCustomer(data as Customer);
+      setProfileSetupOpen(false);
+      localStorage.removeItem(PHONE_STORAGE_KEY);
+      await loadBookings(userId);
+    } else {
+      setCustomer(null);
+      setProfileSetupOpen(true);
+      const pendingPhone = localStorage.getItem(PHONE_STORAGE_KEY) || "";
+      setPhone(pendingPhone);
+      setBookings([]);
+    }
+    setProfileLoading(false);
+  }
+
+  useEffect(() => {
+    let mounted = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      setSession(data.session);
+      if (data.session?.user) void loadCustomer(data.session.user.id);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, next) => {
+      if (!mounted) return;
+      setSession(next);
+      if (next?.user) {
+        // Run profile/database work outside the auth callback.
+        window.setTimeout(() => { if (mounted) void loadCustomer(next.user.id); }, 0);
+      } else {
+        setCustomer(null);
+        setBookings([]);
+        setProfileSetupOpen(false);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
   async function searchPlaces(value: string, kind: "pickup" | "drop") {
     if (value.trim().length < 3) {
@@ -138,11 +189,12 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const t = setTimeout(() => { if (activeSearch === "pickup") searchPlaces(pickup, "pickup"); }, 350);
+    const t = setTimeout(() => { if (activeSearch === "pickup") void searchPlaces(pickup, "pickup"); }, 350);
     return () => clearTimeout(t);
   }, [pickup, activeSearch, searchCenter]);
+
   useEffect(() => {
-    const t = setTimeout(() => { if (activeSearch === "drop") searchPlaces(drop, "drop"); }, 350);
+    const t = setTimeout(() => { if (activeSearch === "drop") void searchPlaces(drop, "drop"); }, 350);
     return () => clearTimeout(t);
   }, [drop, activeSearch, searchCenter]);
 
@@ -162,7 +214,10 @@ export default function Home() {
         const state = p.state || "";
         const place: Place = { name, city, state, lat, lon, label: [name, city, state].filter(Boolean).join(", ") };
         setPickup(place.label); setPickupPoint(place); setActiveSearch(null);
-      } catch { setPickup("Current location"); setPickupPoint({ name: "Current location", label: "Current location", lat, lon }); }
+      } catch {
+        setPickup("Current location");
+        setPickupPoint({ name: "Current location", label: "Current location", lat, lon });
+      }
       setLocating(false);
     }, () => { setNotice("Please allow location permission and try again."); setLocating(false); }, { enableHighAccuracy: true, timeout: 12000 });
   }
@@ -220,70 +275,78 @@ export default function Home() {
   function changeService(next: Service) {
     setService(next); setArea("city"); setTripType(next === "cab" ? "one-way" : "round-trip");
     setDistance(null); setEta(null); setNotice("");
-    if (next === "cab") setRide("Sedan");
-    if (next === "driver") setRide("Sedan");
+    if (next === "cab" || next === "driver") setRide("Sedan");
     if (next === "rental") setRide("Hatchback");
   }
 
   function closeAuth() {
     setAuthOpen(false);
-    setOtpSent(false);
-    setOtp("");
-    setPhone("");
+    setNotice("");
   }
 
-  async function sendLoginOtp() {
+  async function startGoogleLogin() {
     const digits = phone.replace(/\D/g, "");
     if (!/^[6-9]\d{9}$/.test(digits)) {
-      setNotice("Please enter a valid 10-digit Indian mobile number.");
+      setNotice("ದಯವಿಟ್ಟು ಸರಿಯಾದ 10 ಅಂಕಿಯ Indian mobile number ನಮೂದಿಸಿ.");
       return;
     }
-
     setBusy(true);
     setNotice("");
-    const { error } = await supabase.auth.signInWithOtp({ phone: `+91${digits}` });
-    setBusy(false);
-
-    if (error) {
-      setNotice(error.message);
-      return;
-    }
-
-    setPhone(digits);
-    setOtp("");
-    setOtpSent(true);
-    setNotice("OTP sent. Please check your mobile phone.");
-  }
-
-  async function verifyLoginOtp() {
-    const digits = phone.replace(/\D/g, "");
-    const code = otp.replace(/\D/g, "");
-
-    if (!/^[6-9]\d{9}$/.test(digits)) {
-      setNotice("Please enter a valid 10-digit Indian mobile number.");
-      return;
-    }
-    if (!/^\d{6}$/.test(code)) {
-      setNotice("Please enter the 6-digit OTP.");
-      return;
-    }
-
-    setBusy(true);
-    setNotice("");
-    const { error } = await supabase.auth.verifyOtp({
-      phone: `+91${digits}`,
-      token: code,
-      type: "sms",
+    localStorage.setItem(PHONE_STORAGE_KEY, digits);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
     });
-    setBusy(false);
-
     if (error) {
+      setBusy(false);
       setNotice(error.message);
+      localStorage.removeItem(PHONE_STORAGE_KEY);
+    }
+    // On success, the browser is redirected to Google.
+  }
+
+  async function createCustomerProfile() {
+    const name = fullName.trim();
+    const digits = (phone || localStorage.getItem(PHONE_STORAGE_KEY) || "").replace(/\D/g, "");
+    if (!name || name.length < 2) {
+      setNotice("ದಯವಿಟ್ಟು ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ.");
+      return;
+    }
+    if (!session?.user) {
+      setNotice("Google Login session ಸಿಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ Login ಮಾಡಿ.");
+      return;
+    }
+    if (!/^[6-9]\d{9}$/.test(digits)) {
+      setNotice("ದಯವಿಟ್ಟು ಸರಿಯಾದ 10 ಅಂಕಿಯ Indian mobile number ನಮೂದಿಸಿ.");
       return;
     }
 
-    closeAuth();
-    setNotice("Login successful. You can now book your ride.");
+    setBusy(true);
+    setNotice("");
+    const { data, error } = await supabase.from("customers").insert({
+      id: session.user.id,
+      full_name: name,
+      phone: `+91${digits}`,
+      phone_verified: false,
+    }).select("id, customer_code, full_name, phone, phone_verified").single();
+
+    setBusy(false);
+    if (error) {
+      if (error.code === "23505") {
+        setNotice("ಈ Google Account‌ಗೆ Customer Profile ಈಗಾಗಲೇ ಇದೆ. ಪುಟವನ್ನು Refresh ಮಾಡಿ.");
+      } else {
+        setNotice(`Profile save failed: ${error.message}`);
+      }
+      return;
+    }
+
+    setCustomer(data as Customer);
+    setProfileSetupOpen(false);
+    setAuthOpen(false);
+    localStorage.removeItem(PHONE_STORAGE_KEY);
+    setFullName("");
+    setNotice(`ಸ್ವಾಗತ ${data.full_name}! ನಿಮ್ಮ Customer ID: ${data.customer_code}`);
+    await loadBookings(session.user.id);
   }
 
   function getScheduledAt() {
@@ -295,6 +358,7 @@ export default function Home() {
   async function book() {
     setNotice("");
     if (!session?.user) { setAuthOpen(true); return; }
+    if (!customer) { setProfileSetupOpen(true); return; }
     if (!pickup.trim()) { setNotice("Please select a pickup location."); return; }
     if (!drop.trim()) { setNotice("Please select a destination."); return; }
     if (!pickupPoint || !dropPoint) { setNotice("Please choose both locations from the suggestions."); return; }
@@ -329,7 +393,11 @@ export default function Home() {
     setPickup(""); setDrop(""); setPickupPoint(null); setDropPoint(null); setDistance(null); setEta(null);
   }
 
-  async function signOut() { await supabase.auth.signOut(); setSession(null); setBookings([]); }
+  async function signOut() {
+    await supabase.auth.signOut();
+    localStorage.removeItem(PHONE_STORAGE_KEY);
+    setSession(null); setCustomer(null); setBookings([]);
+  }
 
   const vehicleOptions = service === "cab" ? (bookingArea === "city" ? ["Auto", "Hatchback", "Sedan", "Ertiga", "Innova Crysta"] : ["Hatchback", "Sedan", "Ertiga", "Innova Crysta"]) : service === "rental" ? (area === "city" ? ["Hatchback", "Sedan", "MPV", "SUV"] : ["Hatchback", "Sedan", "Ertiga", "Innova Crysta"]) : [];
   const needsDate = service !== "cab" || bookingArea === "outstation" || schedule === "later";
@@ -343,7 +411,7 @@ export default function Home() {
           <select className="language-select" value={language} onChange={e => setLanguage(e.target.value as any)} aria-label="Language">
             <option value="en">English</option><option value="kn">ಕನ್ನಡ</option><option value="hi">हिन्दी</option>
           </select>
-          {session ? <button className="login-button" onClick={signOut}><LogOut size={16}/> Sign out</button> : <button className="login-button" onClick={() => setAuthOpen(true)}><UserRound size={16}/> Login</button>}
+          {session ? <button className="login-button" onClick={signOut}><LogOut size={16}/> Sign out</button> : <button className="login-button" onClick={() => { setNotice(""); setAuthOpen(true); }}><UserRound size={16}/> Login</button>}
           <button className="mobile-menu" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">{menuOpen ? <X/> : <Menu/>}</button>
         </div>
       </header>
@@ -365,10 +433,7 @@ export default function Home() {
         <div className="booking-card">
           <div className="card-topline"><div><span className="step-label">01 / SERVICE DETAILS</span><h3>{service === "cab" ? "Where are you heading?" : service === "driver" ? "Hire a driver for your car" : "Rent a cab for your journey"}</h3></div><span className="card-icon"><CarFront/></span></div>
           {service === "cab" ? (
-            <div className="auto-area-note">
-              <span className="auto-area-dot" />
-              {bookingArea === "city" ? "City ride detected" : bookingArea === "outstation" ? "Outstation ride detected · One Way" : "Select pickup and destination to detect City / Outstation"}
-            </div>
+            <div className="auto-area-note"><span className="auto-area-dot" />{bookingArea === "city" ? "City ride detected" : bookingArea === "outstation" ? "Outstation ride detected · One Way" : "Select pickup and destination to detect City / Outstation"}</div>
           ) : (
             <div className="choice-row">
               <button className={area === "city" ? "choice active" : "choice"} onClick={() => {setArea("city"); setDistance(null);}}>City</button>
@@ -406,24 +471,26 @@ export default function Home() {
 
           <div className="fare-panel">
             <div className="fare-info"><span className="step-label">ESTIMATED FARE</span><strong>{fare ? money(fare) : "—"}</strong><small>{routeLoading ? "Calculating road distance…" : distance !== null ? `${distance.toFixed(1)} km${eta ? ` · ${eta} min approx.` : ""}` : "Select pickup and destination to estimate"}</small></div>
-            <button className="book-button" onClick={book} disabled={busy || routeLoading}>{busy ? <Loader2 className="spin"/> : null}{words.book}<ArrowRight size={18}/></button>
+            <button className="book-button" onClick={book} disabled={busy || routeLoading || profileLoading}>{busy ? <Loader2 className="spin"/> : null}{words.book}<ArrowRight size={18}/></button>
           </div>
           {service === "cab" && bookingArea === "outstation" && <p className="hint">One-way outstation fare. Toll and parking are extra at actuals. Final fare may vary based on completed trip.</p>}
           {service === "driver" && area === "outstation" && <p className="hint">One day (up to 12 hours): ₹1,300. Two or more days: ₹1,499 per day. For 2+ days, food is to be provided separately by the customer. Extra hour on a one-day booking: ₹130.</p>}
           {service === "rental" && area === "outstation" && <p className="hint">Round trip only. Minimum 300 km per day. AC / Non-AC is a preference at the same fare. Toll and parking are extra at actuals.</p>}
-          {notice && <div className={notice.toLowerCase().includes("successful") || notice.toLowerCase().includes("sent") ? "notice success" : "notice"}>{notice}</div>}
+          {notice && !authOpen && !profileSetupOpen && <div className={notice.toLowerCase().includes("successful") || notice.toLowerCase().includes("ಸ್ವಾಗತ") ? "notice success" : "notice"}>{notice}</div>}
         </div>
       </section>
 
       <section className="trust-strip" id="how"><div><ShieldCheck/><span><b>Reliable bookings</b><small>Booking updates from YREL</small></span></div><div><MapPin/><span><b>India-wide locations</b><small>Search cities, towns and villages</small></span></div><div><Clock3/><span><b>Simple scheduling</b><small>Choose a time that works</small></span></div></section>
 
       {session && <section className="history-section" id="history"><div className="section-heading"><div><span className="eyebrow">YOUR ACCOUNT</span><h2>{words.history}</h2></div><span className="history-count">{bookings.length} recent</span></div>
-        {bookings.length === 0 ? <div className="empty-history">Your bookings will appear here after you book a service.</div> : <div className="history-list">{bookings.map(b => <article className="history-item" key={b.id}><div className="history-icon"><CarFront/></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_", " ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString()}</small></div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className="status">{b.status}</span></div></article>)}</div>}
+        {profileLoading ? <div className="empty-history">Loading your customer account…</div> : !customer ? <div className="empty-history">Complete your customer profile to view bookings and book a ride.</div> : <><div className="empty-history" style={{marginBottom:16,textAlign:"left"}}><b>{customer.full_name}</b><br/>Customer ID: <b>{customer.customer_code}</b><br/><small>Mobile: {customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</small></div>{bookings.length === 0 ? <div className="empty-history">Your bookings will appear here after you book a service.</div> : <div className="history-list">{bookings.map(b => <article className="history-item" key={b.id}><div className="history-icon"><CarFront/></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_", " ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString()}</small></div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className="status">{b.status}</span></div></article>)}</div>}</>}
       </section>}
 
       <footer className="footer"><a className="brand" href="#"><span className="brand-mark">Y</span><span>YREL<small>RIDE WITH EASE</small></span></a><span>© {new Date().getFullYear()} YREL. All rights reserved.</span><span>Made for easier journeys.</span></footer>
 
-      {authOpen && <div className="modal-backdrop" onClick={closeAuth}><div className="auth-modal" onClick={e => e.stopPropagation()}><button className="modal-close" onClick={closeAuth}><X/></button><div className="modal-symbol"><UserRound/></div><span className="eyebrow">WELCOME TO YREL</span><h2>{otpSent ? "Verify your mobile number" : "Login to continue"}</h2><p>{otpSent ? `Enter the 6-digit OTP sent to +91 ${phone}.` : "Enter your Indian mobile number. We’ll send you a 6-digit OTP."}</p>{!otpSent ? <><label className="wide-field">Mobile number<div className="location-input"><span>+91</span><input className="email-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number"/></div></label><button className="book-button full" onClick={sendLoginOtp} disabled={busy}>{busy ? "Sending OTP…" : "Send OTP"}<ArrowRight size={18}/></button></> : <><input className="email-input" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Enter 6-digit OTP"/><button className="book-button full" onClick={verifyLoginOtp} disabled={busy}>{busy ? "Verifying…" : "Verify & Login"}<ArrowRight size={18}/></button><button className="pill" onClick={sendLoginOtp} disabled={busy}>Resend OTP</button><button className="pill" onClick={() => { setOtpSent(false); setOtp(""); setNotice(""); }}>Change mobile number</button></>}{notice && <div className="notice">{notice}</div>}</div></div>}
+      {authOpen && <div className="modal-backdrop" onClick={closeAuth}><div className="auth-modal" onClick={e => e.stopPropagation()}><button className="modal-close" onClick={closeAuth}><X/></button><div className="modal-symbol"><UserRound/></div><span className="eyebrow">WELCOME TO YREL</span><h2>Continue with Google</h2><p>Enter your 10-digit mobile number, then sign in securely with your Google Account.</p><label className="wide-field">Mobile number<div className="location-input"><span>+91</span><input className="email-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number"/></div></label><p className="hint">Your mobile number is saved as unverified until phone verification is added.</p><button className="book-button full" onClick={startGoogleLogin} disabled={busy}>{busy ? <Loader2 className="spin"/> : null}<span>Continue with Google</span><ArrowRight size={18}/></button>{notice && <div className="notice">{notice}</div>}</div></div>}
+
+      {profileSetupOpen && session && <div className="modal-backdrop"><div className="auth-modal" onClick={e => e.stopPropagation()}><div className="modal-symbol"><UserRound/></div><span className="eyebrow">NEW YREL CUSTOMER</span><h2>Complete your profile</h2><p>Welcome! Enter your name to create your YREL Customer ID.</p><label className="wide-field">Full name<input className="email-input" type="text" autoComplete="name" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter your full name"/></label><label className="wide-field">Mobile number<div className="location-input"><span>+91</span><input className="email-input" type="tel" inputMode="numeric" maxLength={10} value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number"/></div></label><p className="hint">This number has not been verified. You can verify it later using WhatsApp or SMS OTP.</p><button className="book-button full" onClick={createCustomerProfile} disabled={busy || profileLoading}>{busy ? <Loader2 className="spin"/> : null}<span>Create Customer Account</span><ArrowRight size={18}/></button>{notice && <div className="notice">{notice}</div>}<button className="pill" onClick={signOut} disabled={busy}>Cancel and sign out</button></div></div>}
     </main>
   );
 }
