@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     const hookSecret = process.env.SEND_SMS_HOOK_SECRET;
     const authKey = process.env.MSG91_AUTH_KEY;
+
     const templateId = "6b01545108a09f706d05f442";
 
     if (!hookSecret || !authKey) {
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
       template_id: templateId,
       mobile,
       otp,
-      otp_expiry: "15",
+      otp_expiry: "15"
     });
 
     const response = await fetch(
@@ -70,18 +71,20 @@ export async function POST(request: NextRequest) {
         method: "POST",
         headers: {
           authkey: authKey,
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          var1: "YREL "
+        }),
         cache: "no-store",
-        signal: AbortSignal.timeout(4500),
+        signal: AbortSignal.timeout(4500)
       }
     );
 
     const result = await response.json();
 
     if (!response.ok || result.type !== "success") {
-      console.error("MSG91 SMS delivery failed:", result);
+      console.error("MSG91 delivery failed:", result);
 
       return NextResponse.json(
         { error: "SMS delivery failed" },
@@ -89,7 +92,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return new NextResponse(null, { status: 200 });
+    return NextResponse.json({ success: true });
+
   } catch (error) {
     console.error("Send SMS hook error:", error);
 
