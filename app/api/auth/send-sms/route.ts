@@ -104,8 +104,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return new NextResponse(null, { status: 200 });
-
+    return NextResponse.json({}, { status: 200 });
   } catch (error) {
     console.error(
       "Send SMS hook error:",
