@@ -1228,7 +1228,7 @@ export default function Home() {
         <a className="brand" href="#" aria-label="YREL home">
           <img
             className="brand-logo"
-            src="https://plain-apac-prod-public.komododecks.com/202611/21/ql4TUh04MfEfkh9a43JX/image.png"
+            https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Meta_AI_910575325_2212732936293188_1902682095013581796_n_20261116_163702.webp
             alt="YREL — Run with Fun"
           />
         </a>
@@ -2265,7 +2265,7 @@ export default function Home() {
         <a className="brand" href="#" aria-label="YREL home">
           <img
             className="brand-logo"
-            src="https://plain-apac-prod-public.komododecks.com/202611/21/ql4TUh04MfEfkh9a43JX/image.png"
+            https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Meta_AI_910575325_2212732936293188_1902682095013581796_n_20261116_163702.webp
             alt="YREL — Run with Fun"
           />
         </a>
