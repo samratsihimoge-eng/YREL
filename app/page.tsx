@@ -474,9 +474,6 @@ export default function Home() {
     seatCount, language,
   ]);
 
-    }
-  }, [seatShareEligible]);
-
   async function searchPlaces(
     value: string,
     kind: "pickup" | "drop"
@@ -486,7 +483,6 @@ export default function Home() {
       else setDropOptions([]);
       return;
     }
-
     try {
       const near = searchCenter
         ? `&lat=${searchCenter.lat}&lon=${searchCenter.lon}`
