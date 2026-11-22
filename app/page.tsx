@@ -1090,8 +1090,8 @@ export default function Home() {
       (!date || !time)
     ) {
       setNotice("Please select your travel date and time.");
-
-    if (!fare) {
+      return;
+    }    if (!fare) {
       setNotice(
         "Fare could not be calculated. Please check your locations."
       );
