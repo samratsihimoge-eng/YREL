@@ -210,6 +210,7 @@ export default function Home() {
 
   const [schedule, setSchedule] = useState<"now" | "later">("now");
   const [date, setDate] = useState("");
+  const [arrivalDate, setArrivalDate] = useState("");
   const [time, setTime] = useState("");
   const [hours, setHours] = useState(2);
   const [days, setDays] = useState(1);
