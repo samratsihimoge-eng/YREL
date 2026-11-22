@@ -1300,17 +1300,15 @@ export default function Home() {
             SIMPLE. SAFE. RELIABLE.
           </span>
 
-          <h1>
+          
+<h1>
   Your city.
   <br />
   <em>Your fun.</em>
   <br />
   Just YREL it.
 </h1>
-            ) : (
-              words.tagline
-            )}
-          </h1>
+          
 
           <p>
             Book a cab, hire a professional driver, or reserve a rental
