@@ -648,7 +648,13 @@ export default function Home() {
         : 399 + Math.max(0, hours - 2) * 60 * 2.5;
     }
 
-    if (service === "driver" && area === "outstation") {
+        if (service === "driver" && area === "outstation") {
+      if (tripType === "one-way") {
+        return distance !== null
+          ? 1000 + Math.max(0, distance - 250) * 2
+          : 0;
+      }
+
       return days === 1 ? 1300 : 1499 * days;
     }
 
