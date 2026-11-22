@@ -2023,11 +2023,6 @@ export default function Home() {
               />
             </label>
           )}
-
-              />
-            </label>
-          )}
-
           {service === "cab" &&
             bookingArea === "city" &&
             !seatShareMode && (
