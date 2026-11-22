@@ -408,6 +408,72 @@ export default function Home() {
       setSeatTrips([]);
       setSelectedSeatTrip(null);
       setSeatSearchDone(false);
+      
+  // Restore unfinished booking form after login redirect or page refresh.
+  useEffect(() => {
+    try {
+      const savedDraft = localStorage.getItem(BOOKING_DRAFT_STORAGE_KEY);
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        if (draft.service) setService(draft.service);
+        if (draft.area) setArea(draft.area);
+        if (draft.tripType) setTripType(draft.tripType);
+        if (draft.ride) setRide(draft.ride);
+        if (draft.ac) setAc(draft.ac);
+        if (typeof draft.pickup === "string") setPickup(draft.pickup);
+        if (typeof draft.drop === "string") setDrop(draft.drop);
+        if (draft.pickupPoint) setPickupPoint(draft.pickupPoint);
+        if (draft.dropPoint) setDropPoint(draft.dropPoint);
+        if (draft.distance !== undefined) setDistance(draft.distance);
+        if (draft.eta !== undefined) setEta(draft.eta);
+        if (draft.schedule) setSchedule(draft.schedule);
+        if (typeof draft.date === "string") setDate(draft.date);
+        if (typeof draft.arrivalDate === "string") setArrivalDate(draft.arrivalDate);
+        if (typeof draft.time === "string") setTime(draft.time);
+        if (typeof draft.hours === "number") setHours(draft.hours);
+        if (typeof draft.days === "number") setDays(draft.days);
+        if (typeof draft.packageIndex === "number") setPackageIndex(draft.packageIndex);
+        if (draft.gear) setGear(draft.gear);
+        if (typeof draft.driverVehicle === "string") setDriverVehicle(draft.driverVehicle);
+        if (typeof draft.seatShareMode === "boolean") setSeatShareMode(draft.seatShareMode);
+        if (typeof draft.seatCount === "number") {
+          setSeatCount(Math.max(1, Math.min(4, draft.seatCount)));
+        }
+        if (draft.language) setLanguage(draft.language);
+      }
+    } catch (error) {
+      console.error("Unable to restore YREL booking draft:", error);
+      localStorage.removeItem(BOOKING_DRAFT_STORAGE_KEY);
+    } finally {
+      setDraftRestored(true);
+    }
+  }, []);
+
+  // Save booking choices so Google Login does not clear the form.
+  useEffect(() => {
+    if (!draftRestored) return;
+
+    const draft = {
+      service, area, tripType, ride, ac,
+      pickup, drop, pickupPoint, dropPoint,
+      distance, eta, schedule, date, arrivalDate, time,
+      hours, days, packageIndex, gear, driverVehicle,
+      seatShareMode, seatCount, language,
+    };
+
+    try {
+      localStorage.setItem(BOOKING_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    } catch (error) {
+      console.error("Unable to save YREL booking draft:", error);
+    }
+  }, [
+    draftRestored, service, area, tripType, ride, ac,
+    pickup, drop, pickupPoint, dropPoint, distance, eta,
+    schedule, date, arrivalDate, time, hours, days,
+    packageIndex, gear, driverVehicle, seatShareMode,
+    seatCount, language,
+  ]);
+
     }
   }, [seatShareEligible]);
 
