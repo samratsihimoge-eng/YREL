@@ -80,6 +80,7 @@ type SeatShareBooking = {
 };
 
 const PHONE_STORAGE_KEY = "yrel_pending_customer_phone";
+const BOOKING_DRAFT_STORAGE_KEY = "yrel_booking_draft_v1";
 
 const CITY_CAB: Record<string, { min: number; nonAc: number; ac: number }> = {
   Hatchback: { min: 105, nonAc: 18, ac: 22 },
@@ -240,6 +241,7 @@ export default function Home() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
   const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
 
   const autoCabArea = getAutoCabArea(pickupPoint, dropPoint);
