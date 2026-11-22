@@ -2277,7 +2277,7 @@ export default function Home() {
         <span className="footer-tagline">
           Your ride. Your fun. Just YREL it.
         </span>
-      </Your city. Your fun. Just YREL it.>
+      </footer>
 
       {authOpen && (
         <div className="modal-backdrop" onClick={closeAuth}>
