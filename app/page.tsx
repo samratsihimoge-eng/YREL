@@ -257,7 +257,7 @@ export default function Home() {
 
   const words = {
     en: {
-      tagline: tagline: "Your city. Your fun. Just YREL it.",
+      tagline: "Your city. Your fun. Just YREL it.",
       pickup: "Pickup location",
       drop: "Destination",
       book: "Book now",
