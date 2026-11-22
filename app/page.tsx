@@ -1229,7 +1229,7 @@ export default function Home() {
           
 <img
   className="brand-logo"
-  src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Meta_AI_910575325_2212732936293188_1902682095013581796_n_20261116_163702.webp"
+  src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png"
   alt="YREL — Run with Fun"
 />
         </a>
@@ -2267,7 +2267,7 @@ export default function Home() {
           
 <img
   className="brand-logo"
-  src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Meta_AI_910575325_2212732936293188_1902682095013581796_n_20261116_163702.webp"
+  src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png"
   alt="YREL — Run with Fun"
 />
         </a>
