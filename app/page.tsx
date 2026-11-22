@@ -408,6 +408,8 @@ export default function Home() {
       setSeatTrips([]);
       setSelectedSeatTrip(null);
       setSeatSearchDone(false);
+          }
+  }, [seatShareEligible]);
       
   // Restore unfinished booking form after login redirect or page refresh.
   useEffect(() => {
