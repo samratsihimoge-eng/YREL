@@ -1931,6 +1931,85 @@ export default function Home() {
           )}
 
           {service !== "cab" && area === "outstation" && (
+            
+          {service === "driver" &&
+            area === "outstation" &&
+            tripType === "round-trip" && (
+              <div className="option-fields date-fields">
+                <label>
+                  Departure Date
+                  <input
+                    type="date"
+                    value={date}
+                    min={localDateString()}
+                    onChange={(e) => {
+                      const selected = e.target.value;
+                      setDate(selected);
+
+                      if (
+                        selected &&
+                        arrivalDate &&
+                        arrivalDate < selected
+                      ) {
+                        setArrivalDate(selected);
+                        setDays(1);
+                      } else if (selected && arrivalDate) {
+                        const start = new Date(
+                          `${selected}T00:00:00`
+                        );
+                        const end = new Date(
+                          `${arrivalDate}T00:00:00`
+                        );
+                        setDays(
+                          Math.max(
+                            1,
+                            Math.round(
+                              (end.getTime() - start.getTime()) /
+                                86400000
+                            ) + 1
+                          )
+                        );
+                      }
+                    }}
+                  />
+                </label>
+
+                <label>
+                  Arrival Date
+                  <input
+                    type="date"
+                    value={arrivalDate}
+                    min={date || localDateString()}
+                    onChange={(e) => {
+                      const selected = e.target.value;
+                      setArrivalDate(selected);
+
+                      if (date && selected) {
+                        const start = new Date(`${date}T00:00:00`);
+                        const end = new Date(
+                          `${selected}T00:00:00`
+                        );
+                        setDays(
+                          Math.max(
+                            1,
+                            Math.round(
+                              (end.getTime() - start.getTime()) /
+                                86400000
+                            ) + 1
+                          )
+                        );
+                      }
+                    }}
+                  />
+                </label>
+
+                <p className="hint">
+                  Number of days: {days}
+                </p>
+              </div>
+            )}
+
+          {service === "rental" && area === "outstation" && (
             <label className="wide-field">
               Number of days
               <input
@@ -1946,6 +2025,10 @@ export default function Home() {
                     )
                   )
                 }
+              />
+            </label>
+          )}
+
               />
             </label>
           )}
