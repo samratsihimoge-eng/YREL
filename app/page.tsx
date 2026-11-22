@@ -1039,12 +1039,21 @@ export default function Home() {
       return;
     }
 
-    if (distance === null || routeLoading) {
+    
+    const needsRoadDistance =
+      service === "cab" ||
+      (service === "rental" && area === "outstation");
+
+    if (
+      needsRoadDistance &&
+      (distance === null || routeLoading)
+    ) {
       setNotice(
         "Please wait while we calculate the road distance."
       );
       return;
     }
+
 
     if (schedule === "later" && (!date || !time)) {
       setNotice("Please select your pickup date and time.");
