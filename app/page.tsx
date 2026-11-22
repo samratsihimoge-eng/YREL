@@ -517,7 +517,15 @@ export default function Home() {
           const p = json.features?.[0]?.properties || {};
 
           const name = p.name || p.street || "Current location";
-          const city = p.city || p.town || p.village || "";
+          const city =
+  p.city ||
+  p.town ||
+  p.village ||
+  p.municipality ||
+  p.locality ||
+  p.district ||
+  p.county ||
+  "";
           const state = p.state || "";
 
           const place: Place = {
