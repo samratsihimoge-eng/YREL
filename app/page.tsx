@@ -1090,8 +1090,6 @@ export default function Home() {
       (!date || !time)
     ) {
       setNotice("Please select your travel date and time.");
-      return;
-    }
 
     if (!fare) {
       setNotice(
