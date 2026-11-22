@@ -2061,30 +2061,7 @@ export default function Home() {
                 </button>
               </div>
             )}
-
-          {needsDate && !seatShareMode && (
-            <div className="option-fields date-fields">
-              <label>
-                Travel date
-                <input
-                  type="date"
-                  value={date}
-                  min={localDateString()}
-                  onChange={(e) => setDate(e.target.value)}
-                />
-              </label>
-
-              <label>
-                Pickup time
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                />
-              </label>
-            </div>
-          )}
-
+        
           {!seatShareMode && (
             <>
               <div className="fare-panel">
