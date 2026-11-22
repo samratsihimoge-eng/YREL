@@ -2276,7 +2276,7 @@ export default function Home() {
         </span>
 
         <span className="footer-tagline">
-          Your ride. Your fun. Just YREL it.
+          Your city. Your fun. Just YREL it.
         </span>
       </footer>
 
