@@ -2310,7 +2310,7 @@ export default function Home() {
               <div className="location-input">
                 <span>+91</span>
                 <input
-                  className="email-input"
+                  className="phone-number-input"
                   type="tel"
                   inputMode="numeric"
                   autoComplete="tel-national"
