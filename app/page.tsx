@@ -1062,8 +1062,11 @@ export default function Home() {
 
     
     const needsRoadDistance =
-      service === "cab" ||
-      (service === "rental" && area === "outstation");
+  service === "cab" ||
+  (service === "rental" && area === "outstation") ||
+  (service === "driver" &&
+    area === "outstation" &&
+    tripType === "one-way");
 
     if (
       needsRoadDistance &&
