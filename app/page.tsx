@@ -1927,9 +1927,6 @@ export default function Home() {
               )}
             </>
           )}
-
-          {service !== "cab" && area === "outstation" && (
-            
           {service === "driver" &&
             area === "outstation" &&
             tripType === "round-trip" && (
