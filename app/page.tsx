@@ -257,7 +257,7 @@ export default function Home() {
 
   const words = {
     en: {
-      tagline: "Your city. Your ride. Your time.",
+      tagline: tagline: "Your city. Your fun. Just YREL it.",
       pickup: "Pickup location",
       drop: "Destination",
       book: "Book now",
@@ -1301,14 +1301,12 @@ export default function Home() {
           </span>
 
           <h1>
-            {language === "en" ? (
-              <>
-                Your city.
-                <br />
-                <em>Your ride.</em>
-                <br />
-                Your time.
-              </>
+  Your city.
+  <br />
+  <em>Your fun.</em>
+  <br />
+  Just YREL it.
+</h1>
             ) : (
               words.tagline
             )}
@@ -2281,7 +2279,7 @@ export default function Home() {
         <span className="footer-tagline">
           Your ride. Your fun. Just YREL it.
         </span>
-      </footer>
+      </Your city. Your fun. Just YREL it.>
 
       {authOpen && (
         <div className="modal-backdrop" onClick={closeAuth}>
