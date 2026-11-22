@@ -432,8 +432,15 @@ export default function Home() {
       const options: Place[] = (json.features || [])
         .map((f: any) => {
           const p = f.properties || {};
-          const city =
-            p.city || p.town || p.village || p.municipality || "";
+                    const city =
+            p.city ||
+            p.town ||
+            p.village ||
+            p.municipality ||
+            p.locality ||
+            p.district ||
+            p.county ||
+            "";
           const state = p.state || "";
           const name =
             p.name || p.street || p.postcode || city || "Location";
