@@ -405,3 +405,141 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   outline: 0;
   box-shadow: none;
 }
+
+/* YREL mobile-friendly interface improvements */
+html {
+  scroll-padding-top: 80px;
+}
+
+button,
+a,
+input,
+select {
+  touch-action: manipulation;
+}
+
+button {
+  min-height: 42px;
+}
+
+.location-input {
+  min-height: 56px;
+}
+
+.location-input input {
+  min-height: 44px;
+  font-size: 16px;
+}
+
+.option-fields input,
+.option-fields select,
+.wide-field input,
+.email-input {
+  min-height: 48px;
+  font-size: 16px;
+}
+
+.suggestions {
+  max-height: min(280px, 42vh);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.suggestions button {
+  min-height: 48px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.service-tab,
+.vehicle-option,
+.package-option,
+.choice,
+.pill {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.book-button {
+  min-height: 54px;
+  font-size: 14px;
+}
+
+.notice {
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .booking-section,
+  .history-section {
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+
+  .booking-card {
+    padding: 21px 15px;
+    border-radius: 20px;
+  }
+
+  .service-tabs {
+    gap: 10px;
+  }
+
+  .service-tab {
+    min-height: 62px;
+    font-size: 12px;
+  }
+
+  .location-grid {
+    gap: 15px;
+  }
+
+  .vehicle-grid {
+    gap: 9px;
+  }
+
+  .vehicle-option {
+    min-height: 88px;
+    padding: 11px 5px;
+  }
+
+  .fare-panel {
+    padding: 19px;
+  }
+
+  .book-button.full {
+    min-height: 56px;
+  }
+
+  .auth-modal {
+    max-height: 88vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+@media (max-width: 380px) {
+  .booking-card {
+    padding: 18px 12px;
+  }
+
+  .service-tab {
+    gap: 7px;
+    padding: 9px;
+    font-size: 11px;
+  }
+
+  .vehicle-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .package-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
