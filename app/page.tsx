@@ -1570,7 +1570,10 @@ export default function Home() {
           <div className="sun-disc" />
           <div className="road-line" />
           <div className="hero-car">
-            <CarFront size={104} strokeWidth={1.2} />
+            <img
+              src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png"
+              alt="YREL — Run with Fun"
+            />
           </div>
           <div className="floating-tag">
             <span className="tag-icon">
