@@ -350,7 +350,7 @@ export default function Home() {
   );
 
   const bookingArea: Area | null =
-    service === "cab" ? autoCabArea : area;
+    service === "cab" || service === "rental" ? autoCabArea : area;
   const rentalBookingArea = getAutoCabArea(pickupPoint, dropPoint);
 
   const words = {
@@ -1256,7 +1256,7 @@ export default function Home() {
       return;
     }
 
-    if (service === "cab" && !bookingArea) {
+    if ((service === "cab" || service === "rental") && !bookingArea) {
       setNotice(
         "Please select both locations from the suggestions so we can detect City / Outstation."
       );
@@ -1266,7 +1266,7 @@ export default function Home() {
     
     const needsRoadDistance =
   service === "cab" ||
-  (service === "rental" && area === "outstation") ||
+  (service === "rental" && rentalBookingArea === "outstation") ||
   (service === "driver" &&
     area === "outstation" &&
     tripType === "one-way");
@@ -1331,9 +1331,9 @@ export default function Home() {
       hours:
         service === "driver" && area === "city" ? hours : null,
       days:
-        service !== "cab" && area === "outstation" ? days : null,
+        (service === "driver" && area === "outstation") || (service === "rental" && rentalBookingArea === "outstation") ? days : null,
       rental_package:
-        service === "rental" && area === "city"
+        service === "rental" && rentalBookingArea === "city"
           ? [
               "1 hour / 10 km",
               "2 hours / 20 km",
