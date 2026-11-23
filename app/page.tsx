@@ -979,6 +979,7 @@ export default function Home() {
       .update({
         full_name: name,
         phone: `+91${digits}`,
+        phone_verified: customer.phone === `+91${digits}` ? customer.phone_verified : false,
       })
       .eq("id", session.user.id)
       .select("id, customer_code, full_name, phone, phone_verified")
@@ -1420,7 +1421,7 @@ export default function Home() {
                   className="profile-button"
                   onClick={() => {
                     setProfileNameDraft(customer.full_name);
-                    setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, ""));
+                    setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, ""));
                     setProfileEditMode(false);
                     setNotice("");
                     setProfileOpen(true);
@@ -2607,7 +2608,7 @@ export default function Home() {
                 {profileEditMode ? (
                   <div className="location-input profile-phone-input">
                     <span>+91</span>
-                    <input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" />
+                    <input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" />
                   </div>
                 ) : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}
               </div>
@@ -2619,7 +2620,7 @@ export default function Home() {
                 {busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} />
               </button>
             ) : (
-              <button className="book-button full" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, "")); setProfileEditMode(true); setNotice(""); }}>
+              <button className="book-button full" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, "")); setProfileEditMode(true); setNotice(""); }}>
                 Edit profile
               </button>
             )}
