@@ -793,3 +793,19 @@ button {
 }
 .profile-signout-button:active { background: #ffeadb; }
 .history-section { scroll-margin-top: 84px; }
+
+
+/* YREL first-launch splash */
+.yrel-splash-screen {
+  position: fixed; inset: 0; z-index: 120;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; padding: 28px;
+  background: radial-gradient(circle at 50% 42%, #fff8ef 0%, #fff0e3 52%, #ffe5d4 100%);
+  animation: yrelSplashIn .35s ease both;
+}
+.yrel-splash-screen img { width: min(58vw, 230px); height: 150px; object-fit: contain; }
+.yrel-splash-screen span { color: #9b5132; font-size: 13px; font-weight: 800; letter-spacing: .04em; text-align: center; }
+.yrel-splash-loader { width: 42px; height: 4px; margin-top: 12px; overflow: hidden; border-radius: 99px; background: #f4d7c3; }
+.yrel-splash-loader::after { content: ""; display: block; width: 45%; height: 100%; border-radius: inherit; background: #d85c32; animation: yrelSplashLoad .9s ease-in-out infinite alternate; }
+@keyframes yrelSplashIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes yrelSplashLoad { from { transform: translateX(0); } to { transform: translateX(125%); } }
