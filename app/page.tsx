@@ -1457,7 +1457,7 @@ export default function Home() {
         <nav className="desktop-nav">
           <a href="#services">Services</a>
           <a href="#how">How it works</a>
-          <a href="#history">My bookings</a>
+          {session && <a href="#history">My bookings</a>}
         </nav>
 
         <div className="top-actions">
@@ -1526,9 +1526,11 @@ export default function Home() {
           <a href="#how" onClick={() => setMenuOpen(false)}>
             How it works
           </a>
-          <a href="#history" onClick={() => setMenuOpen(false)}>
-            My bookings
-          </a>
+          {session && (
+            <a href="#history" onClick={() => setMenuOpen(false)}>
+              My bookings
+            </a>
+          )}
         </nav>
       )}
 
