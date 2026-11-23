@@ -1633,7 +1633,7 @@ export default function Home() {
                   ? "Outstation ride detected · One Way"
                   : "Select pickup and destination to detect City / Outstation"}
             </div>
-          ) : (
+          ) : service === "driver" ? (
             <div className="choice-row">
               <button
                 className={area === "city" ? "choice active" : "choice"}
@@ -1645,9 +1645,7 @@ export default function Home() {
                 City
               </button>
               <button
-                className={
-                  area === "outstation" ? "choice active" : "choice"
-                }
+                className={area === "outstation" ? "choice active" : "choice"}
                 onClick={() => {
                   setArea("outstation");
                   setDistance(null);
@@ -1655,6 +1653,15 @@ export default function Home() {
               >
                 Outstation
               </button>
+            </div>
+          ) : (
+            <div className="auto-area-note">
+              <span className="auto-area-dot" />
+              {rentalBookingArea === "city"
+                ? "City rental detected"
+                : rentalBookingArea === "outstation"
+                  ? "Outstation rental detected"
+                  : "Select pickup and destination to detect City / Outstation"}
             </div>
           )}
 
