@@ -1561,7 +1561,10 @@ export default function Home() {
                 className={
                   tripType === "one-way" ? "choice active" : "choice"
                 }
-                onClick={() => setTripType("one-way")}
+                onClick={() => {
+                  setTripType("one-way");
+                  setHours(2);
+                }}
               >
                 One Way
               </button>
@@ -2023,7 +2026,7 @@ export default function Home() {
                 </label>
               </div>
 
-              {area === "city" && (
+              {area === "city" && tripType === "round-trip" && (
                 <label className="wide-field">
                   Required hours (minimum 2)
                   <input
@@ -2112,6 +2115,15 @@ export default function Home() {
                   />
                 </label>
 
+                <label>
+                  Departure time
+                  <input
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                  />
+                </label>
+
                 <p className="hint">
                   Number of days: {days}
                 </p>
@@ -2189,6 +2201,34 @@ export default function Home() {
                 )}
               </>
             )}
+
+          {(service === "cab" && bookingArea === "outstation") ||
+            (service === "driver" && area === "city") ||
+            (service === "driver" && area === "outstation" && tripType === "one-way") ||
+            service === "rental" ? (
+              <div className="option-fields date-fields">
+                <label>
+                  {service === "rental" && area === "outstation"
+                    ? "Departure date"
+                    : "Pickup date"}
+                  <input
+                    type="date"
+                    value={date}
+                    min={localDateString()}
+                    onChange={(e) => setDate(e.target.value)}
+                  />
+                </label>
+
+                <label>
+                  Pickup time
+                  <input
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                  />
+                </label>
+              </div>
+            ) : null}
         
           {!seatShareMode && (
             <>
