@@ -82,6 +82,7 @@ type SeatShareBooking = {
 
 const PHONE_STORAGE_KEY = "yrel_pending_customer_phone";
 const BOOKING_DRAFT_STORAGE_KEY = "yrel_booking_draft_v1";
+const LANGUAGE_STORAGE_KEY = "yrel_customer_language_v1";
 
 const CITY_CAB: Record<string, { min: number; nonAc: number; ac: number }> = {
   Hatchback: { min: 105, nonAc: 18, ac: 22 },
@@ -531,6 +532,19 @@ export default function Home() {
           }
   }, [seatShareEligible]);
       
+  // English is the default; persist only the customer's explicit language choice.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (saved === "en" || saved === "kn" || saved === "hi") setLanguage(saved);
+    } catch { /* Keep English if storage is unavailable. */ }
+  }, []);
+
+  useEffect(() => {
+    try { localStorage.setItem(LANGUAGE_STORAGE_KEY, language); }
+    catch { /* Language remains active for this visit. */ }
+  }, [language]);
+
   // Restore unfinished booking form after login redirect or page refresh.
   useEffect(() => {
     try {
@@ -561,7 +575,6 @@ export default function Home() {
         if (typeof draft.seatCount === "number") {
           setSeatCount(Math.max(1, Math.min(4, draft.seatCount)));
         }
-        if (draft.language) setLanguage(draft.language);
       }
     } catch (error) {
       console.error("Unable to restore YREL booking draft:", error);
@@ -580,7 +593,7 @@ export default function Home() {
       pickup, drop, pickupPoint, dropPoint,
       distance, eta, schedule, date, arrivalDate, time,
       hours, days, packageIndex, gear, driverVehicle,
-      seatShareMode, seatCount, language,
+      seatShareMode, seatCount,
     };
 
     try {
@@ -593,7 +606,7 @@ export default function Home() {
     pickup, drop, pickupPoint, dropPoint, distance, eta,
     schedule, date, arrivalDate, time, hours, days,
     packageIndex, gear, driverVehicle, seatShareMode,
-    seatCount, language,
+    seatCount,
   ]);
 
   async function searchPlaces(
@@ -1516,7 +1529,15 @@ export default function Home() {
                 <button onClick={() => setMenuSection("services")}><CarFront size={20} /><span>Services</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("privacy")}><ShieldCheck size={20} /><span>Privacy Policy</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("terms")}><FileText size={20} /><span>Terms & Conditions</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("cancellation")}><Ban size={20} /><span>Cancellation Policy</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("cancellation")}><Ban size={20} /><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
+                <div className="language-picker">
+                  <label htmlFor="yrel-language-select">{language === "kn" ? "ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ" : language === "hi" ? "भाषा चुनें" : "Language"}</label>
+                  <select id="yrel-language-select" value={language} onChange={(e) => setLanguage(e.target.value as "en" | "kn" | "hi")}>
+                    <option value="en">English</option>
+                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                    <option value="hi">हिन्दी (Hindi)</option>
+                  </select>
+                </div>
               </div>
             ) : (
               <div className="app-menu-detail">
