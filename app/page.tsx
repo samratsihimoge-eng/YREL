@@ -249,12 +249,17 @@ const formatDeparture = (value: string) =>
   });
 
 const VehicleIcon = ({ vehicle }: { vehicle: string }) => {
-  const Icon =
-    vehicle === "Auto" ? CarTaxiFront :
-    vehicle === "Hatchback" ? CarFront :
-    vehicle === "Sedan" ? Car :
-    vehicle === "Ertiga" || vehicle === "Innova Crysta" ? BusFront :
-    CarFront;
+  if (vehicle === "Auto") {
+    return (
+      <svg width="28" height="28" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M15 17.5 18.5 9h11L33 17.5l5 4v13H10v-13l5-4Z" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round"/>
+        <path d="M15 18h18M19 9V6h10v3M10 25h28M15 34v4m18-4v4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/>
+        <circle cx="16" cy="29" r="2" fill="currentColor"/><circle cx="32" cy="29" r="2" fill="currentColor"/>
+        <path d="M7 38h34" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/>
+      </svg>
+    );
+  }
+  const Icon = vehicle === "Hatchback" ? CarFront : vehicle === "Sedan" ? Car : vehicle === "Ertiga" || vehicle === "Innova Crysta" ? BusFront : CarFront;
   return <Icon size={25} strokeWidth={1.9} />;
 };
 
@@ -346,6 +351,7 @@ export default function Home() {
 
   const bookingArea: Area | null =
     service === "cab" ? autoCabArea : area;
+  const rentalBookingArea = getAutoCabArea(pickupPoint, dropPoint);
 
   const words = {
     en: {
@@ -815,11 +821,11 @@ export default function Home() {
       return days === 1 ? 1300 : 1499 * days;
     }
 
-    if (service === "rental" && area === "city") {
+    if (service === "rental" && rentalBookingArea === "city") {
       return RENTAL_CITY[ride]?.fares[packageIndex] || 0;
     }
 
-    if (service === "rental" && area === "outstation") {
+    if (service === "rental" && rentalBookingArea === "outstation") {
       const rate = OUTSTATION[ride];
       const totalKm = distance ? distance * 2 : 0;
 
@@ -833,6 +839,7 @@ export default function Home() {
   }, [
     service,
     bookingArea,
+    rentalBookingArea,
     area,
     ride,
     ac,
@@ -1402,7 +1409,7 @@ export default function Home() {
         ? ["Auto", "Hatchback", "Sedan", "Ertiga", "Innova Crysta"]
         : ["Hatchback", "Sedan", "Ertiga", "Innova Crysta"]
       : service === "rental"
-        ? area === "city"
+        ? rentalBookingArea === "city"
           ? ["Hatchback", "Sedan", "MPV", "SUV"]
           : ["Hatchback", "Sedan", "Ertiga", "Innova Crysta"]
         : [];
@@ -1531,10 +1538,10 @@ export default function Home() {
 
           <div className="hero-points">
             <span>
-              <ShieldCheck size={17} /> Reliable service
+              <ShieldCheck size={17} /> Instant booking
             </span>
             <span>
-              <MapPin size={17} /> Across India
+              <MapPin size={17} /> Pan India service
             </span>
           </div>
         </div>
@@ -2056,7 +2063,7 @@ export default function Home() {
               </div>
             )}
 
-          {service === "rental" && area === "city" && (
+          {service === "rental" && rentalBookingArea === "city" && (
             <>
               <div className="field-label">
                 Select rental package
@@ -2226,7 +2233,7 @@ export default function Home() {
               </div>
             )}
 
-          {service === "rental" && area === "outstation" && (
+          {service === "rental" && rentalBookingArea === "outstation" && (
             <label className="wide-field">
               Number of days
               <input
@@ -2304,7 +2311,7 @@ export default function Home() {
             service === "rental" ? (
               <div className="option-fields date-fields">
                 <label>
-                  {service === "rental" && area === "outstation"
+                  {service === "rental" && rentalBookingArea === "outstation"
                     ? "Departure date"
                     : "Pickup date"}
                   <input
