@@ -1542,37 +1542,37 @@ export default function Home() {
             ) : (
               <div className="app-menu-detail">
                 {menuSection === "how" && <>
-                  <p>YREL ಮೂಲಕ ಪ್ರಯಾಣ ಅಥವಾ ಡ್ರೈವರ್ ಸೇವೆಯನ್ನು ಸುಲಭವಾಗಿ ಬುಕ್ ಮಾಡಬಹುದು.</p>
-                  <h3>1. ಸೇವೆ ಆಯ್ಕೆಮಾಡಿ</h3><p>Cab, Driver ಅಥವಾ Cab Rentals ಆಯ್ಕೆಮಾಡಿ.</p>
-                  <h3>2. ಸ್ಥಳ ನಮೂದಿಸಿ</h3><p>Pickup ಮತ್ತು Destination ಆಯ್ಕೆಮಾಡಿ. ತೋರಿಸಿದ ದೂರ ಮತ್ತು ಅಂದಾಜು ದರ ಪರಿಶೀಲಿಸಿ.</p>
-                  <h3>3. ಸಮಯ ಆಯ್ಕೆಮಾಡಿ</h3><p>ತಕ್ಷಣದ ಅಥವಾ ಮುಂಗಡ ಬುಕ್ಕಿಂಗ್ ಆಯ್ಕೆಮಾಡಿ.</p>
-                  <h3>4. ಬುಕ್ಕಿಂಗ್ ದೃಢೀಕರಿಸಿ</h3><p>Book Now ಒತ್ತಿ. ಬುಕ್ಕಿಂಗ್ ಸ್ಥಿತಿ ಮತ್ತು ಲಭ್ಯವಿರುವ ಅಪ್‌ಡೇಟ್‌ಗಳನ್ನು My Bookings ನಲ್ಲಿ ನೋಡಿ.</p>
+                  <p>Book a ride or driver service easily with YREL.</p>
+                  <h3>1. Choose a service</h3><p>Select Cab, Driver or Cab Rentals.</p>
+                  <h3>2. Enter locations</h3><p>Choose Pickup and Destination. Review the distance and estimated fare.</p>
+                  <h3>3. Choose a time</h3><p>Select instant or advance booking.</p>
+                  <h3>4. Confirm your booking</h3><p>Tap Book Now. View booking status and updates in My Bookings.</p>
                 </>}
                 {menuSection === "services" && <>
-                  <h3>Cab</h3><p>ನಗರ ಮತ್ತು ಹೊರನಗರ ಪ್ರಯಾಣಕ್ಕೆ ಸೂಕ್ತ ವಾಹನವನ್ನು ಆಯ್ಕೆಮಾಡಿ.</p>
-                  <h3>Driver</h3><p>ನಿಮ್ಮ ವಾಹನವನ್ನು ಚಲಾಯಿಸಲು ವೃತ್ತಿಪರ ಡ್ರೈವರ್ ಬುಕ್ ಮಾಡಿ.</p>
-                  <h3>Cab Rentals</h3><p>ಗಂಟೆ ಅಥವಾ ದಿನದ ಆಧಾರದ ಮೇಲೆ ಕ್ಯಾಬ್ ಬಾಡಿಗೆಗೆ ಕಾಯ್ದಿರಿಸಿ.</p>
-                  <h3>Seat Sharing</h3><p>ಅರ್ಹ ಹೊರನಗರ ಅಥವಾ ವಿಮಾನ ನಿಲ್ದಾಣ ಮಾರ್ಗಗಳಲ್ಲಿ ಲಭ್ಯವಿದ್ದರೆ ಸೀಟ್ ಬುಕ್ ಮಾಡಿ.</p>
+                  <h3>Cab</h3><p>Choose a suitable vehicle for city and outstation trips.</p>
+                  <h3>Driver</h3><p>Book a professional driver to drive your own vehicle.</p>
+                  <h3>Cab Rentals</h3><p>Rent a cab by the hour or by the day.</p>
+                  <h3>Seat Sharing</h3><p>Book a seat when available on eligible outstation or airport routes.</p>
                 </>}
                 {menuSection === "privacy" && <>
-                  <p>YREL ಬುಕ್ಕಿಂಗ್ ಮತ್ತು ಗ್ರಾಹಕ ಸೇವೆ ಒದಗಿಸಲು ಅಗತ್ಯವಿರುವ ಮಾಹಿತಿಯನ್ನು ಮಾತ್ರ ಬಳಸುತ್ತದೆ.</p>
-                  <h3>ನಾವು ಬಳಸುವ ಮಾಹಿತಿ</h3><p>ನಿಮ್ಮ ಹೆಸರು, ಮೊಬೈಲ್ ಸಂಖ್ಯೆ, ಖಾತೆ ವಿವರಗಳು, ಪಿಕಪ್ ಮತ್ತು ಗಮ್ಯಸ್ಥಾನ, ಬುಕ್ಕಿಂಗ್ ವಿವರಗಳು.</p>
-                  <h3>ಮಾಹಿತಿಯ ಬಳಕೆ</h3><p>ಬುಕ್ಕಿಂಗ್ ನಿರ್ವಹಣೆ, ಡ್ರೈವರ್ ಸಂಪರ್ಕ, ಗ್ರಾಹಕ ಬೆಂಬಲ, ಸುರಕ್ಷತೆ ಮತ್ತು ಸೇವೆಯ ಸುಧಾರಣೆ.</p>
-                  <h3>ಸಂಪರ್ಕ</h3><p>ಗೌಪ್ಯತೆ ಸಂಬಂಧಿತ ಪ್ರಶ್ನೆಗಳಿಗೆ yrelcabs@gmail.com ಸಂಪರ್ಕಿಸಿ.</p>
+                  <p>YREL uses information needed to provide bookings and customer support.</p>
+                  <h3>Information we use</h3><p>Your name, mobile number, account details, pickup and destination, and booking details.</p>
+                  <h3>How we use information</h3><p>To manage bookings, contact drivers, provide customer support, maintain safety and improve our service.</p>
+                  <h3>Contact</h3><p>For privacy questions, contact yrelcabs@gmail.com.</p>
                 </>}
                 {menuSection === "terms" && <>
-                  <p>YREL ಬಳಸಿ ಬುಕ್ಕಿಂಗ್ ಮಾಡುವಾಗ ಕೆಳಗಿನ ಮೂಲ ನಿಯಮಗಳು ಅನ್ವಯಿಸುತ್ತವೆ.</p>
-                  <h3>ಬುಕ್ಕಿಂಗ್ ಮಾಹಿತಿ</h3><p>ಸರಿಯಾದ ಸಂಪರ್ಕ ಸಂಖ್ಯೆ, ಪಿಕಪ್, ಗಮ್ಯಸ್ಥಾನ ಮತ್ತು ಪ್ರಯಾಣದ ಸಮಯ ಒದಗಿಸುವುದು ಗ್ರಾಹಕರ ಜವಾಬ್ದಾರಿ.</p>
-                  <h3>ದರ ಮತ್ತು ಸೇವೆ</h3><p>ಬುಕ್ಕಿಂಗ್ ಮಾಡುವ ಮೊದಲು ತೋರಿಸಲಾದ ಅಂದಾಜು ದರ ಮತ್ತು ಸೇವಾ ವಿವರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ. ಹೆಚ್ಚುವರಿ ದೂರ ಅಥವಾ ಸಮಯಕ್ಕೆ ಅನ್ವಯಿಸುವ ಶುಲ್ಕಗಳು ಇರಬಹುದು.</p>
-                  <h3>ಸುರಕ್ಷತೆ</h3><p>ಪ್ರಯಾಣ ಆರಂಭಿಸುವ ಮೊದಲು ಚಾಲಕ ಮತ್ತು ವಾಹನದ ವಿವರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ. ಅಗತ್ಯವಿದ್ದಲ್ಲಿ OTP ಅನ್ನು ಚಾಲಕನಿಗೆ ಮಾತ್ರ ತಿಳಿಸಿ.</p>
-                  <h3>ಸಹಾಯ</h3><p>ಸೇವೆಗೆ ಸಂಬಂಧಿಸಿದ ಪ್ರಶ್ನೆಗಳಿಗೆ YREL Support ಸಂಪರ್ಕಿಸಿ.</p>
+                  <p>The following basic terms apply when you make a booking using YREL.</p>
+                  <h3>Booking information</h3><p>Customers are responsible for providing a correct contact number, pickup, destination and travel time.</p>
+                  <h3>Fare and service</h3><p>Review the estimated fare and service details before booking. Additional distance or time may incur extra charges.</p>
+                  <h3>Safety</h3><p>Check driver and vehicle details before starting the trip. Share the OTP only with the driver when required.</p>
+                  <h3>Support</h3><p>Contact YREL Support for service-related questions.</p>
                 </>}
                 {menuSection === "cancellation" && <>
-                  <p>ಬುಕ್ಕಿಂಗ್ ರದ್ದತಿ ಶುಲ್ಕವು ಚಾಲಕನ ಆಗಮನದ ಸ್ಥಿತಿಯನ್ನು ಅವಲಂಬಿಸಿರುತ್ತದೆ.</p>
-                  <h3>ಚಾಲಕ ಬರುವ ಮೊದಲು</h3><p>ಚಾಲಕ ಪಿಕಪ್ ಸ್ಥಳಕ್ಕೆ ತಲುಪುವ ಮೊದಲು ಗ್ರಾಹಕರು ರದ್ದು ಮಾಡಿದರೆ ರದ್ದತಿ ಶುಲ್ಕವಿಲ್ಲ.</p>
-                  <h3>ಚಾಲಕ ತಲುಪಿದ ನಂತರ</h3><p>ಚಾಲಕ ಪಿಕಪ್ ಸ್ಥಳಕ್ಕೆ ತಲುಪಿದ ನಂತರ ಗ್ರಾಹಕರು ರದ್ದು ಮಾಡಿದರೆ ₹30 ರದ್ದತಿ ಶುಲ್ಕ ಅನ್ವಯಿಸುತ್ತದೆ.</p>
-                  <h3>ಚಾಲಕ ಸ್ವತಃ ರದ್ದು ಮಾಡಿದರೆ</h3><p>ಚಾಲಕ ರದ್ದು ಮಾಡಿದರೆ ಅಥವಾ ಬರದಿದ್ದರೆ ಗ್ರಾಹಕರಿಗೆ ರದ್ದತಿ ಶುಲ್ಕ ವಿಧಿಸಬಾರದು.</p>
-                  <h3>ಯಾರೂ ಸ್ವೀಕರಿಸದಿದ್ದರೆ</h3><p>ತಕ್ಷಣದ ಕ್ಯಾಬ್ ವಿನಂತಿಯನ್ನು ಒಂದು ನಿಮಿಷದೊಳಗೆ ಯಾವುದೇ ಚಾಲಕ ಸ್ವೀಕರಿಸದಿದ್ದರೆ ರದ್ದತಿ ಶುಲ್ಕವಿಲ್ಲ.</p>
+                  <p>Cancellation charges depend on the driver's arrival status.</p>
+                  <h3>Before the driver arrives</h3><p>No cancellation fee applies if you cancel before the driver reaches the pickup location.</p>
+                  <h3>After the driver arrives</h3><p>A ₹30 cancellation fee applies if you cancel after the driver reaches the pickup location.</p>
+                  <h3>If the driver cancels</h3><p>No cancellation fee applies if the driver cancels or does not arrive.</p>
+                  <h3>If no driver accepts</h3><p>No cancellation fee applies if no driver accepts an instant cab request within one minute.</p>
                 </>}
               </div>
             )}
