@@ -129,14 +129,34 @@ const getAutoCabArea = (
   const pickupState = normalizeCity(pickup.state);
   const dropState = normalizeCity(drop.state);
 
-  // Different states are outstation even when the points are geographically close.
+  // Different known states are always outstation.
   if (pickupState && dropState && pickupState !== dropState) {
     return "outstation";
   }
 
-  // Use actual route endpoints as the primary signal. Nearby destinations
-  // within the same state are treated as city-local even if Photon returns
-  // different neighbourhood/district labels (e.g. Bengaluru localities).
+  const canonicalCity = (value?: string) => {
+    const city = normalizeCity(value);
+    if (
+      city === "bengaluru" ||
+      city === "bangalore" ||
+      city === "bengaluru urban" ||
+      city === "bangalore urban"
+    ) {
+      return "bengaluru";
+    }
+    return city;
+  };
+
+  const pickupCity = canonicalCity(pickup.city);
+  const dropCity = canonicalCity(drop.city);
+
+  // If Photon identifies both endpoints as the same city, keep the trip
+  // local even when that city's built-up area is wider than 35 km.
+  if (pickupCity && dropCity && pickupCity === dropCity) {
+    return "city";
+  }
+
+  // For other cities/towns, retain the agreed 35 km local-distance rule.
   const toRadians = (value: number) => (value * Math.PI) / 180;
   const lat1 = toRadians(pickup.lat);
   const lat2 = toRadians(drop.lat);
@@ -150,10 +170,7 @@ const getAutoCabArea = (
     6371 * 2 *
     Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 
-  if (straightKm <= 35) return "city";
-  if (straightKm > 35) return "outstation";
-
-  return null;
+  return straightKm <= 35 ? "city" : "outstation";
 };
 
 const isIndia = (lat: number, lon: number) =>
