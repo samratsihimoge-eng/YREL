@@ -809,3 +809,15 @@ button {
 .yrel-splash-loader::after { content: ""; display: block; width: 45%; height: 100%; border-radius: inherit; background: #d85c32; animation: yrelSplashLoad .9s ease-in-out infinite alternate; }
 @keyframes yrelSplashIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes yrelSplashLoad { from { transform: translateX(0); } to { transform: translateX(125%); } }
+
+.language-picker {
+  display: grid; gap: 8px; padding: 14px 15px;
+  border: 1px solid #f0dfd1; border-radius: 15px;
+  background: linear-gradient(145deg,#fffaf5,#fff2e8);
+}
+.language-picker label { color: #684936; font-size: 13px; font-weight: 800; }
+.language-picker select {
+  width: 100%; min-height: 46px; padding: 0 12px;
+  border: 1px solid #e9cdbb; border-radius: 12px;
+  background: #fff; color: #563b2c; font: inherit; font-weight: 700;
+}
