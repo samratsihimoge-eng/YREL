@@ -98,13 +98,19 @@ const OUTSTATION: Record<string, { round: number; one: number; bata: number }> =
 
 const RENTAL_CITY: Record<
   string,
-  { fares: number[]; km: number; extraKm: number; extraMin: number }
+  { fares: number[]; kmPerHour: number; extraKm: number; extraHour: number }
 > = {
-  Hatchback: { fares: [399, 699, 899], km: 10, extraKm: 12, extraMin: 2 },
-  Sedan: { fares: [449, 799, 999], km: 10, extraKm: 14, extraMin: 2.5 },
-  MPV: { fares: [599, 999, 1299], km: 10, extraKm: 17, extraMin: 3 },
-  SUV: { fares: [699, 1199, 1499], km: 10, extraKm: 18, extraMin: 3.5 },
+  Hatchback: { fares: [1150, 2150, 3150], kmPerHour: 10, extraKm: 18, extraHour: 250 },
+  Sedan: { fares: [1300, 2400, 3500], kmPerHour: 10, extraKm: 20, extraHour: 275 },
+  MPV: { fares: [1650, 3050, 4450], kmPerHour: 10, extraKm: 22, extraHour: 350 },
+  SUV: { fares: [1900, 3500, 5100], kmPerHour: 10, extraKm: 26, extraHour: 400 },
 };
+
+const RENTAL_CITY_PACKAGES = [
+  { hours: 4, km: 40 },
+  { hours: 8, km: 80 },
+  { hours: 12, km: 120 },
+];
 
 const DRIVER_VEHICLES = ["Hatchback", "Sedan", "SUV"];
 
@@ -1334,11 +1340,23 @@ export default function Home() {
         (service === "driver" && area === "outstation") || (service === "rental" && rentalBookingArea === "outstation") ? days : null,
       rental_package:
         service === "rental" && rentalBookingArea === "city"
-          ? [
-              "1 hour / 10 km",
-              "2 hours / 20 km",
-              "3 hours / 30 km",
-            ][packageIndex]
+          ? `${RENTAL_CITY_PACKAGES[packageIndex].hours} hours / ${RENTAL_CITY_PACKAGES[packageIndex].km} km`
+          : null,
+      rental_included_hours:
+        service === "rental" && rentalBookingArea === "city"
+          ? RENTAL_CITY_PACKAGES[packageIndex].hours
+          : null,
+      rental_included_km:
+        service === "rental" && rentalBookingArea === "city"
+          ? RENTAL_CITY_PACKAGES[packageIndex].km
+          : null,
+      rental_extra_hour_charge:
+        service === "rental" && rentalBookingArea === "city"
+          ? RENTAL_CITY[ride]?.extraHour ?? null
+          : null,
+      rental_extra_km_charge:
+        service === "rental" && rentalBookingArea === "city"
+          ? RENTAL_CITY[ride]?.extraKm ?? null
           : null,
       gear: service === "driver" ? gear : null,
       customer_vehicle_class:
@@ -2088,10 +2106,8 @@ export default function Home() {
                       }
                       onClick={() => setPackageIndex(i)}
                     >
-                      <b>
-                        {i + 1} {i === 0 ? "Hour" : "Hours"}
-                      </b>
-                      <small>{(i + 1) * 10} KM included</small>
+                      <b>{RENTAL_CITY_PACKAGES[i].hours} Hours</b>
+                      <small>{RENTAL_CITY_PACKAGES[i].km} KM included</small>
                       <strong>{money(f)}</strong>
                     </button>
                   )
@@ -2099,8 +2115,10 @@ export default function Home() {
               </div>
 
               <p className="hint">
-                Extra kilometres and extra time are charged separately.
-                AC / Non-AC has the same fare.
+                Extra time: {money((RENTAL_CITY[ride] || RENTAL_CITY.Hatchback).extraHour)} per hour.
+                Extra distance: {money((RENTAL_CITY[ride] || RENTAL_CITY.Hatchback).extraKm)} per KM.
+                AC / Non-AC has the same fare. Extra charges are calculated after the trip
+                from the actual additional time and kilometres.
               </p>
             </>
           )}
