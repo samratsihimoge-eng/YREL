@@ -1459,6 +1459,7 @@ export default function Home() {
           <a href="#services">Services</a>
           <a href="#how">How it works</a>
           {session && <a href="#history">My bookings</a>}
+          <a href="/policies">Policies & Help</a>
         </nav>
 
         <div className="top-actions">
@@ -1532,6 +1533,9 @@ export default function Home() {
               My bookings
             </a>
           )}
+          <a href="/policies" onClick={() => setMenuOpen(false)}>
+            Privacy Policy · Terms · Cancellation
+          </a>
         </nav>
       )}
 
