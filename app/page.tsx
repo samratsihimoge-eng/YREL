@@ -255,18 +255,19 @@ const formatDeparture = (value: string) =>
   });
 
 const VehicleIcon = ({ vehicle }: { vehicle: string }) => {
-  if (vehicle === "Auto") {
-    return (
-      <svg width="28" height="28" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-        <path d="M15 17.5 18.5 9h11L33 17.5l5 4v13H10v-13l5-4Z" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round"/>
-        <path d="M15 18h18M19 9V6h10v3M10 25h28M15 34v4m18-4v4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/>
-        <circle cx="16" cy="29" r="2" fill="currentColor"/><circle cx="32" cy="29" r="2" fill="currentColor"/>
-        <path d="M7 38h34" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/>
-      </svg>
-    );
-  }
-  const Icon = vehicle === "Hatchback" ? CarFront : vehicle === "Sedan" ? Car : vehicle === "Ertiga" || vehicle === "Innova Crysta" ? BusFront : CarFront;
-  return <Icon size={25} strokeWidth={1.9} />;
+  const vehicleEmoji: Record<string, string> = {
+    Auto: "🛺",
+    Hatchback: "🚗",
+    Sedan: "🚙",
+    Ertiga: "🚐",
+    SUV: "🚙",
+    "Innova Crysta": "🚐",
+  };
+  return (
+    <span className="vehicle-emoji" role="img" aria-label={vehicle}>
+      {vehicleEmoji[vehicle] || "🚘"}
+    </span>
+  );
 };
 
 export default function Home() {
