@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import {
   ArrowRight, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
   UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users,
-  Home, ClipboardList, Bell, Headphones, BookOpen, FileText, Ban, ArrowLeft, Phone, MessageCircle, Mail
+  Home as HomeIcon, ClipboardList, Bell, Headphones, BookOpen, FileText, Ban, ArrowLeft, Phone, MessageCircle, Mail
 } from "lucide-react";
 
 type Service = "cab" | "driver" | "rental";
@@ -2580,7 +2580,7 @@ export default function Home() {
       )}
 
       <nav className="yrel-bottom-nav" aria-label="Main navigation">
-        <button aria-label="Home" title="Home" onClick={() => { setBottomPanel(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}><Home size={22} /></button>
+        <button aria-label="Home" title="Home" onClick={() => { setBottomPanel(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /></button>
         <button aria-label="My Bookings" title="My Bookings" onClick={() => { setBottomPanel(null); if (!session) setAuthOpen(true); else document.getElementById("history")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}><ClipboardList size={22} /></button>
         <button className="support-nav-button" aria-label="Support" onClick={() => setBottomPanel("support")}><Headphones size={21} /><span>Support</span></button>
         <button aria-label="Notifications" title="Notifications" onClick={() => setBottomPanel("notifications")}><Bell size={22} /></button>
