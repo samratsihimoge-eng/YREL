@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowRight, CarFront, Check, Clock3, MapPin, Menu, ShieldCheck,
+  ArrowRight, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
   UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users
 } from "lucide-react";
 
@@ -163,8 +163,13 @@ const getAutoCabArea = (
     6371 * 2 *
     Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 
-  // Bengaluru is a special city rule: any two locations Photon identifies
-  // as Bengaluru remain City Local, even when the route is over 35 km.
+  // Treat two points inside Bengaluru urban coordinates as City Local,
+  // even if Photon returns different locality/city labels (e.g. Hebbal).
+  if (isBengaluruUrban(pickup) && isBengaluruUrban(drop)) {
+    return "city";
+  }
+
+  // Keep the explicit city-name rule as a fallback for long Bengaluru routes.
   if (pickupCity === "bengaluru" && dropCity === "bengaluru") {
     return "city";
   }
@@ -181,6 +186,17 @@ const getAutoCabArea = (
 
 const isIndia = (lat: number, lon: number) =>
   lat >= 6 && lat <= 38.5 && lon >= 68 && lon <= 97.5;
+
+// A coordinate-based Bengaluru urban check prevents Photon from treating
+// localities such as Hebbal, KR Puram and Electronic City as separate cities.
+const isBengaluruUrban = (place: Place | null) =>
+  Boolean(
+    place &&
+      place.lat >= 12.70 &&
+      place.lat <= 13.30 &&
+      place.lon >= 77.25 &&
+      place.lon <= 77.95
+  );
 
 const isAirportPlace = (place: Place | null) => {
   if (!place) return false;
@@ -231,6 +247,16 @@ const formatDeparture = (value: string) =>
     hour: "numeric",
     minute: "2-digit",
   });
+
+const VehicleIcon = ({ vehicle }: { vehicle: string }) => {
+  const Icon =
+    vehicle === "Auto" ? CarTaxiFront :
+    vehicle === "Hatchback" ? CarFront :
+    vehicle === "Sedan" ? Car :
+    vehicle === "Ertiga" || vehicle === "Innova Crysta" ? BusFront :
+    CarFront;
+  return <Icon size={25} strokeWidth={1.9} />;
+};
 
 export default function Home() {
   const [service, setService] = useState<Service>("cab");
@@ -303,10 +329,19 @@ export default function Home() {
   const airportRoute =
     isAirportPlace(pickupPoint) || isAirportPlace(dropPoint);
 
+  // Seat Sharing is only for intercity/outstation journeys, plus
+  // Bengaluru city-to-Bengaluru-airport journeys. A normal Bengaluru
+  // locality-to-locality route (e.g. pickup to Hebbal) must never show it.
+  const bengaluruAirportRoute = Boolean(
+    airportRoute &&
+      isBengaluruUrban(pickupPoint) &&
+      isBengaluruUrban(dropPoint)
+  );
+
   const seatShareEligible = Boolean(
     pickupPoint &&
       dropPoint &&
-      (autoCabArea === "outstation" || airportRoute)
+      (autoCabArea === "outstation" || bengaluruAirportRoute)
   );
 
   const bookingArea: Area | null =
@@ -1772,7 +1807,7 @@ export default function Home() {
                       setNotice("");
                     }}
                   >
-                    <CarFront size={22} />
+                    <VehicleIcon vehicle={v} />
                     <span>{v}</span>
                     {!seatShareMode && ride === v && (
                       <Check className="vehicle-check" size={15} />
