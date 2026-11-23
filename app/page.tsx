@@ -150,13 +150,6 @@ const getAutoCabArea = (
   const pickupCity = canonicalCity(pickup.city);
   const dropCity = canonicalCity(drop.city);
 
-  // If Photon identifies both endpoints as the same city, keep the trip
-  // local even when that city's built-up area is wider than 35 km.
-  if (pickupCity && dropCity && pickupCity === dropCity) {
-    return "city";
-  }
-
-  // For other cities/towns, retain the agreed 35 km local-distance rule.
   const toRadians = (value: number) => (value * Math.PI) / 180;
   const lat1 = toRadians(pickup.lat);
   const lat2 = toRadians(drop.lat);
@@ -170,6 +163,19 @@ const getAutoCabArea = (
     6371 * 2 *
     Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 
+  // Bengaluru is a special city rule: any two locations Photon identifies
+  // as Bengaluru remain City Local, even when the route is over 35 km.
+  if (pickupCity === "bengaluru" && dropCity === "bengaluru") {
+    return "city";
+  }
+
+  // Different known cities are outstation regardless of distance.
+  if (pickupCity && dropCity && pickupCity !== dropCity) {
+    return "outstation";
+  }
+
+  // Other same-city routes (and routes with incomplete city metadata)
+  // use the agreed 35 km local threshold.
   return straightKm <= 35 ? "city" : "outstation";
 };
 
