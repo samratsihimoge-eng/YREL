@@ -126,24 +126,17 @@ const getAutoCabArea = (
 ): Area | null => {
   if (!pickup || !drop) return null;
 
-  const pickupCity = normalizeCity(pickup.city);
-  const dropCity = normalizeCity(drop.city);
   const pickupState = normalizeCity(pickup.state);
   const dropState = normalizeCity(drop.state);
 
-  // Different known states are always outstation.
+  // Different states are outstation even when the points are geographically close.
   if (pickupState && dropState && pickupState !== dropState) {
     return "outstation";
   }
 
-  // When Photon provides settlement names, compare those first.
-  if (pickupCity && dropCity) {
-    return pickupCity === dropCity ? "city" : "outstation";
-  }
-
-  // Photon sometimes omits city/town for metro neighbourhoods and smaller
-  // places. Fall back to straight-line distance so a valid route is not left
-  // without a fare or Seat Sharing eligibility.
+  // Use actual route endpoints as the primary signal. Nearby destinations
+  // within the same state are treated as city-local even if Photon returns
+  // different neighbourhood/district labels (e.g. Bengaluru localities).
   const toRadians = (value: number) => (value * Math.PI) / 180;
   const lat1 = toRadians(pickup.lat);
   const lat2 = toRadians(drop.lat);
@@ -157,7 +150,10 @@ const getAutoCabArea = (
     6371 * 2 *
     Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 
-  return straightKm <= 35 ? "city" : "outstation";
+  if (straightKm <= 35) return "city";
+  if (straightKm > 35) return "outstation";
+
+  return null;
 };
 
 const isIndia = (lat: number, lon: number) =>
