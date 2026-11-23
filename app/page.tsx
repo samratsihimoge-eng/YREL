@@ -257,8 +257,8 @@ const formatDeparture = (value: string) =>
 const VehicleIcon = ({ vehicle }: { vehicle: string }) => {
   const vehicleEmoji: Record<string, string> = {
     Auto: "🛺",
-    Hatchback: "🚗",
-    Sedan: "🚙",
+    Hatchback: "🚙",
+    Sedan: "🚗",
     Ertiga: "🚐",
     SUV: "🚙",
     "Innova Crysta": "🚐",
