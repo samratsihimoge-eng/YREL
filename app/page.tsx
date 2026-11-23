@@ -124,18 +124,40 @@ const getAutoCabArea = (
   pickup: Place | null,
   drop: Place | null
 ): Area | null => {
-  // Do not guess when Photon has not supplied a reliable city/town value.
-  if (!pickup?.city?.trim() || !drop?.city?.trim()) return null;
+  if (!pickup || !drop) return null;
 
-  const sameCity =
-    normalizeCity(pickup.city) === normalizeCity(drop.city);
-
+  const pickupCity = normalizeCity(pickup.city);
+  const dropCity = normalizeCity(drop.city);
   const pickupState = normalizeCity(pickup.state);
   const dropState = normalizeCity(drop.state);
-  const stateKnown = Boolean(pickupState && dropState);
-  const sameState = !stateKnown || pickupState === dropState;
 
-  return sameCity && sameState ? "city" : "outstation";
+  // Different known states are always outstation.
+  if (pickupState && dropState && pickupState !== dropState) {
+    return "outstation";
+  }
+
+  // When Photon provides settlement names, compare those first.
+  if (pickupCity && dropCity) {
+    return pickupCity === dropCity ? "city" : "outstation";
+  }
+
+  // Photon sometimes omits city/town for metro neighbourhoods and smaller
+  // places. Fall back to straight-line distance so a valid route is not left
+  // without a fare or Seat Sharing eligibility.
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const lat1 = toRadians(pickup.lat);
+  const lat2 = toRadians(drop.lat);
+  const deltaLat = toRadians(drop.lat - pickup.lat);
+  const deltaLon = toRadians(drop.lon - pickup.lon);
+  const haversine =
+    Math.sin(deltaLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) *
+      Math.sin(deltaLon / 2) ** 2;
+  const straightKm =
+    6371 * 2 *
+    Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+
+  return straightKm <= 35 ? "city" : "outstation";
 };
 
 const isIndia = (lat: number, lon: number) =>
