@@ -2730,6 +2730,7 @@ export default function Home() {
                 Edit profile
               </button>
             )}
+            <button className="profile-signout-button" onClick={signOut}><LogOut size={17} /> Sign out</button>
             {notice && <div className="notice">{notice}</div>}
           </div>
         </div>
