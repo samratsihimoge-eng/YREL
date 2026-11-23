@@ -321,6 +321,8 @@ export default function Home() {
   const [seatBookings, setSeatBookings] = useState<SeatShareBooking[]>([]);
 
   const [session, setSession] = useState<any>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [splashVisible, setSplashVisible] = useState(true);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [phone, setPhone] = useState("");
@@ -477,6 +479,7 @@ export default function Home() {
       if (!mounted) return;
 
       setSession(data.session);
+      setAuthReady(true);
 
       if (data.session?.user) {
         void loadCustomer(data.session.user.id);
@@ -488,6 +491,7 @@ export default function Home() {
         if (!mounted) return;
 
         setSession(next);
+        setAuthReady(true);
 
         if (next?.user) {
           window.setTimeout(() => {
@@ -507,6 +511,16 @@ export default function Home() {
       listener.subscription.unsubscribe();
     };
   }, []);
+
+  // First-launch sequence: show the YREL splash, then require customer login.
+  useEffect(() => {
+    const splashTimer = window.setTimeout(() => setSplashVisible(false), 1400);
+    return () => window.clearTimeout(splashTimer);
+  }, []);
+
+  useEffect(() => {
+    if (!splashVisible && authReady && !session) setAuthOpen(true);
+  }, [splashVisible, authReady, session]);
 
   useEffect(() => {
     if (!seatShareEligible) {
@@ -1448,6 +1462,13 @@ export default function Home() {
 
   return (
     <main className="site-shell">
+      {splashVisible && (
+        <div className="yrel-splash-screen" role="status" aria-label="YREL loading">
+          <img src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL" />
+          <span>Your city. Your fun. Just YREL it.</span>
+          <div className="yrel-splash-loader" />
+        </div>
+      )}
       <header className="topbar yrel-fixed-header">
         <button className="header-menu-button" onClick={() => { setMenuOpen(true); setMenuSection("list"); }} aria-label="Open menu">
           <Menu size={23} />
