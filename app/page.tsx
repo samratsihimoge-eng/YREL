@@ -5,7 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   ArrowRight, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
-  UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users
+  UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users,
+  Home, ClipboardList, Bell, Headphones, BookOpen, FileText, Ban, ArrowLeft, Phone, MessageCircle, Mail
 } from "lucide-react";
 
 type Service = "cab" | "driver" | "rental";
@@ -334,6 +335,8 @@ export default function Home() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation">("list");
+  const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
   const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
 
@@ -1445,108 +1448,95 @@ export default function Home() {
 
   return (
     <main className="site-shell">
-      <header className="topbar">
-        <a className="brand" href="#" aria-label="YREL home">
-          
-<img
-  className="brand-logo"
-  src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png"
-  alt="YREL — Run with Fun"
-/>
+      <header className="topbar yrel-fixed-header">
+        <button className="header-menu-button" onClick={() => { setMenuOpen(true); setMenuSection("list"); }} aria-label="Open menu">
+          <Menu size={23} />
+        </button>
+        <a className="brand header-brand" href="#" aria-label="YREL home">
+          <img className="brand-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
         </a>
-
-        <nav className="desktop-nav">
-          <a href="/services">Services</a>
-          <a href="/how-it-works">How it works</a>
-          {session && <a href="#history">My bookings</a>}
-          <a href="/privacy-policy">Privacy Policy</a>
-          <a href="/terms-and-conditions">Terms & Conditions</a>
-          <a href="/cancellation-policy">Cancellation Policy</a>
-        </nav>
-
-        <div className="top-actions">
-          <select
-            className="language-select"
-            value={language}
-            onChange={(e) =>
-              setLanguage(e.target.value as "en" | "kn" | "hi")
+        <button
+          className="profile-button header-profile-button"
+          onClick={() => {
+            if (session && customer) {
+              setProfileNameDraft(customer.full_name);
+              setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, ""));
+              setProfileEditMode(false);
+              setNotice("");
+              setProfileOpen(true);
+            } else {
+              setNotice("");
+              setAuthOpen(true);
             }
-            aria-label="Language"
-          >
-            <option value="en">English</option>
-            <option value="kn">ಕನ್ನಡ</option>
-            <option value="hi">हिन्दी</option>
-          </select>
-
-          {session ? (
-            <>
-              {customer && (
-                <button
-                  className="profile-button"
-                  onClick={() => {
-                    setProfileNameDraft(customer.full_name);
-                    setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, ""));
-                    setProfileEditMode(false);
-                    setNotice("");
-                    setProfileOpen(true);
-                  }}
-                  aria-label="Customer profile"
-                  title="My profile"
-                >
-                  <UserRound size={17} />
-                </button>
-              )}
-              <button className="login-button" onClick={signOut}>
-                <LogOut size={16} /> Sign out
-              </button>
-            </>
-          ) : (
-            <button
-              className="login-button"
-              onClick={() => {
-                setNotice("");
-                setAuthOpen(true);
-              }}
-            >
-              <UserRound size={16} /> Login
-            </button>
-          )}
-
-          <button
-            className="mobile-menu"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menu"
-          >
-            {menuOpen ? <X /> : <Menu />}
-          </button>
-        </div>
+          }}
+          aria-label="Profile"
+          title="Profile"
+        >
+          <UserRound size={20} />
+        </button>
       </header>
 
       {menuOpen && (
-        <nav className="mobile-nav">
-          <a href="/how-it-works" onClick={() => setMenuOpen(false)}>
-            How it works
-          </a>
-          <a href="/services" onClick={() => setMenuOpen(false)}>
-            Services
-          </a>
-          {session && (
-            <a href="#history" onClick={() => setMenuOpen(false)}>
-              My bookings
-            </a>
-          )}
-          <a href="/privacy-policy" onClick={() => setMenuOpen(false)}>
-            Privacy Policy
-          </a>
-          <a href="/terms-and-conditions" onClick={() => setMenuOpen(false)}>
-            Terms & Conditions
-          </a>
-          <a href="/cancellation-policy" onClick={() => setMenuOpen(false)}>
-            Cancellation Policy
-          </a>
-        </nav>
+        <div className="app-panel-backdrop" onClick={() => { setMenuOpen(false); setMenuSection("list"); }}>
+          <section className="app-menu-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="app-panel-heading">
+              {menuSection !== "list" ? (
+                <button className="app-back-button" onClick={() => setMenuSection("list")} aria-label="Back to menu"><ArrowRight className="back-arrow" size={19} /></button>
+              ) : <span className="app-panel-mark"><Menu size={19} /></span>}
+              <h2>{menuSection === "list" ? "Menu" : ({
+                how: "How it works", services: "Services", privacy: "Privacy Policy",
+                terms: "Terms & Conditions", cancellation: "Cancellation Policy"
+              } as const)[menuSection]}</h2>
+              <button className="app-panel-close" onClick={() => { setMenuOpen(false); setMenuSection("list"); }} aria-label="Close menu"><X size={20} /></button>
+            </div>
+            {menuSection === "list" ? (
+              <div className="app-menu-options">
+                <button onClick={() => setMenuSection("how")}><BookOpen size={20} /><span>How it works</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("services")}><CarFront size={20} /><span>Services</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("privacy")}><ShieldCheck size={20} /><span>Privacy Policy</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("terms")}><FileText size={20} /><span>Terms & Conditions</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("cancellation")}><Ban size={20} /><span>Cancellation Policy</span><ArrowRight size={17} /></button>
+              </div>
+            ) : (
+              <div className="app-menu-detail">
+                {menuSection === "how" && <>
+                  <p>YREL ಮೂಲಕ ಪ್ರಯಾಣ ಅಥವಾ ಡ್ರೈವರ್ ಸೇವೆಯನ್ನು ಸುಲಭವಾಗಿ ಬುಕ್ ಮಾಡಬಹುದು.</p>
+                  <h3>1. ಸೇವೆ ಆಯ್ಕೆಮಾಡಿ</h3><p>Cab, Driver ಅಥವಾ Cab Rentals ಆಯ್ಕೆಮಾಡಿ.</p>
+                  <h3>2. ಸ್ಥಳ ನಮೂದಿಸಿ</h3><p>Pickup ಮತ್ತು Destination ಆಯ್ಕೆಮಾಡಿ. ತೋರಿಸಿದ ದೂರ ಮತ್ತು ಅಂದಾಜು ದರ ಪರಿಶೀಲಿಸಿ.</p>
+                  <h3>3. ಸಮಯ ಆಯ್ಕೆಮಾಡಿ</h3><p>ತಕ್ಷಣದ ಅಥವಾ ಮುಂಗಡ ಬುಕ್ಕಿಂಗ್ ಆಯ್ಕೆಮಾಡಿ.</p>
+                  <h3>4. ಬುಕ್ಕಿಂಗ್ ದೃಢೀಕರಿಸಿ</h3><p>Book Now ಒತ್ತಿ. ಬುಕ್ಕಿಂಗ್ ಸ್ಥಿತಿ ಮತ್ತು ಲಭ್ಯವಿರುವ ಅಪ್‌ಡೇಟ್‌ಗಳನ್ನು My Bookings ನಲ್ಲಿ ನೋಡಿ.</p>
+                </>}
+                {menuSection === "services" && <>
+                  <h3>Cab</h3><p>ನಗರ ಮತ್ತು ಹೊರನಗರ ಪ್ರಯಾಣಕ್ಕೆ ಸೂಕ್ತ ವಾಹನವನ್ನು ಆಯ್ಕೆಮಾಡಿ.</p>
+                  <h3>Driver</h3><p>ನಿಮ್ಮ ವಾಹನವನ್ನು ಚಲಾಯಿಸಲು ವೃತ್ತಿಪರ ಡ್ರೈವರ್ ಬುಕ್ ಮಾಡಿ.</p>
+                  <h3>Cab Rentals</h3><p>ಗಂಟೆ ಅಥವಾ ದಿನದ ಆಧಾರದ ಮೇಲೆ ಕ್ಯಾಬ್ ಬಾಡಿಗೆಗೆ ಕಾಯ್ದಿರಿಸಿ.</p>
+                  <h3>Seat Sharing</h3><p>ಅರ್ಹ ಹೊರನಗರ ಅಥವಾ ವಿಮಾನ ನಿಲ್ದಾಣ ಮಾರ್ಗಗಳಲ್ಲಿ ಲಭ್ಯವಿದ್ದರೆ ಸೀಟ್ ಬುಕ್ ಮಾಡಿ.</p>
+                </>}
+                {menuSection === "privacy" && <>
+                  <p>YREL ಬುಕ್ಕಿಂಗ್ ಮತ್ತು ಗ್ರಾಹಕ ಸೇವೆ ಒದಗಿಸಲು ಅಗತ್ಯವಿರುವ ಮಾಹಿತಿಯನ್ನು ಮಾತ್ರ ಬಳಸುತ್ತದೆ.</p>
+                  <h3>ನಾವು ಬಳಸುವ ಮಾಹಿತಿ</h3><p>ನಿಮ್ಮ ಹೆಸರು, ಮೊಬೈಲ್ ಸಂಖ್ಯೆ, ಖಾತೆ ವಿವರಗಳು, ಪಿಕಪ್ ಮತ್ತು ಗಮ್ಯಸ್ಥಾನ, ಬುಕ್ಕಿಂಗ್ ವಿವರಗಳು.</p>
+                  <h3>ಮಾಹಿತಿಯ ಬಳಕೆ</h3><p>ಬುಕ್ಕಿಂಗ್ ನಿರ್ವಹಣೆ, ಡ್ರೈವರ್ ಸಂಪರ್ಕ, ಗ್ರಾಹಕ ಬೆಂಬಲ, ಸುರಕ್ಷತೆ ಮತ್ತು ಸೇವೆಯ ಸುಧಾರಣೆ.</p>
+                  <h3>ಸಂಪರ್ಕ</h3><p>ಗೌಪ್ಯತೆ ಸಂಬಂಧಿತ ಪ್ರಶ್ನೆಗಳಿಗೆ yrelcabs@gmail.com ಸಂಪರ್ಕಿಸಿ.</p>
+                </>}
+                {menuSection === "terms" && <>
+                  <p>YREL ಬಳಸಿ ಬುಕ್ಕಿಂಗ್ ಮಾಡುವಾಗ ಕೆಳಗಿನ ಮೂಲ ನಿಯಮಗಳು ಅನ್ವಯಿಸುತ್ತವೆ.</p>
+                  <h3>ಬುಕ್ಕಿಂಗ್ ಮಾಹಿತಿ</h3><p>ಸರಿಯಾದ ಸಂಪರ್ಕ ಸಂಖ್ಯೆ, ಪಿಕಪ್, ಗಮ್ಯಸ್ಥಾನ ಮತ್ತು ಪ್ರಯಾಣದ ಸಮಯ ಒದಗಿಸುವುದು ಗ್ರಾಹಕರ ಜವಾಬ್ದಾರಿ.</p>
+                  <h3>ದರ ಮತ್ತು ಸೇವೆ</h3><p>ಬುಕ್ಕಿಂಗ್ ಮಾಡುವ ಮೊದಲು ತೋರಿಸಲಾದ ಅಂದಾಜು ದರ ಮತ್ತು ಸೇವಾ ವಿವರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ. ಹೆಚ್ಚುವರಿ ದೂರ ಅಥವಾ ಸಮಯಕ್ಕೆ ಅನ್ವಯಿಸುವ ಶುಲ್ಕಗಳು ಇರಬಹುದು.</p>
+                  <h3>ಸುರಕ್ಷತೆ</h3><p>ಪ್ರಯಾಣ ಆರಂಭಿಸುವ ಮೊದಲು ಚಾಲಕ ಮತ್ತು ವಾಹನದ ವಿವರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ. ಅಗತ್ಯವಿದ್ದಲ್ಲಿ OTP ಅನ್ನು ಚಾಲಕನಿಗೆ ಮಾತ್ರ ತಿಳಿಸಿ.</p>
+                  <h3>ಸಹಾಯ</h3><p>ಸೇವೆಗೆ ಸಂಬಂಧಿಸಿದ ಪ್ರಶ್ನೆಗಳಿಗೆ YREL Support ಸಂಪರ್ಕಿಸಿ.</p>
+                </>}
+                {menuSection === "cancellation" && <>
+                  <p>ಬುಕ್ಕಿಂಗ್ ರದ್ದತಿ ಶುಲ್ಕವು ಚಾಲಕನ ಆಗಮನದ ಸ್ಥಿತಿಯನ್ನು ಅವಲಂಬಿಸಿರುತ್ತದೆ.</p>
+                  <h3>ಚಾಲಕ ಬರುವ ಮೊದಲು</h3><p>ಚಾಲಕ ಪಿಕಪ್ ಸ್ಥಳಕ್ಕೆ ತಲುಪುವ ಮೊದಲು ಗ್ರಾಹಕರು ರದ್ದು ಮಾಡಿದರೆ ರದ್ದತಿ ಶುಲ್ಕವಿಲ್ಲ.</p>
+                  <h3>ಚಾಲಕ ತಲುಪಿದ ನಂತರ</h3><p>ಚಾಲಕ ಪಿಕಪ್ ಸ್ಥಳಕ್ಕೆ ತಲುಪಿದ ನಂತರ ಗ್ರಾಹಕರು ರದ್ದು ಮಾಡಿದರೆ ₹30 ರದ್ದತಿ ಶುಲ್ಕ ಅನ್ವಯಿಸುತ್ತದೆ.</p>
+                  <h3>ಚಾಲಕ ಸ್ವತಃ ರದ್ದು ಮಾಡಿದರೆ</h3><p>ಚಾಲಕ ರದ್ದು ಮಾಡಿದರೆ ಅಥವಾ ಬರದಿದ್ದರೆ ಗ್ರಾಹಕರಿಗೆ ರದ್ದತಿ ಶುಲ್ಕ ವಿಧಿಸಬಾರದು.</p>
+                  <h3>ಯಾರೂ ಸ್ವೀಕರಿಸದಿದ್ದರೆ</h3><p>ತಕ್ಷಣದ ಕ್ಯಾಬ್ ವಿನಂತಿಯನ್ನು ಒಂದು ನಿಮಿಷದೊಳಗೆ ಯಾವುದೇ ಚಾಲಕ ಸ್ವೀಕರಿಸದಿದ್ದರೆ ರದ್ದತಿ ಶುಲ್ಕವಿಲ್ಲ.</p>
+                </>}
+              </div>
+            )}
+          </section>
+        </div>
       )}
-
       <section className="hero">
         <div className="hero-copy">
           <span className="eyebrow">
@@ -2587,6 +2577,37 @@ export default function Home() {
             </>
           )}
         </section>
+      )}
+
+      <nav className="yrel-bottom-nav" aria-label="Main navigation">
+        <button aria-label="Home" title="Home" onClick={() => { setBottomPanel(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}><Home size={22} /></button>
+        <button aria-label="My Bookings" title="My Bookings" onClick={() => { setBottomPanel(null); if (!session) setAuthOpen(true); else document.getElementById("history")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}><ClipboardList size={22} /></button>
+        <button className="support-nav-button" aria-label="Support" onClick={() => setBottomPanel("support")}><Headphones size={21} /><span>Support</span></button>
+        <button aria-label="Notifications" title="Notifications" onClick={() => setBottomPanel("notifications")}><Bell size={22} /></button>
+      </nav>
+
+      {bottomPanel && (
+        <div className="app-panel-backdrop bottom-panel-backdrop" onClick={() => setBottomPanel(null)}>
+          <section className="app-menu-panel bottom-info-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="app-panel-heading">
+              <span className="app-panel-mark">{bottomPanel === "support" ? <Headphones size={19} /> : <Bell size={19} />}</span>
+              <h2>{bottomPanel === "support" ? "Support" : "Notifications"}</h2>
+              <button className="app-panel-close" onClick={() => setBottomPanel(null)} aria-label="Close"><X size={20} /></button>
+            </div>
+            {bottomPanel === "support" ? (
+              <div className="app-menu-detail support-actions">
+                <p>YREL ಸಹಾಯಕ್ಕಾಗಿ ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ.</p>
+                <a href="tel:+919742809306"><Phone size={19} /> Call YREL Support</a>
+                <a href="https://wa.me/919742809306" target="_blank" rel="noreferrer"><MessageCircle size={19} /> WhatsApp Support</a>
+                <a href="mailto:yrelcabs@gmail.com"><Mail size={19} /> Email Support</a>
+              </div>
+            ) : (
+              <div className="app-menu-detail">
+                {session ? <><p>ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗೆ ಸಂಬಂಧಿಸಿದ ಹೊಸ ಅಪ್‌ಡೇಟ್‌ಗಳು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತವೆ.</p>{bookings.length ? bookings.slice(0,5).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><Bell size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.status}</span><small>{b.pickup} → {b.dropoff || "—"}</small></div></article>) : <p>ಇನ್ನೂ ಯಾವುದೇ ಬುಕ್ಕಿಂಗ್ ಅಪ್‌ಡೇಟ್‌ಗಳಿಲ್ಲ.</p>}</> : <p>ಬುಕ್ಕಿಂಗ್ ಅಧಿಸೂಚನೆಗಳನ್ನು ನೋಡಲು ದಯವಿಟ್ಟು Login ಮಾಡಿ.</p>}
+              </div>
+            )}
+          </section>
+        </div>
       )}
 
       <footer className="footer">
