@@ -1456,10 +1456,12 @@ export default function Home() {
         </a>
 
         <nav className="desktop-nav">
-          <a href="#services">Services</a>
-          <a href="#how">How it works</a>
+          <a href="/services">Services</a>
+          <a href="/how-it-works">How it works</a>
           {session && <a href="#history">My bookings</a>}
-          <a href="/policies">Policies & Help</a>
+          <a href="/privacy-policy">Privacy Policy</a>
+          <a href="/terms-and-conditions">Terms & Conditions</a>
+          <a href="/cancellation-policy">Cancellation Policy</a>
         </nav>
 
         <div className="top-actions">
@@ -1522,10 +1524,10 @@ export default function Home() {
 
       {menuOpen && (
         <nav className="mobile-nav">
-          <a href="#services" onClick={() => setMenuOpen(false)}>
+          <a href="/services" onClick={() => setMenuOpen(false)}>
             Services
           </a>
-          <a href="#how" onClick={() => setMenuOpen(false)}>
+          <a href="/how-it-works" onClick={() => setMenuOpen(false)}>
             How it works
           </a>
           {session && (
@@ -1533,9 +1535,9 @@ export default function Home() {
               My bookings
             </a>
           )}
-          <a href="/policies" onClick={() => setMenuOpen(false)}>
-            Privacy Policy · Terms · Cancellation
-          </a>
+          <a href="/privacy-policy" onClick={() => setMenuOpen(false)}>Privacy Policy</a>
+          <a href="/terms-and-conditions" onClick={() => setMenuOpen(false)}>Terms & Conditions</a>
+          <a href="/cancellation-policy" onClick={() => setMenuOpen(false)}>Cancellation Policy</a>
         </nav>
       )}
 
