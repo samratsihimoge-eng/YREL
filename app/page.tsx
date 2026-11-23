@@ -288,6 +288,10 @@ export default function Home() {
   const [fullName, setFullName] = useState("");
   const [authOpen, setAuthOpen] = useState(false);
   const [profileSetupOpen, setProfileSetupOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileEditMode, setProfileEditMode] = useState(false);
+  const [profileNameDraft, setProfileNameDraft] = useState("");
+  const [profilePhoneDraft, setProfilePhoneDraft] = useState("");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
@@ -953,6 +957,44 @@ export default function Home() {
     ]);
   }
 
+  async function saveCustomerProfile() {
+    if (!customer || !session?.user) return;
+
+    const name = profileNameDraft.trim();
+    const digits = profilePhoneDraft.replace(/\D/g, "");
+
+    if (name.length < 2) {
+      setNotice("ದಯವಿಟ್ಟು ಸರಿಯಾದ ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ.");
+      return;
+    }
+    if (!/^[6-9]\d{9}$/.test(digits)) {
+      setNotice("ದಯವಿಟ್ಟು ಸರಿಯಾದ 10 ಅಂಕಿಯ Indian mobile number ನಮೂದಿಸಿ.");
+      return;
+    }
+
+    setBusy(true);
+    setNotice("");
+    const { data, error } = await supabase
+      .from("customers")
+      .update({
+        full_name: name,
+        phone: `+91${digits}`,
+      })
+      .eq("id", session.user.id)
+      .select("id, customer_code, full_name, phone, phone_verified")
+      .single();
+    setBusy(false);
+
+    if (error) {
+      setNotice(`Profile update failed: ${error.message}`);
+      return;
+    }
+
+    setCustomer(data as Customer);
+    setProfileEditMode(false);
+    setNotice("ನಿಮ್ಮ Profile ಯಶಸ್ವಿಯಾಗಿ Update ಆಗಿದೆ.");
+  }
+
   function getScheduledAt() {
     if (
       schedule === "now" &&
@@ -1372,9 +1414,27 @@ export default function Home() {
           </select>
 
           {session ? (
-            <button className="login-button" onClick={signOut}>
-              <LogOut size={16} /> Sign out
-            </button>
+            <>
+              {customer && (
+                <button
+                  className="profile-button"
+                  onClick={() => {
+                    setProfileNameDraft(customer.full_name);
+                    setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, ""));
+                    setProfileEditMode(false);
+                    setNotice("");
+                    setProfileOpen(true);
+                  }}
+                  aria-label="Customer profile"
+                  title="My profile"
+                >
+                  <UserRound size={17} />
+                </button>
+              )}
+              <button className="login-button" onClick={signOut}>
+                <LogOut size={16} /> Sign out
+              </button>
+            </>
           ) : (
             <button
               className="login-button"
@@ -2525,6 +2585,49 @@ export default function Home() {
         </div>
       )}
 
+      {profileOpen && customer && session && (
+        <div className="modal-backdrop" onClick={() => setProfileOpen(false)}>
+          <div className="auth-modal profile-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setProfileOpen(false)} aria-label="Close profile">
+              <X />
+            </button>
+            <div className="modal-symbol"><UserRound /></div>
+            <span className="eyebrow">YOUR YREL ACCOUNT</span>
+            <h2>Customer Profile</h2>
+            <div className="profile-details">
+              <div><small>Customer ID</small><b>{customer.customer_code}</b></div>
+              <div>
+                <small>Full name</small>
+                {profileEditMode ? (
+                  <input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Full name" />
+                ) : <b>{customer.full_name}</b>}
+              </div>
+              <div>
+                <small>Mobile number</small>
+                {profileEditMode ? (
+                  <div className="location-input profile-phone-input">
+                    <span>+91</span>
+                    <input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" />
+                  </div>
+                ) : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}
+              </div>
+              <div><small>Email ID</small><b className="profile-email">{session.user.email || "Not available"}</b></div>
+            </div>
+            <p className="hint">Google ಮೂಲಕ Login ಆಗಿರುವ Email ID ಅನ್ನು ಇಲ್ಲಿ ತೋರಿಸಲಾಗುತ್ತದೆ. Email ಬದಲಾವಣೆ Google Account ಮೂಲಕವೇ ಮಾಡಬೇಕು.</p>
+            {profileEditMode ? (
+              <button className="book-button full" onClick={saveCustomerProfile} disabled={busy}>
+                {busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} />
+              </button>
+            ) : (
+              <button className="book-button full" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, "")); setProfileEditMode(true); setNotice(""); }}>
+                Edit profile
+              </button>
+            )}
+            {notice && <div className="notice">{notice}</div>}
+          </div>
+        </div>
+      )}
+
       {profileSetupOpen && session && (
         <div className="modal-backdrop">
           <div
@@ -2559,9 +2662,10 @@ export default function Home() {
               <div className="location-input">
                 <span>+91</span>
                 <input
-                  className="email-input"
+                  className="phone-number-input"
                   type="tel"
                   inputMode="numeric"
+                  autoComplete="tel-national"
                   maxLength={10}
                   value={phone}
                   onChange={(e) =>
