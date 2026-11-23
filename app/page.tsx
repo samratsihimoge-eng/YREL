@@ -1460,7 +1460,7 @@ export default function Home() {
           onClick={() => {
             if (session && customer) {
               setProfileNameDraft(customer.full_name);
-              setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, ""));
+              setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, ""));
               setProfileEditMode(false);
               setNotice("");
               setProfileOpen(true);
