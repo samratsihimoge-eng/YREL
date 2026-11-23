@@ -2140,30 +2140,54 @@ export default function Home() {
           {service === "cab" &&
             bookingArea === "city" &&
             !seatShareMode && (
-              <div className="schedule-row">
-                <span>
-                  <CalendarDays size={17} />
-                  When do you need the cab?
-                </span>
+              <>
+                <div className="schedule-row">
+                  <button
+                    type="button"
+                    className={
+                      schedule === "now" ? "pill active" : "pill"
+                    }
+                    aria-pressed={schedule === "now"}
+                    onClick={() => setSchedule("now")}
+                  >
+                    Instant Booking
+                  </button>
 
-                <button
-                  className={
-                    schedule === "now" ? "pill active" : "pill"
-                  }
-                  onClick={() => setSchedule("now")}
-                >
-                  Now
-                </button>
+                  <button
+                    type="button"
+                    className={
+                      schedule === "later" ? "pill active" : "pill"
+                    }
+                    aria-pressed={schedule === "later"}
+                    onClick={() => setSchedule("later")}
+                  >
+                    Advance Booking
+                  </button>
+                </div>
 
-                <button
-                  className={
-                    schedule === "later" ? "pill active" : "pill"
-                  }
-                  onClick={() => setSchedule("later")}
-                >
-                  Later
-                </button>
-              </div>
+                {schedule === "later" && (
+                  <div className="option-fields date-fields">
+                    <label>
+                      Pickup date
+                      <input
+                        type="date"
+                        value={date}
+                        min={localDateString()}
+                        onChange={(e) => setDate(e.target.value)}
+                      />
+                    </label>
+
+                    <label>
+                      Pickup time
+                      <input
+                        type="time"
+                        value={time}
+                        onChange={(e) => setTime(e.target.value)}
+                      />
+                    </label>
+                  </div>
+                )}
+              </>
             )}
         
           {!seatShareMode && (
