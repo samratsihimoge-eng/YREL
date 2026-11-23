@@ -543,3 +543,44 @@ button {
     scroll-behavior: auto;
   }
 }
+
+
+/* Customer profile access and profile details */
+.profile-button {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--orange-dark);
+  box-shadow: 0 4px 12px rgba(83,43,20,.06);
+}
+.profile-button:hover { border-color: var(--orange); background: var(--orange-soft); }
+.profile-details {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0 12px;
+  text-align: left;
+}
+.profile-details > div {
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #FFFCF9;
+  min-width: 0;
+}
+.profile-details small { color: var(--muted); font-size: 11px; font-weight: 700; }
+.profile-details b { overflow-wrap: anywhere; font-size: 13px; }
+.profile-details .profile-email { font-weight: 600; }
+.profile-phone-input { width: 100%; margin-top: 3px; }
+.profile-modal .hint { text-align: left; }
+@media (max-width: 430px) {
+  .profile-button { width: 37px; height: 37px; }
+  .top-actions { gap: 7px; }
+  .profile-modal { padding: 28px 19px; }
+}
