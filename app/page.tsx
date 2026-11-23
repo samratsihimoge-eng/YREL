@@ -113,19 +113,29 @@ const money = (n: number) =>
 
 const normalizeCity = (value?: string) =>
   (value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .trim()
     .toLocaleLowerCase("en-IN")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
     .replace(/\s+/g, " ");
 
 const getAutoCabArea = (
   pickup: Place | null,
   drop: Place | null
 ): Area | null => {
-  if (!pickup?.city || !drop?.city) return null;
+  // Do not guess when Photon has not supplied a reliable city/town value.
+  if (!pickup?.city?.trim() || !drop?.city?.trim()) return null;
 
-  return normalizeCity(pickup.city) === normalizeCity(drop.city)
-    ? "city"
-    : "outstation";
+  const sameCity =
+    normalizeCity(pickup.city) === normalizeCity(drop.city);
+
+  const pickupState = normalizeCity(pickup.state);
+  const dropState = normalizeCity(drop.state);
+  const stateKnown = Boolean(pickupState && dropState);
+  const sameState = !stateKnown || pickupState === dropState;
+
+  return sameCity && sameState ? "city" : "outstation";
 };
 
 const isIndia = (lat: number, lon: number) =>
@@ -499,14 +509,14 @@ export default function Home() {
       const options: Place[] = (json.features || [])
         .map((f: any) => {
           const p = f.properties || {};
-                    const city =
+                    // Use actual settlement fields only. District/county can cover
+          // multiple towns and must not be mistaken for a city.
+          const city =
             p.city ||
             p.town ||
             p.village ||
             p.municipality ||
             p.locality ||
-            p.district ||
-            p.county ||
             "";
           const state = p.state || "";
           const name =
