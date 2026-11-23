@@ -1524,20 +1524,26 @@ export default function Home() {
 
       {menuOpen && (
         <nav className="mobile-nav">
-          <a href="/services" onClick={() => setMenuOpen(false)}>
-            Services
-          </a>
           <a href="/how-it-works" onClick={() => setMenuOpen(false)}>
             How it works
+          </a>
+          <a href="/services" onClick={() => setMenuOpen(false)}>
+            Services
           </a>
           {session && (
             <a href="#history" onClick={() => setMenuOpen(false)}>
               My bookings
             </a>
           )}
-          <a href="/privacy-policy" onClick={() => setMenuOpen(false)}>Privacy Policy</a>
-          <a href="/terms-and-conditions" onClick={() => setMenuOpen(false)}>Terms & Conditions</a>
-          <a href="/cancellation-policy" onClick={() => setMenuOpen(false)}>Cancellation Policy</a>
+          <a href="/privacy-policy" onClick={() => setMenuOpen(false)}>
+            Privacy Policy
+          </a>
+          <a href="/terms-and-conditions" onClick={() => setMenuOpen(false)}>
+            Terms & Conditions
+          </a>
+          <a href="/cancellation-policy" onClick={() => setMenuOpen(false)}>
+            Cancellation Policy
+          </a>
         </nav>
       )}
 
