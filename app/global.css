@@ -2134,3 +2134,94 @@ button {
 .booking-switch-row .compact-choice .choice { background:transparent !important; }
 .booking-switch-row .compact-choice .choice.active { background:linear-gradient(110deg,#b92d3d,#e34b2e 52%,#ff861e) !important; }
 @media(max-width:760px) { .notification-card { padding:13px 11px; gap:10px; } .notification-topline { flex-direction:column; gap:3px; } .notification-topline time { text-align:left; } .location-swap-button { width:36px !important; height:36px !important; } .booking-switch-row { gap:5px !important; } .booking-switch-row .schedule-row .pill, .booking-switch-row .compact-choice .choice { font-size:clamp(9px,2.65vw,12px) !important; padding-inline:4px !important; } }
+
+
+/* YREL dashboard finishing alignment: white controls, vertical locations,
+   fare note before the animated road, and a compact bottom footer. */
+.booking-card .location-input {
+  background:#fff !important;
+  border:1px solid rgba(190,145,115,.34) !important;
+  box-shadow:0 2px 8px rgba(80,48,32,.035) !important;
+}
+.booking-card .location-input input { background:transparent !important; }
+.location-grid {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) 46px !important;
+  grid-template-rows:auto auto !important;
+  align-items:center !important;
+  column-gap:10px !important;
+  row-gap:5px !important;
+}
+.location-grid > .field-wrap:first-child { grid-column:1; grid-row:1; min-width:0; }
+.location-grid > .location-swap-button {
+  grid-column:2; grid-row:1 / span 2;
+  justify-self:center; align-self:center;
+  width:42px !important; height:42px !important;
+}
+.location-grid > .field-wrap:last-child { grid-column:1; grid-row:2; min-width:0; }
+.location-grid .pin-location-link {
+  display:flex !important; justify-content:flex-end !important;
+  width:100% !important; margin:2px 7px 0 0 !important;
+  padding:1px 0 !important; text-align:right !important;
+}
+.booking-switch-row .schedule-row,
+.booking-switch-row .compact-choice {
+  background:#fff !important;
+}
+.booking-switch-row .schedule-row .pill:not(.active),
+.booking-switch-row .compact-choice .choice:not(.active) {
+  background:#fff !important;
+}
+.booking-switch-row .compact-choice .choice.active {
+  background:linear-gradient(110deg,#b92d3d,#e34b2e 52%,#ff861e) !important;
+}
+.vehicle-option, .vehicle-option.selected {
+  background:#fff !important;
+}
+.vehicle-option.selected {
+  border-color:#e78a4a !important;
+  box-shadow:0 4px 12px rgba(195,112,46,.10) !important;
+}
+.field-label { text-transform:none !important; }
+.fare-disclaimer {
+  margin:10px 0 2px !important;
+  line-height:1.5 !important;
+}
+.fare-panel + .fare-disclaimer + .yrel-road-animation {
+  margin-top:8px !important;
+}
+.yrel-road-animation {
+  margin-top:8px !important;
+  margin-bottom:10px !important;
+}
+.trust-strip { margin-top:8px !important; }
+.footer.yrel-app-footer {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  flex-wrap:nowrap !important;
+  gap:10px !important;
+  min-height:58px !important;
+  margin-top:10px !important;
+  margin-bottom:0 !important;
+  padding:8px 14px calc(8px + env(safe-area-inset-bottom)) !important;
+}
+.footer.yrel-app-footer > span:first-child {
+  flex:1 1 auto !important; min-width:0 !important;
+  text-align:left !important; white-space:normal !important;
+}
+.footer.yrel-app-footer .yrel-app-version {
+  flex:0 0 auto !important; white-space:nowrap !important;
+}
+.footer.yrel-app-footer .yrel-footer-logo {
+  flex:0 0 58px !important; width:58px !important;
+  height:40px !important; object-fit:contain !important;
+}
+@media(max-width:760px) {
+  .location-grid { grid-template-columns:minmax(0,1fr) 42px !important; column-gap:7px !important; row-gap:3px !important; }
+  .location-grid > .location-swap-button { width:38px !important; height:38px !important; }
+  .booking-card .location-input { min-height:54px !important; }
+  .footer.yrel-app-footer { min-height:52px !important; padding:6px 10px calc(6px + env(safe-area-inset-bottom)) !important; gap:6px !important; }
+  .footer.yrel-app-footer span { font-size:9px !important; }
+  .footer.yrel-app-footer .yrel-footer-logo { flex-basis:48px !important; width:48px !important; height:34px !important; }
+}
