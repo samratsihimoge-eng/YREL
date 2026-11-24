@@ -1219,7 +1219,7 @@ export default function Home() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "https://yrel-lilac.vercel.app",
+        redirectTo: window.location.origin,
       },
     });
 
