@@ -2477,8 +2477,8 @@ export default function Home() {
         <div className="app-panel-backdrop bottom-panel-backdrop" onClick={() => setBottomPanel(null)}>
           <section className="app-menu-panel bottom-info-panel" onClick={(e) => e.stopPropagation()}>
             <div className="app-panel-heading">
-              <span className="app-panel-mark">{bottomPanel === "support" ? <Headphones size={19} /> : <Bell size={19} />}</span>
-              <h2>{bottomPanel === "support" ? "Support" : "Notifications"}</h2>
+              <span className="app-panel-mark">{bottomPanel === "support" ? <Headphones size={19} /> : bottomPanel === "bookings" ? <ClipboardList size={19} /> : <Bell size={19} />}</span>
+              <h2>{bottomPanel === "support" ? "Support" : bottomPanel === "bookings" ? "My Bookings" : "Notifications"}</h2>
               <button className="app-panel-close" onClick={() => setBottomPanel(null)} aria-label="Close"><X size={20} /></button>
             </div>
             {bottomPanel === "support" ? (
@@ -2487,6 +2487,13 @@ export default function Home() {
                 <a href="tel:+919742809306"><Phone size={19} /> Call YREL Support</a>
                 <a href="https://wa.me/919742809306" target="_blank" rel="noreferrer"><MessageCircle size={19} /> WhatsApp Support</a>
                 <a href="mailto:yrelcabs@gmail.com"><Mail size={19} /> Email Support</a>
+              </div>
+            ) : bottomPanel === "bookings" ? (
+              <div className="app-menu-detail">
+                {!session ? <p>ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳನ್ನು ನೋಡಲು ದಯವಿಟ್ಟು Login ಮಾಡಿ.</p> : bookings.length + seatBookings.length === 0 ? <p>ಇನ್ನೂ ಯಾವುದೇ ಬುಕ್ಕಿಂಗ್‌ಗಳಿಲ್ಲ.</p> : <div className="history-list">
+                  {bookings.map((b) => <article className="history-item" key={b.id}><div className="history-icon"><CarFront size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_"," ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString()}</small></div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className="status">{b.status}</span></div></article>)}
+                  {seatBookings.map((b) => <article className="history-item" key={b.id}><div className="history-icon"><Users size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>Seat Sharing · {b.seats_booked} seat(s)</span><small>{b.seat_share_trips?.pickup || "Pickup"} → {b.seat_share_trips?.dropoff || "Destination"}</small></div><div className="history-right"><b>{money(Number(b.total_fare))}</b><span className="status">{b.status}</span></div></article>)}
+                </div>}
               </div>
             ) : (
               <div className="app-menu-detail">
