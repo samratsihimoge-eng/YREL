@@ -1442,14 +1442,27 @@ export default function Home() {
   }
 
   async function signOut() {
-    await supabase.auth.signOut();
+    // Show the mandatory login screen immediately while Supabase clears the session.
+    setProfileOpen(false);
+    setProfileSetupOpen(false);
+    setMenuOpen(false);
+    setBottomPanel(null);
+    setAuthOpen(true);
+    setNotice("");
+
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setAuthOpen(false);
+      setNotice("Sign out failed. Please try again.");
+      return;
+    }
 
     localStorage.removeItem(PHONE_STORAGE_KEY);
-
     setSession(null);
     setCustomer(null);
     setBookings([]);
     setSeatBookings([]);
+    setProfileEditMode(false);
   }
 
   const vehicleOptions =
