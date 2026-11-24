@@ -3269,3 +3269,114 @@ html, body, .site-shell {
 }
 .saved-location-row > div { flex-wrap:wrap !important; }
 .saved-location-row button { min-width:72px !important; }
+
+
+/* Advance booking confirmation — shown instead of the instant search screen. */
+.advance-confirmation-backdrop {
+  position:fixed !important;
+  inset:0 !important;
+  z-index:12000 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:22px !important;
+  background:rgba(42,25,20,.48) !important;
+  backdrop-filter:blur(5px) !important;
+}
+.advance-confirmation-card {
+  width:min(100%,440px) !important;
+  max-height:88dvh !important;
+  overflow-y:auto !important;
+  box-sizing:border-box !important;
+  padding:25px 21px 22px !important;
+  border:1px solid #ead5c8 !important;
+  border-radius:25px !important;
+  background:linear-gradient(160deg,#fffdf9,#fff1e8) !important;
+  box-shadow:0 22px 70px rgba(75,39,28,.24) !important;
+  color:#5c4034 !important;
+  text-align:center !important;
+}
+.advance-confirmation-mark {
+  display:grid !important;
+  place-items:center !important;
+  width:54px !important;
+  height:54px !important;
+  margin:0 auto 13px !important;
+  border-radius:50% !important;
+  background:#e8f5e9 !important;
+  color:#238449 !important;
+  font-size:30px !important;
+  font-weight:900 !important;
+}
+.advance-confirmation-card h2 {
+  margin:0 0 8px !important;
+  color:#783d2d !important;
+  font-size:22px !important;
+  line-height:1.25 !important;
+}
+.advance-confirmation-intro {
+  margin:0 0 17px !important;
+  color:#80695e !important;
+  font-size:14px !important;
+}
+.advance-confirmation-details {
+  display:flex !important;
+  flex-direction:column !important;
+  gap:0 !important;
+  padding:5px 13px !important;
+  border:1px solid #ecd9cc !important;
+  border-radius:15px !important;
+  background:#fff !important;
+  text-align:left !important;
+}
+.advance-confirmation-details > div {
+  display:flex !important;
+  justify-content:space-between !important;
+  align-items:flex-start !important;
+  gap:12px !important;
+  padding:10px 0 !important;
+  border-bottom:1px solid #f1e8e2 !important;
+}
+.advance-confirmation-details > div:last-child { border-bottom:0 !important; }
+.advance-confirmation-details span {
+  flex:0 0 105px !important;
+  color:#967d70 !important;
+  font-size:12px !important;
+}
+.advance-confirmation-details strong {
+  color:#563b30 !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  text-align:right !important;
+  overflow-wrap:anywhere !important;
+}
+.advance-confirmation-details .advance-confirmation-route {
+  display:block !important;
+}
+.advance-confirmation-details .advance-confirmation-route strong {
+  display:block !important;
+  margin-top:4px !important;
+  text-align:left !important;
+}
+.advance-confirmation-notify {
+  margin:16px 2px !important;
+  color:#744a36 !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  line-height:1.55 !important;
+}
+.advance-confirmation-gotit {
+  width:100% !important;
+  min-height:52px !important;
+  border:0 !important;
+  border-radius:15px !important;
+  background:linear-gradient(105deg,#b52f45,#f36a18) !important;
+  color:#fff !important;
+  font-size:16px !important;
+  font-weight:900 !important;
+  box-shadow:0 8px 20px rgba(190,63,45,.2) !important;
+}
+@media (max-width:380px) {
+  .advance-confirmation-card { padding:21px 16px 18px !important; }
+  .advance-confirmation-card h2 { font-size:20px !important; }
+}
