@@ -1790,3 +1790,48 @@ button {
   .dashboard-brand-banner h1 { margin-top: 0 !important; }
   .booking-mode-block .schedule-row .pill { min-height: 40px !important; font-size: 12px !important; }
 }
+
+/* Stable fixed header layout: use an actual three-column grid. */
+.topbar.yrel-fixed-header {
+  display: grid !important; grid-template-columns: 44px minmax(0,1fr) 44px !important;
+  align-items: center !important; justify-content: initial !important; gap: 0 !important;
+  width: 100% !important; max-width: none !important; height: 72px !important;
+  padding: 0 14px !important; overflow: hidden !important; box-sizing: border-box !important;
+}
+.topbar.yrel-fixed-header .header-notification-button { grid-column: 1 !important; grid-row: 1 !important; justify-self: start !important; position: relative !important; z-index: 2 !important; }
+.topbar.yrel-fixed-header .header-brand { grid-column: 2 !important; grid-row: 1 !important; justify-self: center !important; align-self: center !important; display: flex !important; width: 118px !important; height: 62px !important; max-width: 100% !important; margin: 0 !important; transform: none !important; opacity: 1 !important; visibility: visible !important; }
+.topbar.yrel-fixed-header .header-brand .brand-logo { display: block !important; width: 118px !important; height: 62px !important; object-fit: contain !important; object-position: center !important; }
+.topbar.yrel-fixed-header .header-menu-button { grid-column: 3 !important; grid-row: 1 !important; justify-self: end !important; position: relative !important; z-index: 2 !important; }
+.site-shell { padding-top: 72px !important; }
+
+/* Remove cream card fill: let the dashboard gradient flow behind booking controls. */
+.booking-card { background: transparent !important; border: 0 !important; box-shadow: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+.booking-card .field-wrap > label { display: none !important; }
+.location-grid { margin-top: 0 !important; }
+.map-pin-button {
+ display:grid; place-items:center; flex:0 0 36px; width:36px; height:36px;
+ border:1px solid rgba(196,91,55,.20); border-radius:11px; color:#bd4b32; background:rgba(255,239,226,.9);
+}
+.map-pin-button:active { transform:scale(.95); }
+.pin-map-backdrop {
+ position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center;
+ padding:14px; background:rgba(35,22,25,.62); backdrop-filter:blur(5px);
+}
+.pin-map-panel { width:min(680px,100%); padding:14px; border-radius:20px; background:#fffaf5; box-shadow:0 20px 60px rgba(30,15,12,.28); }
+.pin-map-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; color:#493024; font-size:17px; }
+.pin-map-heading button { display:grid; place-items:center; width:38px; height:38px; border:0; border-radius:12px; background:#ffeadc; color:#a74330; }
+.pin-map-panel p { margin:4px 0 10px; color:#806b5e; font-size:12px; }
+.yrel-pin-map { width:100%; height:min(58vh,480px); min-height:300px; border-radius:14px; overflow:hidden; background:#eee; }
+.pin-map-confirm { width:100%; min-height:48px; margin-top:12px; border:0; border-radius:14px; color:#fffaf4; font-weight:800; background:linear-gradient(110deg,#b92d3d,#e34b2e 52%,#ff861e); }
+@media(max-width:760px) {
+ .booking-card { padding-top:8px !important; padding-bottom:12px !important; }
+ .location-grid { gap:10px !important; } .location-input { gap:7px !important; }
+ .map-pin-button { width:34px; height:34px; flex-basis:34px; }
+ .pin-map-panel { padding:12px; border-radius:17px; } .yrel-pin-map { height:58vh; min-height:280px; }
+}
+.yrel-splash-screen img {
+ width:min(76vw,390px) !important; height:auto !important; padding:18px 22px !important;
+ border-radius:30px !important;
+ background:radial-gradient(ellipse,rgba(255,250,244,.98) 0%,rgba(255,244,231,.88) 58%,rgba(255,244,231,0) 78%) !important;
+ filter:drop-shadow(0 10px 22px rgba(48,18,28,.24)) !important; box-sizing:border-box !important;
+}
