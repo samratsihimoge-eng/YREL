@@ -382,6 +382,8 @@ export default function Home() {
   const [trackingBookingId, setTrackingBookingId] = useState<string | null>(null);
   const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [instantSearchBooking, setInstantSearchBooking] = useState<Booking | null>(null);
+  const [instantSearchSeconds, setInstantSearchSeconds] = useState(60);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation" | "language">("list");
@@ -615,6 +617,17 @@ export default function Home() {
   useEffect(() => {
     if (!splashVisible && authReady && !session) setAuthOpen(true);
   }, [splashVisible, authReady, session]);
+
+  useEffect(() => {
+    if (!instantSearchBooking) return;
+    if (instantSearchSeconds <= 0) {
+      setInstantSearchBooking(null);
+      setNotice("No driver accepted within 1 minute. No cancellation fee has been charged. Please try again.");
+      return;
+    }
+    const timer = window.setTimeout(() => setInstantSearchSeconds((seconds) => seconds - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [instantSearchBooking, instantSearchSeconds]);
 
   useEffect(() => {
     if (!seatShareEligible) {
@@ -1559,9 +1572,13 @@ export default function Home() {
       return;
     }
 
-    setNotice(
-      `Your booking is successful! Booking ID: ${data.booking_code}. We will notify you when a driver is assigned.`
-    );
+    if (schedule === "now") {
+      setInstantSearchBooking(data as Booking);
+      setInstantSearchSeconds(60);
+      setNotice("");
+    } else {
+      setNotice(`Advance booking ${data.booking_code} is confirmed as a request. YREL will notify you when a driver is assigned.`);
+    }
 
     await loadBookings(session.user.id);
 
@@ -1711,17 +1728,7 @@ export default function Home() {
           </section>
         </div>
       )}
-      <section className="dashboard-brand-banner" aria-label="YREL">
-        <h1><span>Your city.</span> <em>Your fun.</em> <strong>Just YREL it.</strong></h1>
-        <p><span className="banner-live-dot" /> Instant Booking <i>•</i> Pan India Service</p>
-      </section>
-
       <section className="booking-section" id="services">
-        <div className="service-toolbar">
-          <span className="secure-note">
-            <ShieldCheck size={15} /> Secure booking
-          </span>
-        </div>
 
         <div className="service-tabs">
           <button
@@ -2337,6 +2344,7 @@ export default function Home() {
                   {words.book}
                   <ArrowRight size={18} />
                 </button>
+                <span className="secure-note fare-secure-note"><ShieldCheck size={15} /> Secure booking</span>
               </div>
               {service === "cab" &&
                 bookingArea === "outstation" && (
@@ -2366,7 +2374,6 @@ export default function Home() {
                   </p>
                 )}
 
-              <RoadAnimation />
             </>
           )}
 
@@ -2413,8 +2420,25 @@ export default function Home() {
         </div>
       </section>
 
-      <nav className="yrel-bottom-nav" aria-label="Main navigation">
-        <button aria-label="Home" title="Home" onClick={() => { setBottomPanel(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /></button>
+      <RoadAnimation />
+      <section className="dashboard-brand-banner dashboard-brand-banner-bottom" aria-label="YREL tagline">
+        <h1><span>Your city.</span> <em>Your fun.</em> <strong>Just YREL it.</strong></h1>
+        <p><span className="banner-live-dot" /> Instant Booking <i>•</i> Pan India Service</p>
+      </section>
+
+      {instantSearchBooking && (
+        <section className="instant-search-screen" role="dialog" aria-live="polite" aria-label="Searching for a YREL driver">
+          <div className="instant-search-orbit"><span>Y</span></div>
+          <h2>Finding your YREL driver</h2>
+          <p>We are checking for an available driver near your pickup location.</p>
+          <strong className="instant-search-countdown">00:{String(instantSearchSeconds).padStart(2,"0")}</strong>
+          <small>Booking ID: {instantSearchBooking.booking_code}</small>
+          <button className="instant-search-cancel" onClick={() => cancelCustomerBooking(instantSearchBooking)} disabled={cancellingBookingId===instantSearchBooking.id}>{cancellingBookingId===instantSearchBooking.id ? "Cancelling…" : "Cancel Booking"}</button>
+        </section>
+      )}
+
+      <nav className={`yrel-bottom-nav${instantSearchBooking ? " search-mode" : ""}`} aria-label="Main navigation">
+        <button aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /></button>
         <button aria-label="Profile" title="Profile" onClick={() => {
           if (session && customer) {
             setProfileNameDraft(customer.full_name);
@@ -2427,7 +2451,7 @@ export default function Home() {
             setAuthOpen(true);
           }
         }}><UserRound size={22} /></button>
-        <button aria-label="My Bookings" title="My Bookings" onClick={() => { if (!session) setAuthOpen(true); else setBottomPanel("bookings"); }}><ClipboardList size={22} /></button>
+        <button aria-label="My Bookings" title="My Bookings" onClick={() => { if (!session) setAuthOpen(true); else { setBookingFilter("active"); setBottomPanel("bookings"); } }}><ClipboardList size={22} /></button>
         <button className="support-nav-button" aria-label="Support" onClick={() => setBottomPanel("support")}><Headphones size={21} /><span>Support</span></button>
       </nav>
 
@@ -2442,9 +2466,9 @@ export default function Home() {
             {bottomPanel === "support" ? (
               <div className="app-menu-detail support-actions">
                 <p>YREL ಸಹಾಯಕ್ಕಾಗಿ ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ.</p>
-                <a href="tel:+919742809306"><Phone size={19} /> Call YREL Support</a>
-                <a href="https://wa.me/919742809306" target="_blank" rel="noreferrer"><MessageCircle size={19} /> WhatsApp Support</a>
-                <a href="mailto:yrelcabs@gmail.com"><Mail size={19} /> Email Support</a>
+                <a className="support-call" href="tel:+919742809306"><Phone size={19} /> Call YREL Support</a>
+                <a className="support-whatsapp" href="https://wa.me/919742809306" target="_blank" rel="noreferrer"><MessageCircle size={19} /> WhatsApp Support</a>
+                <a className="support-chat" href="mailto:yrelcabs@gmail.com"><Mail size={19} /> Chat / Email Support</a>
               </div>
             ) : bottomPanel === "bookings" ? (
               <div className="app-menu-detail">
