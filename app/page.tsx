@@ -1598,11 +1598,7 @@ export default function Home() {
       </section>
 
       <section className="booking-section" id="services">
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">BOOK YOUR RIDE</span>
-            <h2>What do you need today?</h2>
-          </div>
+        <div className="service-toolbar">
           <span className="secure-note">
             <ShieldCheck size={15} /> Secure booking
           </span>
