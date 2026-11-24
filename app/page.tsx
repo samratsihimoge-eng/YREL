@@ -376,6 +376,7 @@ export default function Home() {
   const [profileNameDraft, setProfileNameDraft] = useState("");
   const [profilePhoneDraft, setProfilePhoneDraft] = useState("");
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookingFilter, setBookingFilter] = useState<"all" | "active" | "completed" | "cancelled">("all");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -2398,10 +2399,15 @@ export default function Home() {
               </div>
             ) : bottomPanel === "bookings" ? (
               <div className="app-menu-detail">
-                {!session ? <p>ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳನ್ನು ನೋಡಲು ದಯವಿಟ್ಟು Login ಮಾಡಿ.</p> : bookings.length + seatBookings.length === 0 ? <p>ಇನ್ನೂ ಯಾವುದೇ ಬುಕ್ಕಿಂಗ್‌ಗಳಿಲ್ಲ.</p> : <div className="history-list">
-                  {bookings.map((b) => <article className="history-item" key={b.id}><div className="history-icon"><CarFront size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_"," ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString()}</small></div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className="status">{b.status}</span></div></article>)}
-                  {seatBookings.map((b) => <article className="history-item" key={b.id}><div className="history-icon"><Users size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>Seat Sharing · {b.seats_booked} seat(s)</span><small>{b.seat_share_trips?.pickup || "Pickup"} → {b.seat_share_trips?.dropoff || "Destination"}</small></div><div className="history-right"><b>{money(Number(b.total_fare))}</b><span className="status">{b.status}</span></div></article>)}
-                </div>}
+                {!session ? <div className="history-empty"><ClipboardList size={30}/><b>Login to view your bookings</b></div> : bookings.length + seatBookings.length === 0 ? <div className="history-empty"><ClipboardList size={30}/><b>No bookings yet</b><span>Your YREL trips will appear here.</span></div> : <>
+                  <div className="history-filters" role="tablist" aria-label="Filter bookings">
+                    {(["all","active","completed","cancelled"] as const).map((filter) => <button key={filter} role="tab" aria-selected={bookingFilter===filter} className={bookingFilter===filter ? "active" : ""} onClick={() => setBookingFilter(filter)}>{filter === "all" ? "All" : filter === "active" ? "Active" : filter === "completed" ? "Completed" : "Cancelled"}</button>)}
+                  </div>
+                  <div className="history-list">
+                    {bookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><CarFront size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_"," ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small></div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
+                    {seatBookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><Users size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>Seat Sharing · {b.seats_booked} seat(s)</span><small>{b.seat_share_trips?.pickup || "Pickup"} → {b.seat_share_trips?.dropoff || "Destination"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small></div><div className="history-right"><b>{money(Number(b.total_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
+                  </div>
+                </>}
               </div>
             ) : bottomPanel === "profile" ? (
               <div className="app-menu-detail compact-profile-panel">
