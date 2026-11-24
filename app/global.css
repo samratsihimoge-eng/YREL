@@ -1263,3 +1263,39 @@ button {
     padding: 24px 12px 20px;
   }
 }
+
+
+/* Refined translucent dual-tone glass navigation */
+.topbar.yrel-fixed-header {
+  background: linear-gradient(
+    112deg,
+    rgba(91, 48, 69, .40) 0%,
+    rgba(143, 69, 63, .40) 52%,
+    rgba(205, 111, 70, .40) 100%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, .30);
+  box-shadow: 0 5px 22px rgba(76, 43, 48, .08);
+  backdrop-filter: blur(9px) saturate(145%);
+  -webkit-backdrop-filter: blur(9px) saturate(145%);
+}
+.yrel-bottom-nav {
+  background: linear-gradient(
+    112deg,
+    rgba(91, 48, 69, .40) 0%,
+    rgba(143, 69, 63, .40) 52%,
+    rgba(205, 111, 70, .40) 100%
+  ) !important;
+  border-top: 1px solid rgba(255, 255, 255, .30) !important;
+  box-shadow: 0 -6px 22px rgba(76, 43, 48, .08) !important;
+  backdrop-filter: blur(9px) saturate(145%);
+  -webkit-backdrop-filter: blur(9px) saturate(145%);
+}
+.header-menu-button { color: #fff1df; }
+.header-profile-button {
+  color: #fff1df;
+  border-color: rgba(255, 241, 223, .48);
+  background: rgba(255, 255, 255, .12);
+}
+.yrel-bottom-nav button { color: #fff1e5 !important; }
+.yrel-bottom-nav .support-nav-button,
+.yrel-bottom-nav .support-nav-button span { color: #ffe0ad !important; }
