@@ -1573,3 +1573,33 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .app-menu-panel { animation: none !important; }
 }
+
+
+/* Final spacing and alignment: centered security label, tighter brand-to-booking flow. */
+.service-toolbar {
+  justify-content: center !important;
+  margin: 0 0 9px !important;
+}
+.service-toolbar .secure-note {
+  margin-inline: auto;
+}
+.dashboard-brand-banner {
+  margin-bottom: 8px !important;
+  padding-bottom: 10px !important;
+}
+.booking-section {
+  padding-top: 8px !important;
+}
+@media (max-width: 760px) {
+  .dashboard-brand-banner {
+    margin-bottom: 5px !important;
+    padding-top: 19px !important;
+    padding-bottom: 7px !important;
+  }
+  .booking-section {
+    padding-top: 7px !important;
+  }
+  .service-toolbar {
+    margin-bottom: 8px !important;
+  }
+}
