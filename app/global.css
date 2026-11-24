@@ -2902,3 +2902,92 @@ html, body, .site-shell {
   .yrel-login-content { max-width:100% !important; gap:clamp(24px,4vh,36px) !important; }
   .yrel-login-form .book-button.full { padding-inline:10px !important; }
 }
+
+
+/* Customer-requested translucent chrome, menu styling and centered tagline. */
+.topbar.yrel-fixed-header,
+.yrel-fixed-header {
+  background:rgba(255,255,255,.40) !important;
+  -webkit-backdrop-filter:blur(14px) !important;
+  backdrop-filter:blur(14px) !important;
+}
+.yrel-bottom-nav {
+  background:rgba(255,255,255,.40) !important;
+  border-top:1px solid rgba(255,255,255,.55) !important;
+  -webkit-backdrop-filter:blur(14px) !important;
+  backdrop-filter:blur(14px) !important;
+}
+.app-menu-options button {
+  background:rgba(128,128,128,.40) !important;
+  border:1px solid rgba(105,105,105,.28) !important;
+  color:#d71920 !important;
+  box-shadow:0 4px 12px rgba(0,0,0,.08) !important;
+}
+.app-menu-options button > span:not(.yrel-menu-icon) {
+  color:#d71920 !important;
+  font-weight:800 !important;
+}
+.app-menu-options button .yrel-menu-icon {
+  display:grid !important;
+  width:28px !important;
+  height:28px !important;
+  place-items:center !important;
+  font-size:21px !important;
+  line-height:1 !important;
+  filter:saturate(1.2) !important;
+}
+.app-menu-options button svg:last-child {
+  color:#d71920 !important;
+}
+.app-menu-options button:active {
+  background:rgba(110,110,110,.48) !important;
+  border-color:rgba(215,25,32,.38) !important;
+}
+.dashboard-brand-banner-bottom {
+  width:calc(100% - 32px) !important;
+  max-width:680px !important;
+  margin:18px auto calc(100px + env(safe-area-inset-bottom)) !important;
+  padding:24px 16px !important;
+  box-sizing:border-box !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+.dashboard-brand-banner-bottom h1 {
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:4px 7px !important;
+  width:100% !important;
+  margin:0 auto 10px !important;
+  text-align:center !important;
+  line-height:1.25 !important;
+  overflow-wrap:normal !important;
+}
+.dashboard-brand-banner-bottom h1 > span,
+.dashboard-brand-banner-bottom h1 > em,
+.dashboard-brand-banner-bottom h1 > strong {
+  display:inline-block !important;
+  margin:0 !important;
+  text-align:center !important;
+}
+.dashboard-brand-banner-bottom p {
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:7px !important;
+  width:100% !important;
+  text-align:center !important;
+}
+@media(max-width:760px) {
+  .dashboard-brand-banner-bottom {
+    width:calc(100% - 28px) !important;
+    margin:16px auto calc(96px + env(safe-area-inset-bottom)) !important;
+    padding:22px 12px !important;
+  }
+  .dashboard-brand-banner-bottom h1 { font-size:clamp(19px,5.3vw,27px) !important; }
+}
