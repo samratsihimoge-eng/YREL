@@ -1960,3 +1960,86 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .yrel-road-animation * { animation: none !important; }
 }
+
+
+/* YREL refinement: soft yellow icon surfaces, rounded controls and cleaner footer. */
+.app-menu-options button, .language-picker, .app-panel-mark, .app-panel-close,
+.app-back-button, .map-pin-button, .gps-button, .header-notification-button,
+.header-menu-button, .yrel-bottom-nav button, .support-actions a, .history-icon,
+.profile-action, .compact-profile-action {
+  border-radius: 999px !important;
+}
+.app-menu-options button, .app-panel-mark, .app-panel-close, .app-back-button,
+.map-pin-button, .gps-button, .header-notification-button, .header-menu-button,
+.yrel-bottom-nav button, .support-actions a, .history-icon, .profile-action,
+.compact-profile-action {
+  background: #fff2c9 !important;
+  border-color: rgba(221,174,92,.42) !important;
+  color: #a9512e !important;
+}
+.language-picker {
+  display: grid !important; gap: 9px !important; padding: 13px 15px !important;
+  border: 1px solid rgba(221,174,92,.42) !important; background: #fff2c9 !important;
+}
+.language-picker select {
+  width: 100%; min-height: 46px; padding: 0 16px;
+  border: 1px solid rgba(221,174,92,.48); border-radius: 999px;
+  background: #fffaf0; color: #604535; font: inherit; font-weight: 700;
+}
+.app-menu-options button { border: 0 !important; min-height: 54px !important; }
+.location-grid {
+  grid-template-columns: minmax(0,1fr) 38px minmax(0,1fr) !important;
+  align-items: center !important;
+}
+.location-swap-button {
+  display: grid; place-items: center; align-self: center;
+  width: 36px; height: 36px; margin-top: 7px;
+  border: 1px solid rgba(221,174,92,.48); border-radius: 50%;
+  background: #fff2c9; color: #b65332;
+  transition: transform .2s ease, background .2s ease;
+}
+.location-swap-button:active { transform: rotate(180deg) scale(.94); background: #ffe7a0; }
+.booking-card .location-input {
+  border-radius: 999px !important;
+  background: rgba(255,249,232,.78) !important;
+  border-color: rgba(221,174,92,.48) !important;
+}
+.booking-mode-block .schedule-row {
+  border: 1px solid rgba(190,91,58,.30) !important;
+  border-radius: 999px !important; padding: 4px !important;
+  background: rgba(255,255,255,.45) !important;
+}
+.booking-mode-block .schedule-row .pill, .booking-switch-row .compact-choice .choice { border-radius: 999px !important; }
+.service-tab { border-radius: 999px !important; }
+.vehicle-option {
+  border: 1px solid rgba(221,174,92,.48) !important;
+  border-radius: 999px !important; background: #fff7df !important;
+}
+.vehicle-option.selected {
+  border: 1px solid #e78a4a !important; background: #ffefc5 !important;
+  box-shadow: 0 5px 14px rgba(195,112,46,.13) !important;
+}
+.vehicle-option > .vehicle-emoji { background: transparent !important; }
+.yrel-road-animation {
+  height: 68px !important; margin: 14px 0 20px !important;
+  border-radius: 18px !important; background: rgba(255,241,207,.52) !important;
+}
+.yrel-road-animation .road-vehicle, .yrel-road-animation .road-driver {
+  font-size: 34px !important; background: transparent !important;
+}
+.footer.yrel-app-footer {
+  max-width: none !important; width: 100% !important; margin: 0 !important;
+  padding: 13px 18px 18px !important; border: 0 !important;
+  border-radius: 0 !important; background: transparent !important; box-shadow: none !important;
+}
+.footer.yrel-app-footer .yrel-footer-logo { width: 78px !important; height: 48px !important; }
+.footer.yrel-app-footer span { font-size: 10px !important; }
+@media(max-width:760px) {
+  .location-grid { grid-template-columns: minmax(0,1fr) 34px minmax(0,1fr) !important; gap: 7px !important; }
+  .location-swap-button { width: 32px; height: 32px; }
+  .booking-card .location-input { height: 54px !important; padding-inline: 10px !important; gap: 5px !important; }
+  .booking-card .location-input input { font-size: 12px !important; }
+  .map-pin-button { width: 29px !important; height: 29px !important; flex-basis: 29px !important; }
+  .yrel-road-animation { height: 68px !important; }
+  .footer.yrel-app-footer { padding: 10px 12px 14px !important; }
+}
