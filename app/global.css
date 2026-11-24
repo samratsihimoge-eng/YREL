@@ -1472,3 +1472,104 @@ button {
   .service-tab { gap: 5px; }
   .service-tab .service-emoji { font-size: 21px; }
 }
+
+
+/* Reference-inspired mobile drawer: keep app controls and booking behaviour intact. */
+.app-panel-backdrop {
+  inset: 66px 0 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 0;
+  background: rgba(35, 22, 25, .42);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: yrelFadeIn .2s ease both;
+}
+.app-menu-panel {
+  width: 80vw;
+  max-width: 360px;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  overflow: auto;
+  border: 0;
+  border-right: 1px solid rgba(255,255,255,.55);
+  border-radius: 0 18px 18px 0;
+  background: #fffaf5;
+  box-shadow: 14px 0 38px rgba(47,29,20,.18);
+  animation: yrelDrawerIn .28s cubic-bezier(.22,.75,.25,1) both;
+}
+.app-panel-heading {
+  min-height: 62px;
+  padding: 10px 14px;
+}
+.app-panel-close {
+  flex: 0 0 38px;
+}
+@keyframes yrelDrawerIn {
+  from { opacity: .92; transform: translateX(-100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Warm orange-to-red glass tint; preserve the established 40% fill opacity. */
+.topbar.yrel-fixed-header {
+  background: linear-gradient(
+    112deg,
+    rgba(255, 126, 24, .40) 0%,
+    rgba(247, 82, 48, .40) 54%,
+    rgba(224, 48, 82, .40) 100%
+  );
+  border-bottom: 1px solid rgba(255,255,255,.30);
+  box-shadow: 0 5px 22px rgba(76,43,48,.08);
+  backdrop-filter: blur(9px) saturate(145%);
+  -webkit-backdrop-filter: blur(9px) saturate(145%);
+}
+.yrel-bottom-nav {
+  background: linear-gradient(
+    112deg,
+    rgba(255, 126, 24, .40) 0%,
+    rgba(247, 82, 48, .40) 54%,
+    rgba(224, 48, 82, .40) 100%
+  ) !important;
+  border-top: 1px solid rgba(255,255,255,.30) !important;
+  box-shadow: 0 -6px 22px rgba(76,43,48,.08) !important;
+  backdrop-filter: blur(9px) saturate(145%);
+  -webkit-backdrop-filter: blur(9px) saturate(145%);
+}
+.header-menu-button,
+.header-profile-button { color: #fff8ed; }
+.header-profile-button {
+  border-color: rgba(255,248,237,.48);
+  background: rgba(255,255,255,.12);
+}
+.yrel-bottom-nav button { color: #fff8ed !important; }
+.yrel-bottom-nav .support-nav-button,
+.yrel-bottom-nav .support-nav-button span { color: #fff0c9 !important; }
+
+/* Keep the existing tagline words; refine its two-tone hierarchy and centering. */
+.dashboard-brand-banner {
+  text-align: center;
+}
+.dashboard-brand-banner h1 {
+  text-align: center;
+  line-height: 1.16;
+  letter-spacing: -.04em;
+}
+.dashboard-brand-banner h1 span { color: #70402f; }
+.dashboard-brand-banner h1 em { color: #ed7628; }
+.dashboard-brand-banner h1 strong { color: #d9434d; }
+
+@media (max-width: 760px) {
+  .app-panel-backdrop { inset: 66px 0 0; padding: 0; }
+  .app-menu-panel {
+    width: 80vw;
+    max-width: 340px;
+    height: 100%;
+    max-height: none;
+    border-radius: 0 17px 17px 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-menu-panel { animation: none !important; }
+}
