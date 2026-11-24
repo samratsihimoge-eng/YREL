@@ -77,7 +77,7 @@ export default function AdminPage() {
     setMessage("");
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: "https://yrel-git-main-yrel.vercel.app/admin" }
+      options: { redirectTo: `${window.location.origin}/admin` }
     });
     if (error) { setMessage(error.message); setLoginBusy(false); }
   }
