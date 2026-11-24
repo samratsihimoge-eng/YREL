@@ -2566,3 +2566,64 @@ html, body, .site-shell {
   height:18px !important;
   flex:0 0 18px !important;
 }
+
+
+/* YREL: polished first-open splash, footer road strip and saved locations. */
+.yrel-splash-screen {
+  inset: var(--yrel-header-height,78px) 0 calc(var(--yrel-nav-height,76px) + env(safe-area-inset-bottom)) !important;
+  z-index:119 !important;
+  background:linear-gradient(180deg,#ff8a18 0%,#f76b1c 60%,#cf3042 100%) !important;
+  overflow:hidden !important;
+}
+.yrel-splash-screen::before {
+  content:"";
+  position:absolute;
+  width:min(82vw,370px);
+  aspect-ratio:1;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,250,241,.96) 0%,rgba(255,241,220,.72) 42%,rgba(255,230,205,.18) 66%,transparent 74%);
+  filter:blur(8px);
+  pointer-events:none;
+}
+.yrel-splash-screen img {
+  position:relative !important;
+  z-index:1 !important;
+  width:min(72vw,310px) !important;
+  max-height:205px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  filter:drop-shadow(0 5px 8px rgba(74,27,18,.16)) !important;
+}
+.yrel-splash-screen span,.yrel-splash-loader { position:relative !important; z-index:1 !important; }
+.yrel-fixed-header,.yrel-bottom-nav { opacity:1 !important; }
+.yrel-road-animation {
+  position:relative !important;
+  left:50% !important;
+  width:100vw !important;
+  max-width:100vw !important;
+  height:92px !important;
+  margin:16px 0 0 !important;
+  transform:translateX(-50%) !important;
+  overflow:hidden !important;
+  border-radius:0 !important;
+  background:linear-gradient(180deg,#fff8ef 0%,#ffe8d7 100%) !important;
+}
+.yrel-road-animation .road-surface { height:34px !important; bottom:0 !important; }
+.yrel-road-animation .road-auto-illustration,
+.yrel-road-animation .road-cab-illustration { height:64px !important; margin-bottom:14px !important; }
+.yrel-road-animation .road-driver-illustration { height:72px !important; margin-bottom:14px !important; }
+.saved-locations-panel { display:flex; flex-direction:column; gap:12px; }
+.saved-location-save { min-height:44px; border:1px solid #df8a55; border-radius:12px; background:#fff1e5; color:#9d4828; font:inherit; font-weight:800; }
+.saved-location-empty { padding:18px 8px; text-align:center; color:#806b5e; }
+.saved-location-row { display:flex; flex-direction:column; gap:10px; padding:13px; border:1px solid #ead8c8; border-radius:14px; background:#fffaf5; }
+.saved-location-row > span { display:flex; align-items:flex-start; gap:8px; color:#604b3d; font-size:13px; }
+.saved-location-row > span svg { flex:0 0 auto; color:#d45a32; }
+.saved-location-row > div { display:flex; gap:8px; }
+.saved-location-row button { flex:1; min-height:36px; border:0; border-radius:10px; background:#171717; color:#fff; font-size:12px; font-weight:750; }
+@media(max-width:760px) {
+  .yrel-road-animation { height:86px !important; margin-top:14px !important; }
+  .yrel-road-animation .road-surface { height:31px !important; }
+}
