@@ -14,7 +14,7 @@ type Booking = {
   vehicle_type: string | null; pickup: string; dropoff: string | null;
   scheduled_at: string | null; estimated_fare: number; status: string;
   created_at: string; booking_details: Record<string, any> | null;
-  assigned_driver_id: string | null; assigned_at: string | null;
+  assigned_driver_id: string | null; assigned_at: string | null; payment_amount: number; payment_status: string; payment_method: string | null; payment_notes: string | null; payment_updated_at: string | null;
 };
 type Customer = { id: string; full_name: string; phone: string | null; is_blocked: boolean };
 type Driver = { user_id: string; driver_type: string; approval_status: string; created_at: string; full_name?: string | null; phone?: string | null; vehicle_type?: string | null; vehicle_number?: string | null; gear_type?: string | null; license_number?: string | null; is_blocked: boolean };
@@ -90,6 +90,51 @@ export default function AdminPage() {
       setBookings(current => current.map(item => item.id === id ? { ...item, ...patch } : item));
       setMessage("Booking updated successfully.");
     }
+    setSavingId("");
+  }
+
+  async function createDirectBooking() {
+    if (!customers.length) { setMessage("Create a customer profile before entering a direct booking."); return; }
+    const customerList = customers.map((c,i)=>`${i+1}. ${c.full_name} · ${c.phone || "No phone"}`).join("\n");
+    const pick = window.prompt("Select customer number:\n"+customerList);
+    if (pick === null) return;
+    const customer = customers[Number(pick)-1];
+    if (!customer) { setMessage("Invalid customer number."); return; }
+    if (customer.is_blocked) { setMessage("This customer is blocked. Unblock before creating a booking."); return; }
+    const service_type = window.prompt("Service type (cab / driver / rental)", "cab");
+    if (!service_type) return;
+    const vehicle_type = window.prompt("Vehicle type (Auto / Hatchback / Sedan / SUV)", "Sedan");
+    if (vehicle_type === null) return;
+    const pickup = window.prompt("Pickup location");
+    if (!pickup?.trim()) return;
+    const dropoff = window.prompt("Drop location");
+    if (dropoff === null) return;
+    const fareText = window.prompt("Estimated fare in INR", "0");
+    if (fareText === null || !Number.isFinite(Number(fareText)) || Number(fareText)<0) { setMessage("Enter a valid fare."); return; }
+    const scheduledText = window.prompt("Scheduled date/time (optional, ISO format) or leave blank", "");
+    if (scheduledText === null) return;
+    setSavingId("new-booking");
+    const { error } = await supabase.from("bookings").insert({ user_id: customer.id, service_type: service_type.trim(), vehicle_type: vehicle_type.trim() || null, pickup: pickup.trim(), dropoff: dropoff.trim() || null, estimated_fare: Number(fareText), payment_amount: 0, payment_status: "pending", scheduled_at: scheduledText.trim() || null, status: "requested", booking_details: { created_by_admin: true, entry_type: "direct_admin" } });
+    if (error) setMessage(error.message);
+    else { setMessage("Direct booking created."); await loadData(); }
+    setSavingId("");
+  }
+
+  async function editPayment(b: Booking) {
+    const amountText = window.prompt("Actual payment amount received (INR)", String(b.payment_amount ?? 0));
+    if (amountText === null || !Number.isFinite(Number(amountText)) || Number(amountText)<0) { if (amountText !== null) setMessage("Enter a valid payment amount."); return; }
+    const payment_status = window.prompt("Payment status (pending / paid / partial / refunded / disputed)", b.payment_status || "pending");
+    if (!payment_status) return;
+    const payment_method = window.prompt("Payment method (cash / UPI / card / bank / other)", b.payment_method || "");
+    if (payment_method === null) return;
+    const payment_notes = window.prompt("Payment adjustment note / issue reason", b.payment_notes || "");
+    if (payment_notes === null) return;
+    if (!window.confirm("Save payment adjustment? This records an admin payment change.")) return;
+    setSavingId(b.id);
+    const patch = { payment_amount: Number(amountText), payment_status: payment_status.trim().toLowerCase(), payment_method: payment_method.trim() || null, payment_notes: payment_notes.trim() || null, payment_updated_at: new Date().toISOString() };
+    const { error } = await supabase.from("bookings").update(patch).eq("id", b.id);
+    if (error) setMessage(error.message);
+    else { setBookings(items=>items.map(x=>x.id===b.id?{...x,...patch}:x)); setMessage("Payment details updated."); }
     setSavingId("");
   }
 
@@ -260,11 +305,11 @@ export default function AdminPage() {
             <Stat icon={ArrowUpRight} label="Completed fare total" value={`₹${stats.revenue.toLocaleString("en-IN")}`} note="Based on completed bookings"/>
           </div>
           <div className="admin-content-grid">
-            <div className="admin-panel"><div className="admin-panel-head"><div><h3>Recent bookings</h3><p>Latest customer requests</p></div><button className="admin-text-btn" onClick={() => setSection("bookings")}>View all →</button></div><BookingTable rows={bookings.slice(0,6)} customerById={customerById} compact onStatus={updateBooking} savingId={savingId}/></div>
+            <div className="admin-panel"><div className="admin-panel-head"><div><h3>Recent bookings</h3><p>Latest customer requests</p></div><button className="admin-text-btn" onClick={() => setSection("bookings")}>View all →</button></div><BookingTable rows={bookings.slice(0,6)} customerById={customerById} compact onStatus={updateBooking} savingId={savingId} onPayment={editPayment}/></div>
             <div className="admin-panel admin-side-panel"><div className="admin-panel-head"><div><h3>Driver approvals</h3><p>Partner onboarding queue</p></div><span className="admin-count">{stats.pendingDrivers}</span></div>{drivers.filter(d => d.approval_status === "pending").slice(0,5).map(d => <div className="admin-driver-row" key={d.user_id}><div className="admin-driver-avatar"><CarFront size={18}/></div><div><b>{d.driver_type === "cab_driver" ? "Cab Driver" : "Spare Driver"}</b><small>{d.user_id.slice(0,8)}…</small></div><button onClick={() => setSection("drivers")}>Review</button></div>)}{stats.pendingDrivers === 0 && <div className="admin-empty">No pending driver approvals.</div>}</div>
           </div>
         </>}
-        {section === "bookings" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head admin-booking-head"><div><h3>All bookings</h3><p>Search and manage customer booking requests.</p></div><button className="admin-primary" onClick={exportBookings}><Download size={16}/> Export CSV</button></div><div className="admin-toolbar"><label className="admin-search"><Search size={18}/><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search booking ID, customer, phone or location"/></label><span>{filteredBookings.length} bookings</span></div><BookingTable rows={filteredBookings} customerById={customerById} onStatus={updateBooking} savingId={savingId} drivers={drivers.filter(d => d.approval_status === "approved")}/></div>}
+        {section === "bookings" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head admin-booking-head"><div><h3>All bookings</h3><p>Search and manage customer booking requests.</p></div><div className="admin-actions"><button className="admin-primary" disabled={savingId==="new-booking"} onClick={()=>void createDirectBooking()}>+ Direct booking</button><button className="admin-primary" onClick={exportBookings}><Download size={16}/> Export CSV</button></div></div><div className="admin-toolbar"><label className="admin-search"><Search size={18}/><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search booking ID, customer, phone or location"/></label><span>{filteredBookings.length} bookings</span></div><BookingTable rows={filteredBookings} customerById={customerById} onStatus={updateBooking} savingId={savingId} onPayment={editPayment} drivers={drivers.filter(d => d.approval_status === "approved")}/></div>}
         {section === "customers" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head"><div><h3>Customers</h3><p>Customer profiles created in YREL.</p></div><span className="admin-count">{customers.length} total</span></div><div className="admin-table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Customer ID</th><th>Bookings</th><th>Profile controls</th></tr></thead><tbody>{customers.map(c => <tr key={c.id}><td><b>{c.full_name || "Customer"}</b><small className="admin-subcell">{c.is_blocked ? "Blocked" : "Active"}</small></td><td>{c.phone || "—"}</td><td className="admin-mono">{c.id.slice(0,12)}…</td><td>{bookings.filter(b => b.user_id === c.id).length}</td><td><div className="admin-actions"><button className="admin-outline" disabled={savingId===c.id} onClick={()=>void editCustomer(c)}>Edit</button><button className="admin-outline" disabled={savingId===c.id} onClick={()=>void toggleCustomerBlock(c)}>{c.is_blocked ? "Unblock" : "Block"}</button><button className="admin-outline" disabled={savingId===c.id} onClick={()=>void deleteCustomerProfile(c)}>Delete profile</button></div></td></tr>)}</tbody></table>{customers.length === 0 && <div className="admin-empty">No customer profiles found.</div>}</div></div>}
         {section === "drivers" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head"><div><h3>Drivers & partners</h3><p>Review partner profiles and control approval status.</p></div><span className="admin-count">{drivers.length} profiles</span></div><div className="admin-table-wrap"><table><thead><tr><th>Driver</th><th>Partner type</th><th>Vehicle</th><th>Joined</th><th>Status</th><th>Approval</th><th>Profile controls</th></tr></thead><tbody>{drivers.map(d => <tr key={d.user_id}><td><b>{d.full_name || "Driver"}</b><small className="admin-subcell">{d.phone || d.user_id.slice(0,12)+"…"}</small></td><td>{d.driver_type === "cab_driver" ? "Cab Driver" : "Spare Driver"}</td><td>{d.vehicle_type || "—"} {d.vehicle_number || ""}</td><td>{new Date(d.created_at).toLocaleDateString("en-IN")}</td><td><StatusPill value={d.is_blocked ? "blocked" : d.approval_status}/></td><td><select className="admin-select" value={d.approval_status} disabled={savingId === d.user_id} onChange={e => void updateDriver(d.user_id,e.target.value)}><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></td><td><div className="admin-actions"><button className="admin-outline" disabled={savingId===d.user_id} onClick={()=>void editDriver(d)}>Edit</button><button className="admin-outline" disabled={savingId===d.user_id} onClick={()=>void toggleDriverBlock(d)}>{d.is_blocked ? "Unblock" : "Block"}</button><button className="admin-outline" disabled={savingId===d.user_id} onClick={()=>void deleteDriverProfile(d)}>Delete profile</button></div></td></tr>)}</tbody></table>{drivers.length === 0 && <div className="admin-empty">No driver or partner profiles yet. New registrations will appear here.</div>}</div></div>}
         <footer className="admin-footer"><span>© {new Date().getFullYear()} YREL Technologies Private Limited</span><span>Admin Console · Version 1.0</span></footer>
@@ -278,6 +323,6 @@ function Stat({icon: Icon,label,value,note}:{icon:any;label:string;value:string|
   return <article className="admin-stat"><div className="admin-stat-icon"><Icon size={20}/></div><span>{label}</span><strong>{value}</strong><small>{note}</small></article>;
 }
 function StatusPill({value}:{value:string}) { return <span className={`admin-status status-${value.toLowerCase().replace(/[^a-z_]/g,"")}`}>{value.replaceAll("_"," ")}</span>; }
-function BookingTable({rows,customerById,onStatus,savingId,compact=false,drivers=[]}:{rows:Booking[];customerById:Map<string,Customer>;onStatus:(id:string,patch:Partial<Booking>)=>void;savingId:string;compact?:boolean;drivers?:Driver[]}) {
-  return <div className="admin-table-wrap"><table><thead><tr><th>Booking</th><th>Customer</th><th>Trip</th><th>Fare</th><th>Status</th>{!compact && <th>Assign driver</th>}</tr></thead><tbody>{rows.map(b => { const c=customerById.get(b.user_id); return <tr key={b.id}><td><b className="admin-booking-code">{b.booking_code}</b><small className="admin-subcell">{new Date(b.created_at).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}</small></td><td><b>{c?.full_name || "Customer"}</b><small className="admin-subcell">{c?.phone || "Phone not added"}</small></td><td><b>{b.service_type} · {b.vehicle_type || "—"}</b><small className="admin-subcell">{b.pickup} → {b.dropoff || "—"}</small></td><td><b>₹{Number(b.estimated_fare || 0).toLocaleString("en-IN")}</b></td><td><select className="admin-select" value={b.status} disabled={savingId===b.id} onChange={e=>onStatus(b.id,{status:e.target.value})}>{Array.from(new Set([...statusOptions,b.status])).map(s=><option key={s} value={s}>{s.replaceAll("_"," ")}</option>)}</select></td>{!compact && <td><select className="admin-select" value={b.assigned_driver_id || ""} disabled={savingId===b.id} onChange={e=>onStatus(b.id,{assigned_driver_id:e.target.value || null,assigned_at:e.target.value?new Date().toISOString():null,status:e.target.value && b.status==="requested"?"assigned":b.status})}><option value="">Unassigned</option>{drivers.map(d=><option key={d.user_id} value={d.user_id}>{d.driver_type==="cab_driver"?"Cab":"Spare"} · {d.user_id.slice(0,8)}</option>)}</select></td>}</tr>;})}</tbody></table>{rows.length===0 && <div className="admin-empty">No bookings to show.</div>}</div>;
+function BookingTable({rows,customerById,onStatus,savingId,compact=false,drivers=[],onPayment}:{rows:Booking[];customerById:Map<string,Customer>;onStatus:(id:string,patch:Partial<Booking>)=>void;savingId:string;compact?:boolean;drivers?:Driver[];onPayment:(booking:Booking)=>void}) {
+  return <div className="admin-table-wrap"><table><thead><tr><th>Booking</th><th>Customer</th><th>Trip</th><th>Fare</th><th>Payment</th><th>Status</th>{!compact && <th>Assign driver</th>}</tr></thead><tbody>{rows.map(b => { const c=customerById.get(b.user_id); return <tr key={b.id}><td><b className="admin-booking-code">{b.booking_code}</b><small className="admin-subcell">{new Date(b.created_at).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})}</small></td><td><b>{c?.full_name || "Customer"}</b><small className="admin-subcell">{c?.phone || "Phone not added"}</small></td><td><b>{b.service_type} · {b.vehicle_type || "—"}</b><small className="admin-subcell">{b.pickup} → {b.dropoff || "—"}</small></td><td><b>₹{Number(b.estimated_fare || 0).toLocaleString("en-IN")}</b></td><td><b>₹{Number(b.payment_amount || 0).toLocaleString("en-IN")}</b><small className="admin-subcell">{b.payment_status || "pending"}</small><button className="admin-outline" disabled={savingId===b.id} onClick={()=>void editPayment(b)}>Edit payment</button></td><td><select className="admin-select" value={b.status} disabled={savingId===b.id} onChange={e=>onStatus(b.id,{status:e.target.value})}>{Array.from(new Set([...statusOptions,b.status])).map(s=><option key={s} value={s}>{s.replaceAll("_"," ")}</option>)}</select></td>{!compact && <td><select className="admin-select" value={b.assigned_driver_id || ""} disabled={savingId===b.id} onChange={e=>onStatus(b.id,{assigned_driver_id:e.target.value || null,assigned_at:e.target.value?new Date().toISOString():null,status:e.target.value && b.status==="requested"?"assigned":b.status})}><option value="">Unassigned</option>{drivers.map(d=><option key={d.user_id} value={d.user_id}>{d.driver_type==="cab_driver"?"Cab":"Spare"} · {d.user_id.slice(0,8)}</option>)}</select></td>}</tr>;})}</tbody></table>{rows.length===0 && <div className="admin-empty">No bookings to show.</div>}</div>;
 }
