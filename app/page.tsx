@@ -2507,11 +2507,16 @@ export default function Home() {
       </section>
 
       {instantSearchBooking && (
-        <section className="instant-search-screen" role="dialog" aria-live="polite" aria-label="Searching for a YREL driver">
-          <div className="instant-search-orbit"><span>Y</span></div>
-          <h2>Finding your YREL driver</h2>
-          <p>We are checking for an available driver near your pickup location.</p>
-          <strong className="instant-search-countdown">00:{String(instantSearchSeconds).padStart(2,"0")}</strong>
+        <section className="instant-search-screen" role="dialog" aria-live="polite" aria-label="Searching for an available YREL partner">
+          <div className="instant-search-orbit" role="img" aria-label="YREL search progress">
+            <svg className="instant-search-progress" viewBox="0 0 120 120" aria-hidden="true">
+              <circle className="instant-search-progress-track" cx="60" cy="60" r="54" />
+              <circle className="instant-search-progress-value" cx="60" cy="60" r="54" />
+            </svg>
+            <img src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
+          </div>
+          <h2>Searching for Available YREL Partner</h2>
+          <p>We are checking for an available YREL partner near your pickup location.</p>
           <small>Booking ID: {instantSearchBooking.booking_code}</small>
           <button className="instant-search-cancel" onClick={() => cancelCustomerBooking(instantSearchBooking)} disabled={cancellingBookingId===instantSearchBooking.id}>{cancellingBookingId===instantSearchBooking.id ? "Cancelling…" : "Cancel Booking"}</button>
         </section>
@@ -2626,8 +2631,8 @@ export default function Home() {
               </button>
               {notice && <div className="notice">{notice}</div>}
             </div>
-            <RoadAnimation />
           </div>
+          <RoadAnimation />
         </div>
       )}
 
