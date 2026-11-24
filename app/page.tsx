@@ -1499,7 +1499,7 @@ export default function Home() {
         <button className="header-menu-button" onClick={() => { setMenuOpen(true); setMenuSection("list"); }} aria-label="Open menu">
           <Menu size={23} />
         </button>
-        <a className="brand header-brand" href="#" aria-label="YREL home">
+        <a className={`brand header-brand ${session ? "dashboard-logo-reveal" : ""}`} href="#" aria-label="YREL home">
           <img className="brand-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
         </a>
         <button
@@ -1592,57 +1592,9 @@ export default function Home() {
           </section>
         </div>
       )}
-      <section className="hero">
-        <div className="hero-copy">
-          <span className="eyebrow">
-            <span className="eyebrow-dot" />
-            SIMPLE. SAFE. RELIABLE.
-          </span>
-
-          
-<h1>
-  Your city.
-  <br />
-  <em>Your fun.</em>
-  <br />
-  Just YREL it.
-</h1>
-          
-
-          <p>
-            Book a cab, hire a professional driver, or reserve a rental
-            car — all in one place.
-          </p>
-
-          <div className="hero-points">
-            <span>
-              <ShieldCheck size={17} /> Instant booking
-            </span>
-            <span>
-              <MapPin size={17} /> Pan India service
-            </span>
-          </div>
-        </div>
-
-        <div className="hero-art">
-          <div className="sun-disc" />
-          <div className="road-line" />
-          <div className="hero-car">
-            <img
-              src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png"
-              alt="YREL — Run with Fun"
-            />
-          </div>
-          <div className="floating-tag">
-            <span className="tag-icon">
-              <Navigation size={17} />
-            </span>
-            <span>
-              <b>Your journey starts here</b>
-              <small>Book in a few simple steps</small>
-            </span>
-          </div>
-        </div>
+      <section className="dashboard-brand-banner" aria-label="YREL">
+        <h1><span>Your city.</span> <em>Your fun.</em> <strong>Just YREL it.</strong></h1>
+        <p><span className="banner-live-dot" /> Instant Booking <i>•</i> Pan India Service</p>
       </section>
 
       <section className="booking-section" id="services">
