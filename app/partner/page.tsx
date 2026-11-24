@@ -20,8 +20,9 @@ export default function PartnerPage() {
   const [session, setSession] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
   const [phone, setPhone] = useState("+91");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
+  const [password, setPassword] = useState("");
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [profile, setProfile] = useState<DriverProfile | null>(null);
@@ -55,24 +56,31 @@ export default function PartnerPage() {
 
   useEffect(() => { void loadPartner(); }, [loadPartner]);
 
-  async function sendOtp() {
+  function normalizedPhone(value: string) {
+    const digits = value.replace(/\\D/g, "");
+    return digits.startsWith("91") ? "+" + digits : "+91" + digits;
+  }
+  async function authenticatePartner() {
+    const mobile = normalizedPhone(phone);
+    if (mobile.length < 12 || password.length < 8) { setError("Enter a valid Indian mobile number and a password with at least 8 characters."); return; }
     setBusy(true); setError("");
-    const { error: e } = await supabase.auth.signInWithOtp({ phone: phone.replace(/[\s()-]/g, "") });
-    if (e) setError(e.message); else setOtpSent(true);
+    if (authMode === "login") {
+      const { error: e } = await supabase.auth.signInWithPassword({ phone: mobile, password });
+      if (e) setError(e.message);
+    } else {
+      const { data, error: e } = await supabase.auth.signUp({ phone: mobile, password, options: { data: { account_type: "yrel_partner" } } });
+      if (e) setError(e.message);
+      else if (!data.session) setError("Account created, but Supabase phone confirmation is enabled. Admin must verify the number or disable phone confirmation for manual YREL verification.");
+    }
     setBusy(false);
   }
-  async function verifyOtp() {
-    setBusy(true); setError("");
-    const { error: e } = await supabase.auth.verifyOtp({ phone: phone.replace(/[\s()-]/g, ""), token: otp, type: "sms" });
-    if (e) setError(e.message);
-    setBusy(false);
-  }
+
   async function registerProfile() {
     if (!session?.user || !fullName.trim() || !licenseNumber.trim()) { setError("Please enter your name and driving licence number."); return; }
     setBusy(true); setError("");
     const { data, error: e } = await supabase.from("driver_profiles").insert({
       user_id: session.user.id, driver_type: driverType, approval_status: "pending",
-      full_name: fullName.trim(), phone: session.user.phone || phone,
+      full_name: fullName.trim(), phone: session.user.phone || normalizedPhone(phone),
       vehicle_type: driverType === "cab_driver" ? vehicleType : null,
       vehicle_number: driverType === "cab_driver" ? vehicleNumber.trim() : null,
       gear_type: driverType === "spare_driver" ? gearType : null,
@@ -89,7 +97,7 @@ export default function PartnerPage() {
   }
 
   if (!authReady) return <main className="partner-auth"><p>Loading YREL Partner…</p></main>;
-  if (!session) return <main className="partner-auth"><section className="partner-card"><div className="partner-logo">Y</div><span className="partner-eyebrow">YREL DRIVER & PARTNER APP</span><h1>Partner Login</h1><p>Sign in with your registered mobile number to access your driver dashboard.</p><label>Mobile number</label><input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 9876543210" disabled={otpSent}/>{otpSent && <><label>6-digit OTP</label><input value={otp} onChange={e => setOtp(e.target.value)} inputMode="numeric" maxLength={6} placeholder="Enter OTP"/></>}<button className="partner-primary" disabled={busy} onClick={() => void (otpSent ? verifyOtp() : sendOtp())}>{busy ? "Please wait…" : otpSent ? "Verify OTP" : "Send OTP"}</button>{error && <p className="partner-error">{error}</p>}<a href="/">Back to Customer App</a></section></main>;
+  if (!session) return <main className="partner-auth"><section className="partner-card"><div className="partner-logo">Y</div><span className="partner-eyebrow">YREL DRIVER & PARTNER APP</span><h1>{authMode === "login" ? "Partner Login" : "Create Partner Account"}</h1><p>{authMode === "login" ? "Login using the mobile number verified by YREL Admin and your password." : "Create your account with your mobile number. YREL Admin will manually verify your number and approve your partner profile."}</p><label>Mobile number</label><input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 9876543210" inputMode="tel"/><label>Password</label><div className="partner-password-wrap"><input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Minimum 8 characters" autoComplete={authMode === "login" ? "current-password" : "new-password"}/><button type="button" onClick={() => setShowPassword(v => !v)}>{showPassword ? "Hide" : "Show"}</button></div><button className="partner-primary" disabled={busy} onClick={() => void authenticatePartner()}>{busy ? "Please wait…" : authMode === "login" ? "Login" : "Create account"}</button><button className="partner-link" onClick={() => { setAuthMode(v => v === "login" ? "signup" : "login"); setError(""); }}>{authMode === "login" ? "New partner? Create account" : "Already registered? Login"}</button>{error && <p className="partner-error">{error}</p>}<a href="/">Back to Customer App</a></section></main>
 
   if (!profile) return <main className="partner-auth"><section className="partner-card partner-form"><div className="partner-logo">Y</div><span className="partner-eyebrow">PARTNER REGISTRATION</span><h1>Complete your profile</h1><p>Your account will be reviewed by YREL Admin before you can accept trips.</p><label>Partner type</label><div className="partner-choice"><button className={driverType === "cab_driver" ? "active" : ""} onClick={() => setDriverType("cab_driver")}>🚕 Cab Driver</button><button className={driverType === "spare_driver" ? "active" : ""} onClick={() => setDriverType("spare_driver")}>🧑‍✈️ Spare Driver</button></div><label>Full name</label><input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name"/>{driverType === "cab_driver" && <><label>Vehicle type</label><select value={vehicleType} onChange={e => setVehicleType(e.target.value)}><option>Hatchback</option><option>Sedan</option><option>SUV</option></select><label>Vehicle registration number</label><input value={vehicleNumber} onChange={e => setVehicleNumber(e.target.value)} placeholder="KA 01 AB 1234"/></>}{driverType === "spare_driver" && <><label>Gear type</label><select value={gearType} onChange={e => setGearType(e.target.value)}><option>Manual</option><option>Automatic</option></select></>}<label>Driving licence number</label><input value={licenseNumber} onChange={e => setLicenseNumber(e.target.value)} placeholder="Driving licence number"/><button className="partner-primary" disabled={busy} onClick={() => void registerProfile()}>{busy ? "Submitting…" : "Submit for approval"}</button>{error && <p className="partner-error">{error}</p>}<button className="partner-link" onClick={() => void supabase.auth.signOut()}>Sign out</button></section></main>;
 
