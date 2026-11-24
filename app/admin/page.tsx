@@ -14,7 +14,7 @@ type Booking = {
   vehicle_type: string | null; pickup: string; dropoff: string | null;
   scheduled_at: string | null; estimated_fare: number; status: string;
   created_at: string; booking_details: Record<string, any> | null;
-  assigned_driver_id: string | null;
+  assigned_driver_id: string | null; assigned_at: string | null;
 };
 type Customer = { id: string; full_name: string; phone: string | null };
 type Driver = { user_id: string; driver_type: string; approval_status: string; created_at: string };
