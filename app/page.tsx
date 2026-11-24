@@ -2666,7 +2666,7 @@ export default function Home() {
         <div className="yrel-login-screen" role="dialog" aria-modal="true" aria-label="Customer login">
           <div className="yrel-login-content">
             <div className="yrel-login-brandline">
-              <h1>Your city. Your fun. Just YREL it.</h1>
+              <h1><span>Your city.</span><span>Your fun.</span><span className="yrel-slogan-highlight">Just YREL it.</span></h1>
               <p>Instant Booking <span>•</span> Pan India Service</p>
             </div>
             <div className="yrel-login-form">
