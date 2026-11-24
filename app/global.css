@@ -3428,3 +3428,36 @@ html, body, .site-shell {
     overscroll-behavior:contain !important;
   }
 }
+
+
+/* YREL native-feel touch feedback: consistent, lightweight press response across the app. */
+:where(button, [role="button"], a[href], input[type="button"], input[type="submit"], input[type="reset"]) {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    transform 150ms cubic-bezier(.2,.75,.25,1),
+    filter 150ms ease,
+    box-shadow 150ms ease,
+    opacity 150ms ease;
+}
+:where(button, [role="button"], a[href], input[type="button"], input[type="submit"], input[type="reset"]):not(:disabled):not([aria-disabled="true"]):active {
+  transform: scale(.975);
+  filter: brightness(.94) saturate(1.08);
+}
+:where(button, [role="button"], a[href], input[type="button"], input[type="submit"], input[type="reset"]):not(:disabled):not([aria-disabled="true"]):focus-visible {
+  outline: 3px solid rgba(224, 105, 43, .38);
+  outline-offset: 3px;
+}
+:where(button:disabled, [role="button"][aria-disabled="true"], input:disabled) {
+  cursor: not-allowed;
+}
+@media (hover: hover) and (pointer: fine) {
+  :where(button, [role="button"], a[href], input[type="button"], input[type="submit"], input[type="reset"]):not(:disabled):not([aria-disabled="true"]):hover {
+    filter: brightness(1.025);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(button, [role="button"], a[href], input[type="button"], input[type="submit"], input[type="reset"]) {
+    transition: none !important;
+  }
+}
