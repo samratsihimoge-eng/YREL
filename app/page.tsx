@@ -273,7 +273,7 @@ const VehicleIcon = ({ vehicle }: { vehicle: string }) => {
 };
 
 const RoadAnimation = () => (
-  <div className="yrel-road-animation" aria-label="YREL animated auto, waving driver and cab">
+  <div className="yrel-road-animation" aria-label="YREL auto rickshaw, uniformed driver and passenger cab">
     <div className="road-surface"><span className="road-markings" /></div>
     <svg className="road-auto-illustration" viewBox="0 0 150 90" role="img" aria-label="Auto rickshaw">
       <g stroke="#263238" strokeWidth="3" strokeLinejoin="round">
@@ -288,11 +288,13 @@ const RoadAnimation = () => (
       <rect x="13" y="49" width="14" height="8" rx="3" fill="#e84b35"/>
     </svg>
     <svg className="road-driver-illustration" viewBox="0 0 100 110" role="img" aria-label="Friendly driver waving">
-      <circle cx="48" cy="29" r="20" fill="#b9784c"/>
-      <path d="M29 26 Q30 5 50 8 Q69 10 68 29 L61 24 L57 15 L44 19 L34 31 Z" fill="#263238"/>
-      <path d="M35 31 Q48 39 61 30 L65 48 L32 48 Z" fill="#f0bd83"/>
-      <path d="M26 55 Q47 43 69 55 L78 101 L18 101 Z" fill="#f0a323" stroke="#8e4c2d" strokeWidth="3"/>
-      <path d="M28 61 L12 45 L7 28" fill="none" stroke="#b9784c" strokeWidth="10" strokeLinecap="round"/>
+      <circle cx="48" cy="31" r="18" fill="#b9784c"/>
+      <path d="M29 27 Q30 8 48 8 Q67 8 68 27 L61 22 L56 16 L42 19 L34 29 Z" fill="#263238"/>
+      <path d="M27 15 Q48 1 69 15 L66 20 L30 20 Z" fill="#fff" stroke="#d9d9d9" strokeWidth="2"/>
+      <path d="M39 32 Q48 37 57 32" fill="none" stroke="#5b3428" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M35 48 L61 48 L65 55 L31 55 Z" fill="#fff" stroke="#d9d9d9" strokeWidth="2"/>
+      <path d="M26 58 Q47 48 69 58 L78 101 L18 101 Z" fill="#fff" stroke="#9da7ad" strokeWidth="3"/>
+      <path d="M28 62 L12 45 L7 28" fill="none" stroke="#b9784c" strokeWidth="10" strokeLinecap="round"/>
       <path className="driver-wave-hand" d="M7 28 L3 13 M7 28 L15 12 M7 28 L1 24" fill="none" stroke="#b9784c" strokeWidth="6" strokeLinecap="round"/>
       <path d="M40 29 Q48 34 56 29" fill="none" stroke="#5b3428" strokeWidth="2" strokeLinecap="round"/>
       <circle cx="41" cy="25" r="2" fill="#263238"/><circle cx="56" cy="25" r="2" fill="#263238"/>
@@ -364,7 +366,7 @@ export default function Home() {
 
   const [session, setSession] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
-  const [splashVisible, setSplashVisible] = useState(true);
+  const [splashVisible, setSplashVisible] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [phone, setPhone] = useState("");
@@ -592,11 +594,23 @@ export default function Home() {
     };
   }, []);
 
-  // First-launch sequence: show the YREL splash, then require customer login.
+  // Show splash only on a fresh app visit, never after an authenticated login.
   useEffect(() => {
-    const splashTimer = window.setTimeout(() => setSplashVisible(false), 2400);
+    if (!authReady) return;
+    if (session) {
+      setSplashVisible(false);
+      return;
+    }
+    const seen = window.sessionStorage.getItem("yrel_splash_seen_v2");
+    if (seen) {
+      setSplashVisible(false);
+      return;
+    }
+    window.sessionStorage.setItem("yrel_splash_seen_v2", "1");
+    setSplashVisible(true);
+    const splashTimer = window.setTimeout(() => setSplashVisible(false), 2200);
     return () => window.clearTimeout(splashTimer);
-  }, []);
+  }, [authReady, session]);
 
   useEffect(() => {
     if (!splashVisible && authReady && !session) setAuthOpen(true);
@@ -1895,7 +1909,7 @@ export default function Home() {
             </div>
           )}
 
-          {service === "cab" && (
+          {service === "cab" && pickupPoint && dropPoint && distance !== null && !routeLoading && (
             <>
               <div className="field-label">Choose vehicle</div>
 
@@ -2294,7 +2308,7 @@ export default function Home() {
               />
             </label>
           )}
-          {!seatShareMode && (
+          {!seatShareMode && pickupPoint && dropPoint && distance !== null && !routeLoading && (
             <>
               <div className="fare-panel">
                 <div className="fare-info">
