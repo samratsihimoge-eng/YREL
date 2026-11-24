@@ -379,7 +379,7 @@ export default function Home() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation">("list");
+  const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation" | "language">("list");
   const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | "bookings" | "profile" | null>(null);
   const [pinMapTarget, setPinMapTarget] = useState<"pickup" | "drop" | null>(null);
   const [pinMapCoords, setPinMapCoords] = useState<[number, number]>([12.9716, 77.5946]);
@@ -1603,7 +1603,7 @@ export default function Home() {
               <span className="app-panel-mark"><Menu size={19} /></span>
               <h2>{menuSection === "list" ? "Menu" : ({
                 how: "How it works", services: "Services", privacy: "Privacy Policy",
-                terms: "Terms & Conditions", cancellation: "Cancellation Policy"
+                terms: "Terms & Conditions", cancellation: "Cancellation Policy", language: "Language"
               } as const)[menuSection]}</h2>
               <button className="app-panel-close" onClick={() => { setMenuOpen(false); setMenuSection("list"); }} aria-label="Close menu"><X size={20} /></button>
             </div>
@@ -1614,14 +1614,7 @@ export default function Home() {
                 <button onClick={() => setMenuSection("privacy")}><ShieldCheck size={20} /><span>Privacy Policy</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("terms")}><FileText size={20} /><span>Terms & Conditions</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("cancellation")}><Ban size={20} /><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
-                <div className="language-picker">
-                  <div className="language-picker-heading"><Languages size={20} /><label htmlFor="yrel-language-select">{language === "kn" ? "ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ" : language === "hi" ? "भाषा चुनें" : "Language"}</label></div>
-                  <select id="yrel-language-select" value={language} onChange={(e) => setLanguage(e.target.value as "en" | "kn" | "hi")}>
-                    <option value="en">English</option>
-                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
-                    <option value="hi">हिन्दी (Hindi)</option>
-                  </select>
-                </div>
+                <button onClick={() => setMenuSection("language")}><Languages size={20} /><span>Language</span><ArrowRight size={17} /></button>
               </div>
             ) : (
               <div className="app-menu-detail">
@@ -1658,6 +1651,11 @@ export default function Home() {
                   <h3>If the driver cancels</h3><p>No cancellation fee applies if the driver cancels or does not arrive.</p>
                   <h3>If no driver accepts</h3><p>No cancellation fee applies if no driver accepts an instant cab request within one minute.</p>
                 </>}
+                {menuSection === "language" && <div className="language-options">
+                  <button className={language === "en" ? "language-option active" : "language-option"} onClick={() => { setLanguage("en"); setMenuSection("list"); }}><span>🇬🇧</span> English {language === "en" && <Check size={18}/>}</button>
+                  <button className={language === "kn" ? "language-option active" : "language-option"} onClick={() => { setLanguage("kn"); setMenuSection("list"); }}><span>ಕ</span> ಕನ್ನಡ {language === "kn" && <Check size={18}/>}</button>
+                  <button className={language === "hi" ? "language-option active" : "language-option"} onClick={() => { setLanguage("hi"); setMenuSection("list"); }}><span>अ</span> हिन्दी {language === "hi" && <Check size={18}/>}</button>
+                </div>}
               </div>
             )}
           </section>
@@ -1744,7 +1742,6 @@ export default function Home() {
               
 
               <div className="location-input">
-                <MapPin size={18} />
                 <input
                   value={pickup}
                   onChange={(e) => {
@@ -1770,8 +1767,8 @@ export default function Home() {
                     <Navigation size={17} />
                   )}
                 </button>
-                <button type="button" className="map-pin-button" onClick={() => { setPinMapCoords(pickupPoint ? [pickupPoint.lat, pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("pickup"); }} title="Select pickup on map" aria-label="Select pickup on map"><MapPin size={17}/></button>
-              </div>
+                </div>
+              <button type="button" className="pin-location-link" onClick={() => { setPinMapCoords(pickupPoint ? [pickupPoint.lat, pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("pickup"); }}>Pin location</button>
 
               {activeSearch === "pickup" &&
                 pickupOptions.length > 0 && (
@@ -1806,7 +1803,6 @@ export default function Home() {
               
 
               <div className="location-input">
-                <MapPin size={18} />
                 <input
                   value={drop}
                   onChange={(e) => {
@@ -1819,8 +1815,8 @@ export default function Home() {
                   onFocus={() => setActiveSearch("drop")}
                   placeholder="Enter destination"
                 />
-                <button type="button" className="map-pin-button" onClick={() => { setPinMapCoords(dropPoint ? [dropPoint.lat,dropPoint.lon] : pickupPoint ? [pickupPoint.lat,pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("drop"); }} title="Select destination on map" aria-label="Select destination on map"><MapPin size={17}/></button>
-              </div>
+                </div>
+              <button type="button" className="pin-location-link" onClick={() => { setPinMapCoords(dropPoint ? [dropPoint.lat,dropPoint.lon] : pickupPoint ? [pickupPoint.lat,pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("drop"); }}>Pin location</button>
 
               {activeSearch === "drop" &&
                 dropOptions.length > 0 && (
@@ -2422,7 +2418,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="app-menu-detail">
-                {session ? <><p>ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗೆ ಸಂಬಂಧಿಸಿದ ಹೊಸ ಅಪ್‌ಡೇಟ್‌ಗಳು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತವೆ.</p>{bookings.length ? bookings.slice(0,5).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><Bell size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.status}</span><small>{b.pickup} → {b.dropoff || "—"}</small></div></article>) : <p>ಇನ್ನೂ ಯಾವುದೇ ಬುಕ್ಕಿಂಗ್ ಅಪ್‌ಡೇಟ್‌ಗಳಿಲ್ಲ.</p>}</> : <p>ಬುಕ್ಕಿಂಗ್ ಅಧಿಸೂಚನೆಗಳನ್ನು ನೋಡಲು ದಯವಿಟ್ಟು Login ಮಾಡಿ.</p>}
+                {session ? <>{bookings.length ? <div className="notification-list">{bookings.slice(0,5).map((b) => <article className="notification-card" key={b.id}><div className="notification-symbol"><Bell size={20} /></div><div className="notification-content"><div className="notification-topline"><b>{b.booking_code}</b><time dateTime={b.created_at}>{new Date(b.created_at).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</time></div><strong className="notification-status">{b.status.replaceAll("_"," ")}</strong><p>{b.pickup} → {b.dropoff || "—"}</p></div></article>)}</div> : <div className="notifications-empty"><Bell size={28}/><b>No notifications yet</b></div>}</> : <div className="notifications-empty"><Bell size={28}/><b>Please log in to view notifications</b></div>}
               </div>
             )}
           </section>
