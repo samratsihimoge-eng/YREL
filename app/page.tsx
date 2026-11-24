@@ -390,8 +390,10 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation" | "language" | "saved">("list");
   const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | "bookings" | "profile" | null>(null);
-  const [pinMapTarget, setPinMapTarget] = useState<"pickup" | "drop" | null>(null);
+  const [pinMapTarget, setPinMapTarget] = useState<"pickup" | "drop" | "save" | null>(null);
   const [pinMapCoords, setPinMapCoords] = useState<[number, number]>([12.9716, 77.5946]);
+  const [savedLocationTarget, setSavedLocationTarget] = useState<"pickup" | "drop" | null>(null);
+  const [mapLocationQuery, setMapLocationQuery] = useState("");
   const [draftRestored, setDraftRestored] = useState(false);
   const [savedLocations, setSavedLocations] = useState<Place[]>([]);
   const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
@@ -454,14 +456,18 @@ export default function Home() {
     } catch { setSavedLocations([]); }
   }
 
-  function saveCurrentPickup() {
-    if (!pickupPoint) { setNotice("ಮೊದಲು Pickup location ಆಯ್ಕೆಮಾಡಿ."); return; }
+  function persistSavedLocation(place: Place) {
     const key = `${SAVED_LOCATIONS_KEY}_${session?.user?.id || "guest"}`;
-    const next = [...savedLocations.filter(p => p.label !== pickupPoint.label), pickupPoint];
+    const alreadySaved = savedLocations.some(p => p.label.toLowerCase() === place.label.toLowerCase());
+    if (alreadySaved) { setNotice("ಈ ಸ್ಥಳ ಈಗಾಗಲೇ Saved Locations‌ನಲ್ಲಿದೆ."); return; }
+    if (savedLocations.length >= 5) { setNotice("ಗರಿಷ್ಠ 5 Saved Locations ಮಾತ್ರ ಉಳಿಸಬಹುದು. ಮೊದಲು ಒಂದನ್ನು ತೆಗೆದುಹಾಕಿ."); return; }
+    const next = [...savedLocations, place];
     try {
       localStorage.setItem(key, JSON.stringify(next));
       setSavedLocations(next);
-      setNotice("Pickup location Saved Locations‌ಗೆ ಸೇರಿಸಲಾಗಿದೆ.");
+      setPinMapTarget(null);
+      setMapLocationQuery("");
+      setNotice("Location Saved successfully.");
     } catch { setNotice("Location save ಆಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."); }
   }
 
@@ -626,6 +632,8 @@ export default function Home() {
   }, []);
 
   // Show splash only on a fresh app visit, never after an authenticated login.
+  useEffect(() => { loadSavedLocations(session?.user?.id); }, [session?.user?.id]);
+
   useEffect(() => {
     if (!authReady) return;
     if (session) {
@@ -723,20 +731,40 @@ export default function Home() {
 
   async function saveSelectedMapPin() {
     if (!pinMapTarget) return;
-    const lat = pinMapCoords[0], lon = pinMapCoords[1];
-    if (!isIndia(lat, lon)) { setNotice("YREL currently supports locations within India only."); return; }
     try {
-      const response = await fetch("https://photon.komoot.io/reverse?lat=" + lat + "&lon=" + lon + "&lang=en");
-      const json = await response.json();
-      const p = json.features?.[0]?.properties || {};
-      const name = p.name || p.street || p.locality || "Pinned location";
-      const city = p.city || p.town || p.village || p.municipality || p.locality || "";
-      const state = p.state || "";
-      const place: Place = { name, city, state, lat, lon, label: [name, city, state].filter(Boolean).join(", ") };
+      let place: Place;
+      if (mapLocationQuery.trim()) {
+        const response = await fetch("https://photon.komoot.io/api/?q=" + encodeURIComponent(mapLocationQuery.trim()) + "&lat=" + pinMapCoords[0] + "&lon=" + pinMapCoords[1] + "&lang=en&limit=1");
+        const json = await response.json();
+        const feature = json.features?.[0];
+        if (!feature) { setNotice("Location ಸಿಗಲಿಲ್ಲ. ಇನ್ನೊಂದು ಹೆಸರು ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ Map‌ನಲ್ಲಿ Pin ಮಾಡಿ."); return; }
+        const p = feature.properties || {};
+        const coords = feature.geometry?.coordinates || [pinMapCoords[1], pinMapCoords[0]];
+        const lat = Number(coords[1]), lon = Number(coords[0]);
+        if (!isIndia(lat, lon)) { setNotice("YREL currently supports locations within India only."); return; }
+        const name = p.name || p.street || p.locality || mapLocationQuery.trim();
+        const city = p.city || p.town || p.village || p.municipality || p.locality || "";
+        const state = p.state || "";
+        place = { name, city, state, lat, lon, label: [name, city, state].filter(Boolean).join(", ") };
+      } else {
+        const lat = pinMapCoords[0], lon = pinMapCoords[1];
+        if (!isIndia(lat, lon)) { setNotice("YREL currently supports locations within India only."); return; }
+        const response = await fetch("https://photon.komoot.io/reverse?lat=" + lat + "&lon=" + lon + "&lang=en");
+        const json = await response.json();
+        const p = json.features?.[0]?.properties || {};
+        const name = p.name || p.street || p.locality || "Pinned location";
+        const city = p.city || p.town || p.village || p.municipality || p.locality || "";
+        const state = p.state || "";
+        place = { name, city, state, lat, lon, label: [name, city, state].filter(Boolean).join(", ") };
+      }
+      if (pinMapTarget === "save") {
+        persistSavedLocation(place);
+        return;
+      }
       if (pinMapTarget === "pickup") { setPickup(place.label); setPickupPoint(place); }
       else { setDrop(place.label); setDropPoint(place); }
-      setDistance(null); setEta(null); setPinMapTarget(null); setActiveSearch(null);
-    } catch { setNotice("Could not identify this map pin. Please move the pin and try again."); }
+      setDistance(null); setEta(null); setPinMapTarget(null); setActiveSearch(null); setMapLocationQuery("");
+    } catch { setNotice("Could not identify this location. Please move the pin or try another search."); }
   }
 
   // English is the default; persist only the customer's explicit language choice.
@@ -1730,10 +1758,10 @@ export default function Home() {
       {pinMapTarget && (
         <div className="pin-map-backdrop" onClick={() => setPinMapTarget(null)}>
           <section className="pin-map-panel" onClick={(e) => e.stopPropagation()}>
-            <div className="pin-map-heading"><strong>{pinMapTarget === "pickup" ? "Choose pickup location" : "Choose destination"}</strong><button type="button" onClick={() => setPinMapTarget(null)} aria-label="Close map"><X size={21}/></button></div>
+            <div className="pin-map-heading"><strong>{pinMapTarget === "save" ? "Save a location" : pinMapTarget === "pickup" ? "Choose pickup location" : "Choose destination"}</strong><button type="button" onClick={() => { setPinMapTarget(null); setMapLocationQuery(""); }} aria-label="Close map"><X size={21}/></button></div>
             <p>Map ಮೇಲೆ pin ಅನ್ನು drag ಮಾಡಿ ಅಥವಾ ಬೇಕಾದ ಜಾಗದಲ್ಲಿ tap ಮಾಡಿ.</p>
             <div id="yrel-pin-map" className="yrel-pin-map" />
-            <button type="button" className="pin-map-confirm" onClick={saveSelectedMapPin}>Use this location</button>
+            {pinMapTarget === "save" ? <div className="save-location-map-footer"><input value={mapLocationQuery} onChange={(e) => setMapLocationQuery(e.target.value)} placeholder="Enter Location (optional)" aria-label="Enter location to save" /><button type="button" className="pin-map-confirm" onClick={saveSelectedMapPin}>Save Location</button></div> : <button type="button" className="pin-map-confirm" onClick={saveSelectedMapPin}>Use this location</button>}
           </section>
         </div>
       )}
@@ -1796,8 +1824,9 @@ export default function Home() {
                 </>}
                 {menuSection === "saved" && <div className="saved-locations-panel">
                   <p>ನಿಮ್ಮ Pickup ಸ್ಥಳವನ್ನು ಉಳಿಸಿ. ಮುಂದಿನ ಬಾರಿ Pickup ಅಥವಾ Destination ಆಗಿ ಬಳಸಬಹುದು.</p>
-                  <button type="button" className="saved-location-save" onClick={saveCurrentPickup}>＋ Save current pickup location</button>
-                  {savedLocations.length === 0 ? <p className="saved-location-empty">ಇನ್ನೂ ಯಾವುದೇ ಸ್ಥಳವನ್ನು ಉಳಿಸಿಲ್ಲ.</p> : savedLocations.map((place, index) => <div className="saved-location-row" key={`${place.label}-${index}`}><span><MapPin size={17}/><b>{place.label}</b></span><div><button onClick={() => useSavedLocation(place,"pickup")}>Use Pickup</button><button onClick={() => useSavedLocation(place,"drop")}>Use Drop</button></div></div>)}
+                  <p>ಗರಿಷ್ಠ 5 ಸ್ಥಳಗಳನ್ನು ಉಳಿಸಬಹುದು. Map‌ನಲ್ಲಿ Pin ಮಾಡಿ ಅಥವಾ ಕೆಳಗೆ Location ನಮೂದಿಸಿ.</p>
+                  <button type="button" className="saved-location-save" disabled={savedLocations.length >= 5} onClick={() => { setMapLocationQuery(""); setPinMapCoords([12.9716,77.5946]); setPinMapTarget("save"); }}>＋ Save a new location</button>
+                  {savedLocations.length === 0 ? <p className="saved-location-empty">ಇನ್ನೂ ಯಾವುದೇ ಸ್ಥಳವನ್ನು ಉಳಿಸಿಲ್ಲ.</p> : savedLocations.map((place, index) => <div className="saved-location-row" key={`${place.label}-${index}`}><span><MapPin size={17}/><b>{place.label}</b></span><div><button onClick={() => useSavedLocation(place,"pickup")}>Use Pickup</button><button onClick={() => useSavedLocation(place,"drop")}>Use Drop</button><button onClick={() => { const next=savedLocations.filter((_,i)=>i!==index); localStorage.setItem(`${SAVED_LOCATIONS_KEY}_${session?.user?.id || "guest"}`,JSON.stringify(next)); setSavedLocations(next); }}>Remove</button></div></div>)}
                 </div>}
                 {menuSection === "language" && <div className="language-options">
                   <button className={language === "en" ? "language-option active" : "language-option"} onClick={() => { setLanguage("en"); setMenuSection("list"); }}><span>🇬🇧</span> English {language === "en" && <Check size={18}/>}</button>
@@ -1906,7 +1935,12 @@ export default function Home() {
                   )}
                 </button>
                 </div>
-              <button type="button" className="pin-location-link" onClick={() => { setPinMapCoords(pickupPoint ? [pickupPoint.lat, pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("pickup"); }}>Pin location</button>
+              <div className="location-shortcuts">
+                <button type="button" className="pin-location-link" onClick={() => { setPinMapCoords(pickupPoint ? [pickupPoint.lat, pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("pickup"); }}>Pin location</button>
+                <button type="button" className="pin-location-link saved-location-link" onClick={() => setSavedLocationTarget(savedLocationTarget === "pickup" ? null : "pickup")}>Saved Locations</button>
+                <button type="button" className="pin-location-link save-location-link" onClick={() => { setMapLocationQuery(""); setPinMapCoords(pickupPoint ? [pickupPoint.lat,pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("save"); }}>＋ Save Location</button>
+              </div>
+              {savedLocationTarget === "pickup" && <div className="field-saved-locations">{savedLocations.length ? savedLocations.map((place,index)=><button type="button" key={place.label+index} onClick={()=>{useSavedLocation(place,"pickup");setSavedLocationTarget(null);}}><MapPin size={14}/>{place.label}</button>) : <small>No saved locations yet. Use “Save Location” to add one.</small>}</div>}
 
               {activeSearch === "pickup" &&
                 pickupOptions.length > 0 && (
@@ -1954,7 +1988,12 @@ export default function Home() {
                   placeholder="Enter destination"
                 />
                 </div>
-              <button type="button" className="pin-location-link" onClick={() => { setPinMapCoords(dropPoint ? [dropPoint.lat,dropPoint.lon] : pickupPoint ? [pickupPoint.lat,pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("drop"); }}>Pin location</button>
+              <div className="location-shortcuts">
+                <button type="button" className="pin-location-link" onClick={() => { setPinMapCoords(dropPoint ? [dropPoint.lat,dropPoint.lon] : pickupPoint ? [pickupPoint.lat,pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("drop"); }}>Pin location</button>
+                <button type="button" className="pin-location-link saved-location-link" onClick={() => setSavedLocationTarget(savedLocationTarget === "drop" ? null : "drop")}>Saved Locations</button>
+                <button type="button" className="pin-location-link save-location-link" onClick={() => { setMapLocationQuery(""); setPinMapCoords(dropPoint ? [dropPoint.lat,dropPoint.lon] : pickupPoint ? [pickupPoint.lat,pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("save"); }}>＋ Save Location</button>
+              </div>
+              {savedLocationTarget === "drop" && <div className="field-saved-locations">{savedLocations.length ? savedLocations.map((place,index)=><button type="button" key={place.label+index} onClick={()=>{useSavedLocation(place,"drop");setSavedLocationTarget(null);}}><MapPin size={14}/>{place.label}</button>) : <small>No saved locations yet. Use “Save Location” to add one.</small>}</div>}
 
               {activeSearch === "drop" &&
                 dropOptions.length > 0 && (
@@ -2511,7 +2550,7 @@ export default function Home() {
           <div className="instant-search-orbit" role="img" aria-label="YREL search progress">
             <svg className="instant-search-progress" viewBox="0 0 120 120" aria-hidden="true">
               <circle className="instant-search-progress-track" cx="60" cy="60" r="54" />
-              <circle className="instant-search-progress-value" cx="60" cy="60" r="54" />
+              <circle className="instant-search-progress-value" cx="60" cy="60" r="54" strokeDasharray={339.3} strokeDashoffset={339.3 * (instantSearchSeconds / 60)} />
             </svg>
             <img src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
           </div>
@@ -2562,7 +2601,7 @@ export default function Home() {
                     {(["all","active","completed","cancelled"] as const).map((filter) => <button key={filter} role="tab" aria-selected={bookingFilter===filter} className={bookingFilter===filter ? "active" : ""} onClick={() => setBookingFilter(filter)}>{filter === "all" ? "All" : filter === "active" ? "Active" : filter === "completed" ? "Completed" : "Cancelled"}</button>)}
                   </div>
                   <div className="history-list">
-                    {bookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><CarFront size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_"," ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small><div className="history-actions">{["requested","accepted","assigned","driver_assigned","driver_arrived"].includes(b.status.toLowerCase()) && <button type="button" className="history-action-cancel" disabled={cancellingBookingId===b.id} onClick={() => cancelCustomerBooking(b)}><Ban size={15}/>{cancellingBookingId===b.id ? "Cancelling…" : "Cancel Booking"}</button>}{["accepted","assigned","driver_assigned","driver_arrived","ongoing"].includes(b.status.toLowerCase()) && <button type="button" className="history-action-track" onClick={() => setTrackingBookingId(trackingBookingId===b.id ? null : b.id)}><MapPin size={15}/>{trackingBookingId===b.id ? "Hide Tracking" : "Track Driver"}</button>}</div>{trackingBookingId===b.id && <div className="driver-tracking-panel"><b>Driver & trip status</b><span>Status: {b.status.replaceAll("_"," ")}</span>{typeof b.booking_details?.driver_name === "string" && <span>Driver: {b.booking_details.driver_name}</span>}{typeof b.booking_details?.driver_phone === "string" && <a href={"tel:"+b.booking_details.driver_phone}>Call driver: {b.booking_details.driver_phone}</a>}{typeof b.booking_details?.vehicle_number === "string" && <span>Vehicle: {b.booking_details.vehicle_number}</span>}{typeof b.booking_details?.driver_latitude === "number" && typeof b.booking_details?.driver_longitude === "number" ? <a href={"https://www.google.com/maps?q="+b.booking_details.driver_latitude+","+b.booking_details.driver_longitude} target="_blank" rel="noreferrer">Open driver location in Maps</a> : <small>Live driver location will appear here when the assigned driver app shares GPS coordinates.</small>}</div>}</div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
+                    {bookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><CarFront size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_"," ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small><div className="history-actions">{["requested","accepted","assigned","driver_assigned","driver_arrived"].includes(b.status.toLowerCase()) && <button type="button" className="history-action-cancel" disabled={cancellingBookingId===b.id} onClick={() => cancelCustomerBooking(b)}><Ban size={15}/>{cancellingBookingId===b.id ? "Cancelling…" : "Cancel Booking"}</button>}{b.status.toLowerCase() === "requested" && <button type="button" className="history-action-track history-action-live" onClick={() => { const elapsed=Math.floor((Date.now()-new Date(b.created_at).getTime())/1000); setInstantSearchSeconds(Math.max(1,60-elapsed)); setInstantSearchBooking(b); setBottomPanel(null); setMenuOpen(false); }}><MapPin size={15}/>Live Track</button>}{["accepted","assigned","driver_assigned","driver_arrived","ongoing"].includes(b.status.toLowerCase()) && <button type="button" className="history-action-track" onClick={() => setTrackingBookingId(trackingBookingId===b.id ? null : b.id)}><MapPin size={15}/>{trackingBookingId===b.id ? "Hide Tracking" : "Track Driver"}</button>}</div>{trackingBookingId===b.id && <div className="driver-tracking-panel"><b>Driver & trip status</b><span>Status: {b.status.replaceAll("_"," ")}</span>{typeof b.booking_details?.driver_name === "string" && <span>Driver: {b.booking_details.driver_name}</span>}{typeof b.booking_details?.driver_phone === "string" && <a href={"tel:"+b.booking_details.driver_phone}>Call driver: {b.booking_details.driver_phone}</a>}{typeof b.booking_details?.vehicle_number === "string" && <span>Vehicle: {b.booking_details.vehicle_number}</span>}{typeof b.booking_details?.driver_latitude === "number" && typeof b.booking_details?.driver_longitude === "number" ? <a href={"https://www.google.com/maps?q="+b.booking_details.driver_latitude+","+b.booking_details.driver_longitude} target="_blank" rel="noreferrer">Open driver location in Maps</a> : <small>Live driver location will appear here when the assigned driver app shares GPS coordinates.</small>}</div>}</div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
                     {seatBookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><Users size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>Seat Sharing · {b.seats_booked} seat(s)</span><small>{b.seat_share_trips?.pickup || "Pickup"} → {b.seat_share_trips?.dropoff || "Destination"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small></div><div className="history-right"><b>{money(Number(b.total_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
                   </div>
                 </>}
