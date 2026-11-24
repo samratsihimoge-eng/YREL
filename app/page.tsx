@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import {
   ArrowRight, ArrowDownUp, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
   UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users,
-  Home as HomeIcon, ClipboardList, Bell, Headphones, BookOpen, FileText, Ban, ArrowLeft, Phone, MessageCircle, Mail
+  Home as HomeIcon, ClipboardList, Bell, Headphones, BookOpen, FileText, Ban, ArrowLeft, Phone, MessageCircle, Mail, Languages, BadgeCheck
 } from "lucide-react";
 
 type Service = "cab" | "driver" | "rental";
@@ -271,6 +271,47 @@ const VehicleIcon = ({ vehicle }: { vehicle: string }) => {
     </span>
   );
 };
+
+const RoadAnimation = () => (
+  <div className="yrel-road-animation" aria-label="YREL animated auto, waving driver and cab">
+    <div className="road-surface"><span className="road-markings" /></div>
+    <svg className="road-auto-illustration" viewBox="0 0 150 90" role="img" aria-label="Auto rickshaw">
+      <g stroke="#263238" strokeWidth="3" strokeLinejoin="round">
+        <path d="M20 59 L27 34 Q31 24 44 24 L83 24 Q94 25 101 39 L111 57 L119 59 L119 70 L17 70 Z" fill="#f6bd19"/>
+        <path d="M37 31 L78 31 L89 45 L32 45 Z" fill="#bde7f4"/>
+        <path d="M84 31 L96 42 L101 55 L91 55 Z" fill="#bde7f4"/>
+        <path d="M15 58 L31 58 M108 58 L124 58" fill="none"/>
+        <circle cx="39" cy="70" r="10" fill="#30343b"/><circle cx="39" cy="70" r="4" fill="#d9e0e4"/>
+        <circle cx="101" cy="70" r="10" fill="#30343b"/><circle cx="101" cy="70" r="4" fill="#d9e0e4"/>
+      </g>
+      <path d="M24 22 L39 13 L79 13 L88 23" fill="none" stroke="#d88900" strokeWidth="5" strokeLinecap="round"/>
+      <rect x="13" y="49" width="14" height="8" rx="3" fill="#e84b35"/>
+    </svg>
+    <svg className="road-driver-illustration" viewBox="0 0 100 110" role="img" aria-label="Friendly driver waving">
+      <circle cx="48" cy="29" r="20" fill="#b9784c"/>
+      <path d="M29 26 Q30 5 50 8 Q69 10 68 29 L61 24 L57 15 L44 19 L34 31 Z" fill="#263238"/>
+      <path d="M35 31 Q48 39 61 30 L65 48 L32 48 Z" fill="#f0bd83"/>
+      <path d="M26 55 Q47 43 69 55 L78 101 L18 101 Z" fill="#f0a323" stroke="#8e4c2d" strokeWidth="3"/>
+      <path d="M28 61 L12 45 L7 28" fill="none" stroke="#b9784c" strokeWidth="10" strokeLinecap="round"/>
+      <path className="driver-wave-hand" d="M7 28 L3 13 M7 28 L15 12 M7 28 L1 24" fill="none" stroke="#b9784c" strokeWidth="6" strokeLinecap="round"/>
+      <path d="M40 29 Q48 34 56 29" fill="none" stroke="#5b3428" strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="41" cy="25" r="2" fill="#263238"/><circle cx="56" cy="25" r="2" fill="#263238"/>
+    </svg>
+    <svg className="road-cab-illustration" viewBox="0 0 170 90" role="img" aria-label="YREL passenger cab">
+      <g stroke="#263238" strokeWidth="3" strokeLinejoin="round">
+        <path d="M14 55 L26 34 Q31 26 45 26 L106 26 Q119 27 128 42 L143 55 L153 58 L153 72 L12 72 Z" fill="#fffaf1"/>
+        <path d="M37 33 L72 33 L72 50 L28 50 Z" fill="#b9e3f2"/>
+        <path d="M78 33 L105 33 Q116 34 123 50 L78 50 Z" fill="#b9e3f2"/>
+        <path d="M15 57 L151 57" fill="none"/>
+        <circle cx="43" cy="72" r="11" fill="#30343b"/><circle cx="43" cy="72" r="4" fill="#d9e0e4"/>
+        <circle cx="123" cy="72" r="11" fill="#30343b"/><circle cx="123" cy="72" r="4" fill="#d9e0e4"/>
+      </g>
+      <path d="M15 57 L27 57" stroke="#f36a22" strokeWidth="7"/>
+      <path d="M130 48 L145 51" stroke="#f36a22" strokeWidth="7"/>
+      <path d="M82 18 L119 18" stroke="#f36a22" strokeWidth="5" strokeLinecap="round"/>
+    </svg>
+  </div>
+);
 
 export default function Home() {
   const [service, setService] = useState<Service>("cab");
@@ -1574,7 +1615,7 @@ export default function Home() {
                 <button onClick={() => setMenuSection("terms")}><FileText size={20} /><span>Terms & Conditions</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("cancellation")}><Ban size={20} /><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
                 <div className="language-picker">
-                  <label htmlFor="yrel-language-select">{language === "kn" ? "ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ" : language === "hi" ? "भाषा चुनें" : "Language"}</label>
+                  <div className="language-picker-heading"><Languages size={20} /><label htmlFor="yrel-language-select">{language === "kn" ? "ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ" : language === "hi" ? "भाषा चुनें" : "Language"}</label></div>
                   <select id="yrel-language-select" value={language} onChange={(e) => setLanguage(e.target.value as "en" | "kn" | "hi")}>
                     <option value="en">English</option>
                     <option value="kn">ಕನ್ನಡ (Kannada)</option>
@@ -2251,12 +2292,7 @@ export default function Home() {
                   <ArrowRight size={18} />
                 </button>
               </div>
-              <div className="yrel-road-animation" aria-label="YREL cab and driver animation">
-                <span className="road-vehicle road-auto">🛺</span>
-                <span className="road-driver">🧑‍✈️</span>
-                <span className="road-vehicle road-cab">🚕</span>
-                <span className="road-dashes" />
-              </div>
+              <RoadAnimation />
 
               {service === "cab" &&
                 bookingArea === "outstation" && (
@@ -2374,10 +2410,10 @@ export default function Home() {
             ) : bottomPanel === "profile" ? (
               <div className="app-menu-detail compact-profile-panel">
                 {customer && session ? <>
-                  <div className="compact-profile-row"><small>Customer ID</small><b>{customer.customer_code}</b></div>
-                  <div className="compact-profile-row"><small>Full name</small>{profileEditMode ? <input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Full name" /> : <b>{customer.full_name}</b>}</div>
-                  <div className="compact-profile-row"><small>Mobile number</small>{profileEditMode ? <div className="location-input profile-phone-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" /></div> : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}</div>
-                  <div className="compact-profile-row"><small>Email ID</small><b className="profile-email">{session.user.email || "Not available"}</b></div>
+                  <div className="compact-profile-row"><small><BadgeCheck size={15} /> Customer ID</small><b>{customer.customer_code}</b></div>
+                  <div className="compact-profile-row"><small><UserRound size={15} /> Full name</small>{profileEditMode ? <input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Full name" /> : <b>{customer.full_name}</b>}</div>
+                  <div className="compact-profile-row"><small><Phone size={15} /> Mobile number</small>{profileEditMode ? <div className="location-input profile-phone-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" /></div> : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}</div>
+                  <div className="compact-profile-row"><small><Mail size={15} /> Email ID</small><b className="profile-email">{session.user.email || "Not available"}</b></div>
                   <p className="compact-profile-hint">Google ಮೂಲಕ Login ಆಗಿರುವ Email ID ಅನ್ನು ಇಲ್ಲಿ ತೋರಿಸಲಾಗುತ್ತದೆ. Email ಬದಲಾವಣೆ Google Account ಮೂಲಕವೇ ಮಾಡಬೇಕು.</p>
                   {profileEditMode ? <button className="book-button full compact-profile-action" onClick={saveCustomerProfile} disabled={busy}>{busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} /></button> : <button className="book-button full compact-profile-action" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, "")); setProfileEditMode(true); setNotice(""); }}>Edit profile</button>}
                   <button className="profile-signout-button compact-profile-action" onClick={signOut}><LogOut size={17} /> Sign out</button>
@@ -2434,12 +2470,7 @@ export default function Home() {
               </button>
               {notice && <div className="notice">{notice}</div>}
             </div>
-            <div className="yrel-road-animation login-road-animation" aria-label="YREL cab and driver animation">
-              <span className="road-vehicle road-auto">🛺</span>
-              <span className="road-driver">🧑‍✈️</span>
-              <span className="road-vehicle road-cab">🚕</span>
-              <span className="road-dashes" />
-            </div>
+            <RoadAnimation />
           </div>
         </div>
       )}
