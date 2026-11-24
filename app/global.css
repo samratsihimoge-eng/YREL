@@ -3048,8 +3048,7 @@ html, body, .site-shell {
   stroke:#e85b27 !important;
   stroke-linecap:round !important;
   stroke-dasharray:339.3 !important;
-  stroke-dashoffset:339.3 !important;
-  animation:yrelOneMinuteProgress 60s linear forwards !important;
+  animation:none !important;
 }
 @keyframes yrelOneMinuteProgress {
   from { stroke-dashoffset:339.3; }
