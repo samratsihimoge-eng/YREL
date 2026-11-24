@@ -2721,3 +2721,80 @@ html, body, .site-shell {
   .yrel-login-brandline p { font-size:clamp(11px,3.1vw,13px) !important; }
   .yrel-login-footer { grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) !important; gap:6px !important; }
 }
+
+
+/* Login screen: enforce a true viewport-width layout on narrow Android screens. */
+.yrel-login-screen,
+.yrel-login-screen * {
+  box-sizing:border-box !important;
+}
+.yrel-login-screen {
+  left:0 !important;
+  right:0 !important;
+  width:100% !important;
+  max-width:100vw !important;
+  padding-left:18px !important;
+  padding-right:18px !important;
+}
+.yrel-login-content {
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  width:100% !important;
+  max-width:440px !important;
+  margin:0 auto !important;
+  padding:0 !important;
+}
+.yrel-login-brandline,
+.yrel-login-form,
+.yrel-login-form > *,
+.yrel-login-form .wide-field,
+.yrel-login-form .location-input,
+.yrel-login-form .book-button.full {
+  display:flex;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
+.yrel-login-brandline { flex-direction:column !important; align-items:center !important; }
+.yrel-login-form { flex-direction:column !important; align-items:stretch !important; gap:24px !important; }
+.yrel-login-form .wide-field { flex-direction:column !important; }
+.yrel-login-form .location-input {
+  flex:0 1 auto !important;
+  overflow:hidden !important;
+  padding-left:18px !important;
+  padding-right:14px !important;
+}
+.yrel-login-form .location-input > span { flex:0 0 auto !important; }
+.yrel-login-form .location-input input {
+  flex:1 1 0% !important;
+  width:0 !important;
+  min-width:0 !important;
+  max-width:100% !important;
+}
+.yrel-login-form .book-button.full {
+  flex:0 1 auto !important;
+  justify-content:center !important;
+  gap:12px !important;
+  padding-left:12px !important;
+  padding-right:12px !important;
+  white-space:normal !important;
+}
+.yrel-login-content > .yrel-road-animation {
+  position:relative !important;
+  left:auto !important;
+  right:auto !important;
+  width:calc(100% + 36px) !important;
+  max-width:none !important;
+  margin:24px -18px 0 !important;
+  transform:none !important;
+  flex:0 0 auto !important;
+  overflow:hidden !important;
+}
+.yrel-login-screen { overflow-x:clip !important; }
+@media(max-width:420px) {
+  .yrel-login-screen { padding-left:18px !important; padding-right:18px !important; }
+  .yrel-login-form .book-button.full span { font-size:clamp(15px,4.2vw,18px) !important; }
+}
