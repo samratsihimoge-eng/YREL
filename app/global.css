@@ -2104,3 +2104,33 @@ button {
 @media(prefers-reduced-motion:reduce) {
  .road-markings,.road-auto-illustration,.road-cab-illustration,.driver-wave-hand { animation:none !important; }
 }
+
+/* Final customer UX corrections */
+.app-menu-options .language-picker { display:none !important; }
+.app-menu-detail .language-options { display:grid; gap:10px; }
+.language-option { display:flex; align-items:center; gap:14px; width:100%; min-height:58px; padding:12px 18px; border:1px solid rgba(194,137,78,.25); border-radius:999px; background:#fff8e8; color:#624333; text-align:left; font:inherit; font-weight:750; }
+.language-option span { display:grid; place-items:center; width:34px; height:34px; border-radius:50%; background:#ffedbf; color:#a94e2d; font-size:18px; }
+.language-option svg { margin-left:auto; color:#b65332; }
+.language-option.active { border-color:#e58b48; background:#fff0c8; }
+.notification-list { display:grid; gap:12px; padding:4px 2px 16px; }
+.notification-card { display:flex; align-items:flex-start; gap:13px; padding:16px 15px; border:1px solid rgba(191,143,105,.25); border-left:4px solid #e77a35; border-radius:16px; background:linear-gradient(135deg,#fffdf8 0%,#fff3e4 100%); box-shadow:0 5px 18px rgba(104,64,42,.07); }
+.notification-symbol { flex:0 0 42px; width:42px; height:42px; display:grid; place-items:center; border-radius:50%; background:#ffedc5; color:#a84e30; }
+.notification-content { min-width:0; flex:1; }
+.notification-topline { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+.notification-topline b { color:#604535; font-size:14px; }
+.notification-topline time { color:#927b6a; font-size:10px; text-align:right; line-height:1.4; }
+.notification-status { display:block; margin-top:7px; color:#c45a31; font-size:13px; text-transform:capitalize; }
+.notification-content p { margin:6px 0 0; color:#806b5e; font-size:12px; line-height:1.45; overflow-wrap:anywhere; }
+.notifications-empty { min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:#826d5d; text-align:center; }
+.notifications-empty svg { color:#bc6a43; }
+.yrel-bottom-nav button { background:transparent !important; border-color:transparent !important; box-shadow:none !important; color:#fff8eb !important; }
+.topbar.yrel-fixed-header .header-menu-button, .topbar.yrel-fixed-header .header-notification-button { background:transparent !important; border-color:transparent !important; box-shadow:none !important; color:#fff8eb !important; }
+.pin-location-link { display:inline-flex; align-items:center; margin:5px 0 0 12px; padding:3px 0; border:0; background:transparent; color:#b85b36; text-decoration:underline; text-underline-offset:3px; font-size:12px; font-weight:800; }
+.location-swap-button { width:42px !important; height:42px !important; border:2px solid #c85b32 !important; background:linear-gradient(145deg,#b9323f,#f47719) !important; color:#fff8e9 !important; box-shadow:0 5px 14px rgba(166,67,42,.25) !important; }
+.booking-switch-row { gap:9px !important; }
+.booking-switch-row .schedule-row, .booking-switch-row .compact-choice { border:1px solid rgba(190,91,58,.28) !important; border-radius:999px !important; background:rgba(255,250,239,.72) !important; padding:4px !important; }
+.booking-switch-row .schedule-row .pill, .booking-switch-row .compact-choice .choice { min-height:42px !important; }
+.booking-switch-row .compact-choice { display:flex !important; }
+.booking-switch-row .compact-choice .choice { background:transparent !important; }
+.booking-switch-row .compact-choice .choice.active { background:linear-gradient(110deg,#b92d3d,#e34b2e 52%,#ff861e) !important; }
+@media(max-width:760px) { .notification-card { padding:13px 11px; gap:10px; } .notification-topline { flex-direction:column; gap:3px; } .notification-topline time { text-align:left; } .location-swap-button { width:36px !important; height:36px !important; } .booking-switch-row { gap:5px !important; } .booking-switch-row .schedule-row .pill, .booking-switch-row .compact-choice .choice { font-size:clamp(9px,2.65vw,12px) !important; padding-inline:4px !important; } }
