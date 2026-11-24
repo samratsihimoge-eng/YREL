@@ -1751,13 +1751,13 @@ export default function Home() {
             </div>
             {menuSection === "list" ? (
               <div className="app-menu-options">
-                <button onClick={() => setMenuSection("how")}><BookOpen size={20} /><span>How it works</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("services")}><CarFront size={20} /><span>Services</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("privacy")}><ShieldCheck size={20} /><span>Privacy Policy</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("terms")}><FileText size={20} /><span>Terms & Conditions</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("cancellation")}><Ban size={20} /><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
-                <button onClick={() => { loadSavedLocations(session?.user?.id); setMenuSection("saved"); }}><MapPin size={20} /><span>Saved Locations</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("language")}><Languages size={20} /><span>Language</span><ArrowRight size={17} /></button>
+                <button onClick={() => { loadSavedLocations(session?.user?.id); setMenuSection("saved"); }}><span className="yrel-menu-icon" aria-hidden="true">📍</span><span>Saved Locations</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("how")}><span className="yrel-menu-icon" aria-hidden="true">📖</span><span>How it works</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("services")}><span className="yrel-menu-icon" aria-hidden="true">🚕</span><span>Services</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("privacy")}><span className="yrel-menu-icon" aria-hidden="true">🛡️</span><span>Privacy Policy</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("terms")}><span className="yrel-menu-icon" aria-hidden="true">📄</span><span>Terms & Conditions</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("cancellation")}><span className="yrel-menu-icon" aria-hidden="true">🚫</span><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("language")}><span className="yrel-menu-icon" aria-hidden="true">🌐</span><span>Language</span><ArrowRight size={17} /></button>
               </div>
             ) : (
               <div className="app-menu-detail">
