@@ -1443,3 +1443,32 @@ button {
   .service-tab { gap: 3px; padding-inline: 2px; font-size: 8.5px; }
   .service-tab svg { width: 17px; height: 17px; flex-basis: 17px; }
 }
+
+
+/* Dashboard booking card and service shortcut refinements */
+.service-toolbar { margin-bottom: 7px; }
+.service-tabs { margin-top: 0; }
+.service-tab { gap: 8px; }
+.service-tab .service-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  font-size: 25px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(90,55,40,.12));
+}
+.booking-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.98) 0%, rgba(255,248,239,.98) 58%, rgba(239,249,246,.96) 100%);
+  border-color: rgba(196,155,124,.38);
+  box-shadow: 0 16px 42px rgba(100,66,52,.09);
+}
+.card-topline { margin-bottom: 13px; }
+@media (max-width: 760px) {
+  .service-tab { gap: 5px; }
+  .service-tab .service-emoji { font-size: 21px; }
+}
