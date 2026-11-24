@@ -2671,7 +2671,7 @@ export default function Home() {
             </div>
             <div className="yrel-login-form">
               <label className="wide-field">
-                <span className="yrel-mobile-prompt">Enter your ten digit mobile number</span>
+                <span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span>
                 <div className="location-input">
                   <span>+91</span>
                   <input
@@ -2682,7 +2682,7 @@ export default function Home() {
                     maxLength={10}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                    placeholder="10-digit mobile number"
+                    placeholder="Enter mobile number"
                   />
                 </div>
               </label>
