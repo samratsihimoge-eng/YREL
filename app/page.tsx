@@ -1527,9 +1527,7 @@ export default function Home() {
         <div className="app-panel-backdrop" onClick={() => { setMenuOpen(false); setMenuSection("list"); }}>
           <section className="app-menu-panel" onClick={(e) => e.stopPropagation()}>
             <div className="app-panel-heading">
-              {menuSection !== "list" ? (
-                <button className="app-back-button" onClick={() => setMenuSection("list")} aria-label="Back to menu"><ArrowRight className="back-arrow" size={19} /></button>
-              ) : <span className="app-panel-mark"><Menu size={19} /></span>}
+              <span className="app-panel-mark"><Menu size={19} /></span>
               <h2>{menuSection === "list" ? "Menu" : ({
                 how: "How it works", services: "Services", privacy: "Privacy Policy",
                 terms: "Terms & Conditions", cancellation: "Cancellation Policy"
