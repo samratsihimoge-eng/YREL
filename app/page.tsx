@@ -339,7 +339,7 @@ export default function Home() {
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation">("list");
-  const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | null>(null);
+  const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | "bookings" | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
   const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
 
@@ -1611,7 +1611,7 @@ export default function Home() {
             }
             onClick={() => changeService("cab")}
           >
-            <CarFront />
+            <span className="service-emoji" aria-hidden="true">🚕</span>
             <span>Book a Cab</span>
           </button>
 
@@ -1621,7 +1621,7 @@ export default function Home() {
             }
             onClick={() => changeService("driver")}
           >
-            <UserRound />
+            <span className="service-emoji" aria-hidden="true">🧑‍✈️</span>
             <span>Book a Driver</span>
           </button>
 
@@ -1631,7 +1631,7 @@ export default function Home() {
             }
             onClick={() => changeService("rental")}
           >
-            <Navigation />
+            <span className="service-emoji" aria-hidden="true">🚙</span>
             <span>Cab Rentals</span>
           </button>
         </div>
@@ -1639,7 +1639,6 @@ export default function Home() {
         <div className="booking-card">
           <div className="card-topline">
             <div>
-              <span className="step-label">01 / SERVICE DETAILS</span>
               <h3>
                 {service === "cab"
                   ? "Where are you heading?"
@@ -1648,9 +1647,6 @@ export default function Home() {
                     : "Rent a cab for your journey"}
               </h3>
             </div>
-            <span className="card-icon">
-              <CarFront />
-            </span>
           </div>
 
           {service === "cab" ? (
@@ -2470,121 +2466,9 @@ export default function Home() {
         </div>
       </section>
 
-      {session && (
-        <section className="history-section" id="history">
-          <div className="section-heading">
-            <div>
-              <span className="eyebrow">YOUR ACCOUNT</span>
-              <h2>{words.history}</h2>
-            </div>
-            <span className="history-count">
-              {bookings.length + seatBookings.length} recent
-            </span>
-          </div>
-
-          {profileLoading ? (
-            <div className="empty-history">
-              Loading your customer account…
-            </div>
-          ) : !customer ? (
-            <div className="empty-history">
-              Complete your customer profile to view bookings and book
-              a ride.
-            </div>
-          ) : (
-            <>
-              <div
-                className="empty-history"
-                style={{
-                  marginBottom: 16,
-                  textAlign: "left",
-                }}
-              >
-                <b>{customer.full_name}</b>
-                <br />
-                Customer ID: <b>{customer.customer_code}</b>
-                <br />
-                <small>
-                  Mobile: {customer.phone || "Not provided"} ·{" "}
-                  {customer.phone_verified ? "Verified" : "Not verified"}
-                </small>
-              </div>
-
-              {bookings.length === 0 &&
-              seatBookings.length === 0 ? (
-                <div className="empty-history">
-                  Your bookings will appear here after you book a
-                  service.
-                </div>
-              ) : (
-                <div className="history-list">
-                  {bookings.map((b) => (
-                    <article className="history-item" key={b.id}>
-                      <div className="history-icon">
-                        <CarFront />
-                      </div>
-
-                      <div className="history-main">
-                        <b>{b.booking_code}</b>
-                        <span>
-                          {b.service_type.replaceAll("_", " ")} ·{" "}
-                          {b.vehicle_type || "YREL service"}
-                        </span>
-                        <small>
-                          {b.pickup} → {b.dropoff || "—"}
-                        </small>
-                        <small>
-                          {new Date(b.created_at).toLocaleString()}
-                        </small>
-                      </div>
-
-                      <div className="history-right">
-                        <b>{money(Number(b.estimated_fare))}</b>
-                        <span className="status">{b.status}</span>
-                      </div>
-                    </article>
-                  ))}
-
-                  {seatBookings.map((b) => (
-                    <article className="history-item" key={b.id}>
-                      <div className="history-icon">
-                        <Users />
-                      </div>
-
-                      <div className="history-main">
-                        <b>{b.booking_code}</b>
-                        <span>
-                          Seat Sharing · {b.seats_booked} seat(s)
-                        </span>
-                        <small>
-                          {b.seat_share_trips?.pickup || "Pickup"} →{" "}
-                          {b.seat_share_trips?.dropoff || "Destination"}
-                        </small>
-                        <small>
-                          {b.seat_share_trips?.departure_at
-                            ? formatDeparture(
-                                b.seat_share_trips.departure_at
-                              )
-                            : new Date(b.created_at).toLocaleString()}
-                        </small>
-                      </div>
-
-                      <div className="history-right">
-                        <b>{money(Number(b.total_fare))}</b>
-                        <span className="status">{b.status}</span>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </section>
-      )}
-
       <nav className="yrel-bottom-nav" aria-label="Main navigation">
         <button aria-label="Home" title="Home" onClick={() => { setBottomPanel(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /></button>
-        <button aria-label="My Bookings" title="My Bookings" onClick={() => { setBottomPanel(null); if (!session) setAuthOpen(true); else document.getElementById("history")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}><ClipboardList size={22} /></button>
+        <button aria-label="My Bookings" title="My Bookings" onClick={() => { setBottomPanel(null); if (!session) setAuthOpen(true); else setBottomPanel("bookings"); }}><ClipboardList size={22} /></button>
         <button className="support-nav-button" aria-label="Support" onClick={() => setBottomPanel("support")}><Headphones size={21} /><span>Support</span></button>
         <button aria-label="Notifications" title="Notifications" onClick={() => setBottomPanel("notifications")}><Bell size={22} /></button>
       </nav>
