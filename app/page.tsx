@@ -1719,7 +1719,7 @@ export default function Home() {
           <div className="yrel-splash-loader" />
         </div>
       )}
-      <header className="topbar yrel-fixed-header">
+      <header className={`topbar yrel-fixed-header${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`}>
         <button className="header-menu-button header-menu-left" onClick={() => { if (menuOpen) { setMenuOpen(false); setMenuSection("list"); } else { setBottomPanel(null); setMenuOpen(true); setMenuSection("list"); } }} aria-label="Toggle menu"><Menu size={23} /></button>
         <a className="brand header-brand" href="#" aria-label="YREL home">
           <img className="brand-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
@@ -2517,7 +2517,7 @@ export default function Home() {
         </section>
       )}
 
-      <nav className={`yrel-bottom-nav${instantSearchBooking ? " search-mode" : ""}`} aria-label="Main navigation">
+      <nav className={`yrel-bottom-nav${instantSearchBooking ? " search-mode" : ""}${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`} aria-label="Main navigation">
         <button aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); setMenuOpen(false); setMenuSection("list"); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /></button>
         <button aria-label="Profile" title="Profile" onClick={() => {
           if (session && customer) {
