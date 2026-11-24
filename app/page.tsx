@@ -460,8 +460,8 @@ export default function Home() {
   function persistSavedLocation(place: Place) {
     const key = `${SAVED_LOCATIONS_KEY}_${session?.user?.id || "guest"}`;
     const alreadySaved = savedLocations.some(p => p.label.toLowerCase() === place.label.toLowerCase());
-    if (alreadySaved) { setNotice("ಈ ಸ್ಥಳ ಈಗಾಗಲೇ Saved Locations‌ನಲ್ಲಿದೆ."); return; }
-    if (savedLocations.length >= 5) { setNotice("ಗರಿಷ್ಠ 5 Saved Locations ಮಾತ್ರ ಉಳಿಸಬಹುದು. ಮೊದಲು ಒಂದನ್ನು ತೆಗೆದುಹಾಕಿ."); return; }
+    if (alreadySaved) { setNotice("This location is already in Saved Locations."); return; }
+    if (savedLocations.length >= 5) { setNotice("You can save up to 5 locations. Remove one before adding another."); return; }
     const next = [...savedLocations, place];
     try {
       localStorage.setItem(key, JSON.stringify(next));
@@ -469,7 +469,7 @@ export default function Home() {
       setPinMapTarget(null);
       setMapLocationQuery("");
       setNotice("Location Saved successfully.");
-    } catch { setNotice("Location save ಆಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."); }
+    } catch { setNotice("Could not save this location. Please try again."); }
   }
 
   function isAdvanceBooking(booking: Booking) {
@@ -753,7 +753,7 @@ export default function Home() {
         const response = await fetch("https://photon.komoot.io/api/?q=" + encodeURIComponent(mapLocationQuery.trim()) + "&lat=" + pinMapCoords[0] + "&lon=" + pinMapCoords[1] + "&lang=en&limit=1");
         const json = await response.json();
         const feature = json.features?.[0];
-        if (!feature) { setNotice("Location ಸಿಗಲಿಲ್ಲ. ಇನ್ನೊಂದು ಹೆಸರು ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ Map‌ನಲ್ಲಿ Pin ಮಾಡಿ."); return; }
+        if (!feature) { setNotice("Location not found. Try another name or drop a pin on the map."); return; }
         const p = feature.properties || {};
         const coords = feature.geometry?.coordinates || [pinMapCoords[1], pinMapCoords[0]];
         const lat = Number(coords[1]), lon = Number(coords[0]);
@@ -1213,7 +1213,7 @@ export default function Home() {
 
     if (!/^[6-9]\d{9}$/.test(digits)) {
       setNotice(
-        "ದಯವಿಟ್ಟು ಸರಿಯಾದ 10 ಅಂಕಿಯ Indian mobile number ನಮೂದಿಸಿ."
+        "Please enter a valid 10-digit Indian mobile number."
       );
       return;
     }
@@ -1250,20 +1250,20 @@ export default function Home() {
     ).replace(/\D/g, "");
 
     if (!name || name.length < 2) {
-      setNotice("ದಯವಿಟ್ಟು ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ.");
+      setNotice("Please enter your full name.");
       return;
     }
 
     if (!session?.user) {
       setNotice(
-        "Google Login session ಸಿಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ Login ಮಾಡಿ."
+        "Google login session not found. Please log in again."
       );
       return;
     }
 
     if (!/^[6-9]\d{9}$/.test(digits)) {
       setNotice(
-        "ದಯವಿಟ್ಟು ಸರಿಯಾದ 10 ಅಂಕಿಯ Indian mobile number ನಮೂದಿಸಿ."
+        "Please enter a valid 10-digit Indian mobile number."
       );
       return;
     }
@@ -1289,7 +1289,7 @@ export default function Home() {
     if (error) {
       if (error.code === "23505") {
         setNotice(
-          "ಈ Google Account‌ಗೆ Customer Profile ಈಗಾಗಲೇ ಇದೆ. ಪುಟವನ್ನು Refresh ಮಾಡಿ."
+          "A customer profile already exists for this Google account. Please refresh the page."
         );
       } else {
         setNotice(`Profile save failed: ${error.message}`);
@@ -1305,7 +1305,7 @@ export default function Home() {
     setFullName("");
 
     setNotice(
-      `ಸ್ವಾಗತ ${data.full_name}! ನಿಮ್ಮ Customer ID: ${data.customer_code}`
+      `Welcome ${data.full_name}! Your Customer ID: ${data.customer_code}`
     );
 
     await Promise.all([
@@ -1321,11 +1321,11 @@ export default function Home() {
     const digits = profilePhoneDraft.replace(/\D/g, "");
 
     if (name.length < 2) {
-      setNotice("ದಯವಿಟ್ಟು ಸರಿಯಾದ ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ.");
+      setNotice("Please enter a valid full name.");
       return;
     }
     if (!/^[6-9]\d{9}$/.test(digits)) {
-      setNotice("ದಯವಿಟ್ಟು ಸರಿಯಾದ 10 ಅಂಕಿಯ Indian mobile number ನಮೂದಿಸಿ.");
+      setNotice("Please enter a valid 10-digit Indian mobile number.");
       return;
     }
 
@@ -1350,7 +1350,7 @@ export default function Home() {
 
     setCustomer(data as Customer);
     setProfileEditMode(false);
-    setNotice("ನಿಮ್ಮ Profile ಯಶಸ್ವಿಯಾಗಿ Update ಆಗಿದೆ.");
+    setNotice("Your profile has been updated successfully.");
   }
 
   function getScheduledAt() {
@@ -1379,7 +1379,7 @@ export default function Home() {
 
     if (!date || !time) {
       setNotice(
-        "ದಯವಿಟ್ಟು ನಿಮ್ಮ ಪ್ರಯಾಣದ ದಿನಾಂಕ ಮತ್ತು Preferred Time ಆಯ್ಕೆಮಾಡಿ."
+        "Please select your travel date and preferred time."
       );
       return;
     }
@@ -1450,7 +1450,7 @@ export default function Home() {
 
     if (matchingTrips.length === 0) {
       setNotice(
-        "ಈ ದಿನಾಂಕಕ್ಕೆ ಈ Route‌ನಲ್ಲಿ ಹೊಂದಾಣಿಕೆಯ Published Trips ಸದ್ಯಕ್ಕೆ ಲಭ್ಯವಿಲ್ಲ."
+        "No matching published trips are available for this route on the selected date."
       );
     } else {
       setNotice(
@@ -1484,7 +1484,7 @@ export default function Home() {
 
     if (selectedSeatTrip.available_seats < seatCount) {
       setNotice(
-        "ಈಗ ಆಯ್ಕೆ ಮಾಡಿದಷ್ಟು Seats ಲಭ್ಯವಿಲ್ಲ. ಮತ್ತೆ Check Timings ಮಾಡಿ."
+        "Not enough seats are available. Please check timings again."
       );
       return;
     }
