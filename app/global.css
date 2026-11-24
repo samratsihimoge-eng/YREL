@@ -859,3 +859,81 @@ button {
   .yrel-login-footer .yrel-app-version { font-size: 9px; }
   .yrel-footer-logo { width: 54px; height: 38px; }
 }
+
+
+/* Refreshed vibrant YREL customer login */
+.yrel-login-screen {
+  background:
+    radial-gradient(ellipse at 12% 12%, rgba(255,174,83,.34) 0, rgba(255,174,83,0) 34%),
+    radial-gradient(ellipse at 92% 24%, rgba(244,91,55,.22) 0, rgba(244,91,55,0) 35%),
+    radial-gradient(ellipse at 50% 92%, rgba(255,205,132,.30) 0, rgba(255,205,132,0) 38%),
+    linear-gradient(145deg,#fff3e5 0%,#fffaf3 48%,#ffeadb 100%);
+}
+.yrel-login-content { gap: 30px; }
+.yrel-login-brandline {
+  position: relative; padding: 27px 18px 25px; border-radius: 26px;
+  background: linear-gradient(115deg,rgba(255,255,255,.80),rgba(255,244,231,.60));
+  border: 1px solid rgba(255,255,255,.9);
+  box-shadow: 0 15px 40px rgba(168,83,36,.08);
+  overflow: hidden;
+}
+.yrel-login-brandline::before,
+.yrel-login-brandline::after {
+  content: ""; position: absolute; border-radius: 50%; pointer-events: none;
+}
+.yrel-login-brandline::before {
+  width: 105px; height: 105px; top: -57px; right: -18px;
+  background: linear-gradient(135deg,rgba(255,150,55,.35),rgba(239,75,49,.08));
+}
+.yrel-login-brandline::after {
+  width: 70px; height: 70px; bottom: -45px; left: -16px;
+  background: rgba(255,196,111,.30);
+}
+.yrel-login-brandline h1 {
+  position: relative; z-index: 1;
+  background: linear-gradient(100deg,#a64222 0%,#ed6a22 52%,#c83d35 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: none;
+}
+.yrel-login-brandline p { position: relative; z-index: 1; color: #79543d; }
+.yrel-login-form {
+  gap: 23px; padding: 27px 24px 25px;
+  border: 1px solid rgba(235,190,153,.75);
+  background: linear-gradient(155deg,rgba(255,255,255,.97),rgba(255,248,239,.97));
+  box-shadow: 0 20px 55px rgba(156,82,41,.13), inset 0 1px 0 #fff;
+}
+.yrel-login-form .location-input {
+  box-sizing: border-box; display: flex; align-items: center; gap: 12px;
+  width: 100%; min-height: 62px; height: 62px; margin-top: 0; padding: 0 18px;
+  border: 1.5px solid #edcdb6; border-radius: 17px;
+  background: linear-gradient(100deg,#fff7ed,#fff);
+  box-shadow: inset 0 1px 3px rgba(130,73,39,.04);
+}
+.yrel-login-form .location-input > span {
+  flex: 0 0 auto; padding-right: 13px; border-right: 1px solid #e8cbb7;
+  color: #dc5b27; font-size: 17px; font-weight: 900;
+}
+.yrel-login-form .location-input input,
+.yrel-login-form .location-input .phone-number-input {
+  display: block; flex: 1 1 auto; width: 0; min-width: 0; height: 100%;
+  margin: 0; padding: 0; border: 0 !important; border-radius: 0 !important;
+  outline: 0; background: transparent !important; box-shadow: none !important;
+  color: #4d3528; font-size: 17px; font-weight: 700;
+}
+.yrel-login-form .location-input input::placeholder { color: #b59c8b; font-size: 15px; font-weight: 500; }
+.yrel-login-form .location-input:focus-within {
+  border-color: #ed783b; background: #fff;
+  box-shadow: 0 0 0 4px rgba(237,120,59,.13),0 8px 20px rgba(143,75,37,.07);
+}
+.yrel-login-form .book-button.full {
+  min-height: 62px; margin-top: 2px; font-size: 15px;
+  background: linear-gradient(105deg,#ff8a00 0%,#f15b24 52%,#dc3f3b 100%);
+  box-shadow: 0 13px 27px rgba(220,75,39,.25),inset 0 1px 0 rgba(255,255,255,.25);
+}
+.yrel-login-form .book-button.full:hover:not(:disabled) {
+  background: linear-gradient(105deg,#f47b00,#e94d24 55%,#ca3435);
+}
+@media (max-width: 420px) {
+  .yrel-login-brandline { padding: 24px 12px 22px; }
+  .yrel-login-form { padding: 24px 19px; }
+}
