@@ -1482,7 +1482,7 @@ export default function Home() {
         </div>
       )}
       <header className="topbar yrel-fixed-header">
-        <button className="header-menu-button" onClick={() => { setMenuOpen(true); setMenuSection("list"); }} aria-label="Open menu">
+        <button className="header-menu-button header-menu-right" onClick={() => { setMenuOpen(true); setMenuSection("list"); }} aria-label="Open menu">
           <Menu size={23} />
         </button>
         <a className={`brand header-brand ${session ? "dashboard-logo-reveal" : ""}`} href="#" aria-label="YREL home">
