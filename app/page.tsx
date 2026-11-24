@@ -2665,7 +2665,7 @@ export default function Home() {
         </div>
       )}
 
-      <footer className="footer yrel-login-footer">
+      <footer className={`footer ${authOpen ? "yrel-login-footer" : "yrel-app-footer"}`}>
         <span>© {new Date().getFullYear()} YREL Technologies Private Limited</span>
         <span className="yrel-app-version">App Version 1.0</span>
         <img
