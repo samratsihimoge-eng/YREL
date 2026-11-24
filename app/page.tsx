@@ -1076,15 +1076,7 @@ export default function Home() {
   }
 
   function getScheduledAt() {
-    if (
-      schedule === "now" &&
-      service === "cab" &&
-      bookingArea === "city" &&
-      !seatShareMode
-    ) {
-      return null;
-    }
-
+    if (schedule === "now" && !seatShareMode) return null;
     if (!date || !time) return undefined;
 
     return new Date(`${date}T${time}`).toISOString();
@@ -1324,13 +1316,7 @@ export default function Home() {
       return;
     }
 
-    if (
-      (service !== "cab" || bookingArea === "outstation") &&
-      (!date || !time)
-    ) {
-      setNotice("Please select your travel date and time.");
-      return;
-    }    if (!fare) {
+    if (!fare) {
       setNotice(
         "Fare could not be calculated. Please check your locations."
       );
@@ -1635,56 +1621,10 @@ export default function Home() {
         </div>
 
         <div className="booking-card">
-          <div className="card-topline">
-            <div>
-              <h3>
-                {service === "cab"
-                  ? "Where are you heading?"
-                  : service === "driver"
-                    ? "Hire a driver for your car"
-                    : "Rent a cab for your journey"}
-              </h3>
-            </div>
-          </div>
-
-          {service === "cab" ? (
-            <div className="auto-area-note">
-              <span className="auto-area-dot" />
-              {bookingArea === "city"
-                ? "City ride detected"
-                : bookingArea === "outstation"
-                  ? "Outstation ride detected · One Way"
-                  : "Select pickup and destination to detect City / Outstation"}
-            </div>
-          ) : service === "driver" ? (
+          {service === "driver" && (
             <div className="choice-row">
-              <button
-                className={area === "city" ? "choice active" : "choice"}
-                onClick={() => {
-                  setArea("city");
-                  setDistance(null);
-                }}
-              >
-                City
-              </button>
-              <button
-                className={area === "outstation" ? "choice active" : "choice"}
-                onClick={() => {
-                  setArea("outstation");
-                  setDistance(null);
-                }}
-              >
-                Outstation
-              </button>
-            </div>
-          ) : (
-            <div className="auto-area-note">
-              <span className="auto-area-dot" />
-              {rentalBookingArea === "city"
-                ? "City rental detected"
-                : rentalBookingArea === "outstation"
-                  ? "Outstation rental detected"
-                  : "Select pickup and destination to detect City / Outstation"}
+              <button className={area === "city" ? "choice active" : "choice"} onClick={() => { setArea("city"); setDistance(null); }}>City</button>
+              <button className={area === "outstation" ? "choice active" : "choice"} onClick={() => { setArea("outstation"); setDistance(null); }}>Outstation</button>
             </div>
           )}
 
@@ -1798,6 +1738,21 @@ export default function Home() {
                 )}
             </div>
           </div>
+
+          {!seatShareMode && (
+            <div className="booking-mode-block">
+              <div className="schedule-row">
+                <button type="button" className={schedule === "now" ? "pill active" : "pill"} aria-pressed={schedule === "now"} onClick={() => { setSchedule("now"); setDate(""); setTime(""); }}>Instant Booking</button>
+                <button type="button" className={schedule === "later" ? "pill active" : "pill"} aria-pressed={schedule === "later"} onClick={() => setSchedule("later")}>Advance Booking</button>
+              </div>
+              {schedule === "later" && (
+                <div className="option-fields date-fields">
+                  <label>Pickup date<input type="date" value={date} min={localDateString()} onChange={(e) => setDate(e.target.value)} /></label>
+                  <label>Pickup time<input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></label>
+                </div>
+              )}
+            </div>
+          )}
 
           {service === "cab" && (
             <>
@@ -2282,87 +2237,6 @@ export default function Home() {
               />
             </label>
           )}
-          {service === "cab" &&
-            bookingArea === "city" &&
-            !seatShareMode && (
-              <>
-                <div className="schedule-row">
-                  <button
-                    type="button"
-                    className={
-                      schedule === "now" ? "pill active" : "pill"
-                    }
-                    aria-pressed={schedule === "now"}
-                    onClick={() => setSchedule("now")}
-                  >
-                    Instant Booking
-                  </button>
-
-                  <button
-                    type="button"
-                    className={
-                      schedule === "later" ? "pill active" : "pill"
-                    }
-                    aria-pressed={schedule === "later"}
-                    onClick={() => setSchedule("later")}
-                  >
-                    Advance Booking
-                  </button>
-                </div>
-
-                {schedule === "later" && (
-                  <div className="option-fields date-fields">
-                    <label>
-                      Pickup date
-                      <input
-                        type="date"
-                        value={date}
-                        min={localDateString()}
-                        onChange={(e) => setDate(e.target.value)}
-                      />
-                    </label>
-
-                    <label>
-                      Pickup time
-                      <input
-                        type="time"
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                      />
-                    </label>
-                  </div>
-                )}
-              </>
-            )}
-
-          {(service === "cab" && bookingArea === "outstation") ||
-            (service === "driver" && area === "city") ||
-            (service === "driver" && area === "outstation" && tripType === "one-way") ||
-            service === "rental" ? (
-              <div className="option-fields date-fields">
-                <label>
-                  {service === "rental" && rentalBookingArea === "outstation"
-                    ? "Departure date"
-                    : "Pickup date"}
-                  <input
-                    type="date"
-                    value={date}
-                    min={localDateString()}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
-                </label>
-
-                <label>
-                  Pickup time
-                  <input
-                    type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                  />
-                </label>
-              </div>
-            ) : null}
-        
           {!seatShareMode && (
             <>
               <div className="fare-panel">
@@ -2377,6 +2251,9 @@ export default function Home() {
                             eta ? ` · ${eta} min approx.` : ""
                           }`
                         : "Select pickup and destination to estimate"}
+                  </small>
+                  <small className="area-status-inline">
+                    {bookingArea === "city" ? "City booking" : bookingArea === "outstation" ? "Outstation booking" : "Select locations to detect City / Outstation"}
                   </small>
                 </div>
 
