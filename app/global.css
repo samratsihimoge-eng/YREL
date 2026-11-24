@@ -1091,3 +1091,44 @@ button {
     animation: none !important;
   }
 }
+
+
+/* Keep the legal footer in normal page flow above the fixed app tab bar. */
+@media (min-width: 0px) {
+  .site-shell { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+  .yrel-app-footer {
+    position: relative !important;
+    inset: auto !important;
+    z-index: 1;
+    width: 100%;
+    min-height: 66px;
+    margin: 28px auto 0;
+    padding: 14px 16px calc(18px + env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto minmax(58px,auto);
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid #efddcf;
+    background: rgba(255,250,245,.98);
+  }
+  .yrel-app-footer > span:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 10px;
+    line-height: 1.35;
+  }
+  .yrel-app-footer .yrel-app-version {
+    white-space: nowrap;
+    font-size: 10px;
+  }
+  .yrel-app-footer .yrel-footer-logo {
+    width: 58px;
+    height: 40px;
+  }
+}
+@media (max-width: 390px) {
+  .yrel-app-footer { grid-template-columns: minmax(0,1fr) auto 48px; padding-inline: 11px; gap: 5px; }
+  .yrel-app-footer > span:first-child { font-size: 9px; }
+  .yrel-app-footer .yrel-app-version { font-size: 9px; }
+  .yrel-app-footer .yrel-footer-logo { width: 48px; height: 34px; }
+}
