@@ -385,6 +385,7 @@ export default function Home() {
   const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [instantSearchBooking, setInstantSearchBooking] = useState<Booking | null>(null);
+  const [advanceConfirmationBooking, setAdvanceConfirmationBooking] = useState<Booking | null>(null);
   const [instantSearchSeconds, setInstantSearchSeconds] = useState(60);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -469,6 +470,21 @@ export default function Home() {
       setMapLocationQuery("");
       setNotice("Location Saved successfully.");
     } catch { setNotice("Location save ಆಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."); }
+  }
+
+  function isAdvanceBooking(booking: Booking) {
+    if (booking.booking_details?.booking_schedule === "later") return true;
+    if (!booking.scheduled_at) return false;
+    const scheduled = new Date(booking.scheduled_at).getTime();
+    const created = new Date(booking.created_at).getTime();
+    return Number.isFinite(scheduled) && Number.isFinite(created) && scheduled - created > 5 * 60 * 1000;
+  }
+
+  function openAdvanceBookingConfirmation(booking: Booking) {
+    setAdvanceConfirmationBooking(booking);
+    setBottomPanel(null);
+    setMenuOpen(false);
+    setInstantSearchBooking(null);
   }
 
   function useSavedLocation(place: Place, kind: "pickup" | "drop") {
@@ -647,7 +663,7 @@ export default function Home() {
     }
     window.sessionStorage.setItem("yrel_splash_seen_v2", "1");
     setSplashVisible(true);
-    const splashTimer = window.setTimeout(() => setSplashVisible(false), 2200);
+    const splashTimer = window.setTimeout(() => setSplashVisible(false), 2600);
     return () => window.clearTimeout(splashTimer);
   }, [authReady, session]);
 
@@ -1608,6 +1624,7 @@ export default function Home() {
     const details = {
       service,
       area: bookingArea,
+      booking_schedule: schedule,
       trip_type: service === "cab" ? "one-way" : tripType,
       ac_preference:
         service === "rental" || service === "cab" ? ac : null,
@@ -1680,7 +1697,8 @@ export default function Home() {
       setInstantSearchSeconds(60);
       setNotice("");
     } else {
-      setNotice(`Advance booking ${data.booking_code} is confirmed as a request. YREL will notify you when a driver is assigned.`);
+      setAdvanceConfirmationBooking(data as Booking);
+      setNotice("");
     }
 
     await loadBookings(session.user.id);
@@ -2545,6 +2563,26 @@ export default function Home() {
         <p><span className="banner-live-dot" /> Instant Booking <i>•</i> Pan India Service</p>
       </section>
 
+      {advanceConfirmationBooking && (
+        <div className="advance-confirmation-backdrop" role="dialog" aria-modal="true" aria-labelledby="advance-confirmation-title">
+          <section className="advance-confirmation-card">
+            <div className="advance-confirmation-mark">✓</div>
+            <h2 id="advance-confirmation-title">Advance Booking Request Confirmed</h2>
+            <p className="advance-confirmation-intro">Your booking request has been received successfully.</p>
+            <div className="advance-confirmation-details">
+              <div><span>Booking ID</span><strong>{advanceConfirmationBooking.booking_code}</strong></div>
+              <div><span>Service</span><strong>{advanceConfirmationBooking.service_type.replaceAll("_"," ")}</strong></div>
+              <div><span>Pickup Date</span><strong>{advanceConfirmationBooking.scheduled_at ? new Date(advanceConfirmationBooking.scheduled_at).toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"}) : "To be confirmed"}</strong></div>
+              <div><span>Pickup Time</span><strong>{advanceConfirmationBooking.scheduled_at ? new Date(advanceConfirmationBooking.scheduled_at).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}) : "To be confirmed"}</strong></div>
+              <div className="advance-confirmation-route"><span>Pickup</span><strong>{advanceConfirmationBooking.pickup}</strong></div>
+              {advanceConfirmationBooking.dropoff && <div className="advance-confirmation-route"><span>Destination</span><strong>{advanceConfirmationBooking.dropoff}</strong></div>}
+            </div>
+            <p className="advance-confirmation-notify">YREL will notify you when a driver is assigned.</p>
+            <button type="button" className="advance-confirmation-gotit" onClick={() => setAdvanceConfirmationBooking(null)}>Got it</button>
+          </section>
+        </div>
+      )}
+
       {instantSearchBooking && (
         <section className="instant-search-screen" role="dialog" aria-live="polite" aria-label="Searching for an available YREL partner">
           <div className="instant-search-orbit" role="img" aria-label="YREL search progress">
@@ -2601,7 +2639,7 @@ export default function Home() {
                     {(["all","active","completed","cancelled"] as const).map((filter) => <button key={filter} role="tab" aria-selected={bookingFilter===filter} className={bookingFilter===filter ? "active" : ""} onClick={() => setBookingFilter(filter)}>{filter === "all" ? "All" : filter === "active" ? "Active" : filter === "completed" ? "Completed" : "Cancelled"}</button>)}
                   </div>
                   <div className="history-list">
-                    {bookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><CarFront size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_"," ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small><div className="history-actions">{["requested","accepted","assigned","driver_assigned","driver_arrived"].includes(b.status.toLowerCase()) && <button type="button" className="history-action-cancel" disabled={cancellingBookingId===b.id} onClick={() => cancelCustomerBooking(b)}><Ban size={15}/>{cancellingBookingId===b.id ? "Cancelling…" : "Cancel Booking"}</button>}{b.status.toLowerCase() === "requested" && <button type="button" className="history-action-track history-action-live" onClick={() => { const elapsed=Math.floor((Date.now()-new Date(b.created_at).getTime())/1000); setInstantSearchSeconds(Math.max(1,60-elapsed)); setInstantSearchBooking(b); setBottomPanel(null); setMenuOpen(false); }}><MapPin size={15}/>Live Track</button>}{["accepted","assigned","driver_assigned","driver_arrived","ongoing"].includes(b.status.toLowerCase()) && <button type="button" className="history-action-track" onClick={() => setTrackingBookingId(trackingBookingId===b.id ? null : b.id)}><MapPin size={15}/>{trackingBookingId===b.id ? "Hide Tracking" : "Track Driver"}</button>}</div>{trackingBookingId===b.id && <div className="driver-tracking-panel"><b>Driver & trip status</b><span>Status: {b.status.replaceAll("_"," ")}</span>{typeof b.booking_details?.driver_name === "string" && <span>Driver: {b.booking_details.driver_name}</span>}{typeof b.booking_details?.driver_phone === "string" && <a href={"tel:"+b.booking_details.driver_phone}>Call driver: {b.booking_details.driver_phone}</a>}{typeof b.booking_details?.vehicle_number === "string" && <span>Vehicle: {b.booking_details.vehicle_number}</span>}{typeof b.booking_details?.driver_latitude === "number" && typeof b.booking_details?.driver_longitude === "number" ? <a href={"https://www.google.com/maps?q="+b.booking_details.driver_latitude+","+b.booking_details.driver_longitude} target="_blank" rel="noreferrer">Open driver location in Maps</a> : <small>Live driver location will appear here when the assigned driver app shares GPS coordinates.</small>}</div>}</div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
+                    {bookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><CarFront size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_"," ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small><div className="history-actions">{["requested","accepted","assigned","driver_assigned","driver_arrived"].includes(b.status.toLowerCase()) && <button type="button" className="history-action-cancel" disabled={cancellingBookingId===b.id} onClick={() => cancelCustomerBooking(b)}><Ban size={15}/>{cancellingBookingId===b.id ? "Cancelling…" : "Cancel Booking"}</button>}{b.status.toLowerCase() === "requested" && <button type="button" className="history-action-track history-action-live" onClick={() => { if (isAdvanceBooking(b)) { openAdvanceBookingConfirmation(b); } else { const elapsed=Math.floor((Date.now()-new Date(b.created_at).getTime())/1000); setInstantSearchSeconds(Math.max(1,60-elapsed)); setInstantSearchBooking(b); setBottomPanel(null); setMenuOpen(false); } }}><MapPin size={15}/>{isAdvanceBooking(b) ? "Booking Details" : "Live Track"}</button>}{["accepted","assigned","driver_assigned","driver_arrived","ongoing"].includes(b.status.toLowerCase()) && <button type="button" className="history-action-track" onClick={() => setTrackingBookingId(trackingBookingId===b.id ? null : b.id)}><MapPin size={15}/>{trackingBookingId===b.id ? "Hide Tracking" : "Track Driver"}</button>}</div>{trackingBookingId===b.id && <div className="driver-tracking-panel"><b>Driver & trip status</b><span>Status: {b.status.replaceAll("_"," ")}</span>{typeof b.booking_details?.driver_name === "string" && <span>Driver: {b.booking_details.driver_name}</span>}{typeof b.booking_details?.driver_phone === "string" && <a href={"tel:"+b.booking_details.driver_phone}>Call driver: {b.booking_details.driver_phone}</a>}{typeof b.booking_details?.vehicle_number === "string" && <span>Vehicle: {b.booking_details.vehicle_number}</span>}{typeof b.booking_details?.driver_latitude === "number" && typeof b.booking_details?.driver_longitude === "number" ? <a href={"https://www.google.com/maps?q="+b.booking_details.driver_latitude+","+b.booking_details.driver_longitude} target="_blank" rel="noreferrer">Open driver location in Maps</a> : <small>Live driver location will appear here when the assigned driver app shares GPS coordinates.</small>}</div>}</div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
                     {seatBookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><Users size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>Seat Sharing · {b.seats_booked} seat(s)</span><small>{b.seat_share_trips?.pickup || "Pickup"} → {b.seat_share_trips?.dropoff || "Destination"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small></div><div className="history-right"><b>{money(Number(b.total_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
                   </div>
                 </>}
