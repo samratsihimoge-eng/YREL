@@ -2283,3 +2283,55 @@ button {
  .booking-card .location-input { min-height:48px !important; height:48px !important; padding-inline:12px !important; }
  .yrel-road-animation { height:98px !important; }
 }
+
+
+/* My Bookings: clear customer actions and driver tracking */
+.history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.history-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.history-action-cancel {
+  color: #a83c32;
+  background: #fff1ed;
+  border: 1px solid #e8b8ae;
+}
+.history-action-cancel:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+.history-action-track {
+  color: #fff;
+  background: linear-gradient(110deg, #c83b32, #f47719);
+  border: 1px solid #d95b32;
+}
+.driver-tracking-panel {
+  display: grid;
+  gap: 7px;
+  margin-top: 11px;
+  padding: 13px;
+  border: 1px solid #ead8c8;
+  border-radius: 14px;
+  background: #fffaf5;
+  color: #604b3d;
+  font-size: 13px;
+}
+.driver-tracking-panel a {
+  color: #bd512f;
+  font-weight: 700;
+  text-decoration: underline;
+}
