@@ -84,7 +84,7 @@ const PHONE_STORAGE_KEY = "yrel_pending_customer_phone";
 const BOOKING_DRAFT_STORAGE_KEY = "yrel_booking_draft_v1";
 const SAVED_LOCATIONS_KEY = "yrel_saved_locations_v1";
 const SPLASH_SEEN_KEY = "yrel_splash_seen_v1";
-const LANGUAGE_STORAGE_KEY = "yrel_customer_language_v1";
+const LANGUAGE_STORAGE_KEY = "yrel_customer_language_v2";
 
 const CITY_CAB: Record<string, { min: number; nonAc: number; ac: number }> = {
   Hatchback: { min: 105, nonAc: 18, ac: 22 },
@@ -783,9 +783,12 @@ export default function Home() {
     } catch { setNotice("Could not identify this location. Please move the pin or try another search."); }
   }
 
-  // Start every fresh app load in English. Customers can explicitly choose Hindi or Kannada from Menu > Language.
+  // English is the default for this release. Explicit language selections are remembered.
   useEffect(() => {
-    setLanguage("en");
+    try {
+      const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (saved === "en" || saved === "kn" || saved === "hi") setLanguage(saved);
+    } catch { /* Keep English if storage is unavailable. */ }
   }, []);
 
   useEffect(() => {
