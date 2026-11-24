@@ -647,7 +647,7 @@ export default function Home() {
     };
   }, []);
 
-  // Show splash only on a fresh app visit, never after an authenticated login.
+  // Load saved places and show one consistent 2.6-second branded splash on a fresh visit.
   useEffect(() => { loadSavedLocations(session?.user?.id); }, [session?.user?.id]);
 
   useEffect(() => {
@@ -656,12 +656,19 @@ export default function Home() {
       setSplashVisible(false);
       return;
     }
-    const seen = window.sessionStorage.getItem("yrel_splash_seen_v2");
-    if (seen) {
-      setSplashVisible(false);
-      return;
-    }
-    window.sessionStorage.setItem("yrel_splash_seen_v2", "1");
+    try {
+      if (window.sessionStorage.getItem("yrel_oauth_in_progress") === "1") {
+        window.sessionStorage.removeItem("yrel_oauth_in_progress");
+        window.sessionStorage.setItem("yrel_splash_seen_v2", "1");
+        setSplashVisible(false);
+        return;
+      }
+      if (window.sessionStorage.getItem("yrel_splash_seen_v2") === "1") {
+        setSplashVisible(false);
+        return;
+      }
+      window.sessionStorage.setItem("yrel_splash_seen_v2", "1");
+    } catch { /* Keep the splash visible even if storage is unavailable. */ }
     setSplashVisible(true);
     const splashTimer = window.setTimeout(() => setSplashVisible(false), 2600);
     return () => window.clearTimeout(splashTimer);
@@ -796,23 +803,7 @@ export default function Home() {
     catch { /* Language remains active for this visit. */ }
   }, [language]);
 
-  // Show the branded splash once per browser session, never after OAuth returns.
-  useEffect(() => {
-    try {
-      const isOAuthReturn = sessionStorage.getItem("yrel_oauth_in_progress") === "1";
-      if (isOAuthReturn) {
-        sessionStorage.removeItem("yrel_oauth_in_progress");
-        sessionStorage.setItem(SPLASH_SEEN_KEY, "1");
-        return;
-      }
-      if (!sessionStorage.getItem(SPLASH_SEEN_KEY)) {
-        setSplashVisible(true);
-        sessionStorage.setItem(SPLASH_SEEN_KEY, "1");
-        const timer = window.setTimeout(() => setSplashVisible(false), 1350);
-        return () => window.clearTimeout(timer);
-      }
-    } catch { /* Continue without splash if browser storage is unavailable. */ }
-  }, []);
+  // Splash timing is managed by the auth-ready effect above to prevent competing timers.
 
   // Restore unfinished booking form only when returning from Google OAuth.
   useEffect(() => {
@@ -2397,12 +2388,9 @@ export default function Home() {
                     type="number"
                     min="2"
                     max="24"
-                    value={hours}
-                    onChange={(e) =>
-                      setHours(
-                        Math.max(2, Number(e.target.value) || 2)
-                      )
-                    }
+                    value={hours || ""}
+                    onChange={(e) => setHours(e.target.value === "" ? 0 : Math.min(24, Number(e.target.value)))}
+                    onBlur={() => setHours(Math.max(2, Math.min(24, Number(hours) || 2)))}
                   />
                 </label>
               )}
@@ -2441,15 +2429,9 @@ export default function Home() {
                 type="number"
                 min="1"
                 max="30"
-                value={days}
-                onChange={(e) =>
-                  setDays(
-                    Math.max(
-                      1,
-                      Math.min(30, Number(e.target.value) || 1)
-                    )
-                  )
-                }
+                value={days || ""}
+                onChange={(e) => setDays(e.target.value === "" ? 0 : Math.min(30, Number(e.target.value)))}
+                onBlur={() => setDays(Math.max(1, Math.min(30, Number(days) || 1)))}
               />
             </label>
           )}
