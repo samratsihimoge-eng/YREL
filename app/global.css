@@ -937,3 +937,67 @@ button {
   .yrel-login-brandline { padding: 24px 12px 22px; }
   .yrel-login-form { padding: 24px 19px; }
 }
+
+
+/* Final polish: full-bleed login background, expressive three-line slogan,
+   and a lightweight login layout without an enclosing card. */
+.yrel-login-screen {
+  background:
+    radial-gradient(ellipse at 8% 15%,rgba(255,164,66,.34) 0,transparent 34%),
+    radial-gradient(ellipse at 94% 28%,rgba(235,73,54,.25) 0,transparent 36%),
+    radial-gradient(ellipse at 52% 82%,rgba(255,194,112,.32) 0,transparent 40%),
+    linear-gradient(135deg,#ffedda 0%,#fff8ef 46%,#ffe8dc 100%);
+}
+.yrel-login-brandline {
+  padding: 0 8px 8px; border: 0; border-radius: 0;
+  background: transparent; box-shadow: none; overflow: visible;
+}
+.yrel-login-brandline::before,
+.yrel-login-brandline::after { display: none; }
+.yrel-login-brandline h1 {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  margin: 0; font-size: clamp(31px,8vw,43px); line-height: 1.13;
+  letter-spacing: -.045em; font-weight: 950;
+  filter: drop-shadow(0 3px 0 rgba(255,255,255,.55));
+}
+.yrel-login-brandline h1 span {
+  display: block;
+  background: linear-gradient(100deg,#963b24 0%,#e65c25 48%,#c8323b 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.yrel-login-brandline h1 .yrel-slogan-highlight {
+  margin-top: 3px; font-size: 1.12em; letter-spacing: -.055em;
+  background: linear-gradient(100deg,#f07812 0%,#e44735 52%,#a82c40 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.yrel-login-brandline p {
+  margin-top: 20px; font-size: 14px; letter-spacing: .045em;
+  color: #76513b; text-shadow: 0 1px 0 rgba(255,255,255,.65);
+}
+.yrel-login-content { gap: 37px; }
+.yrel-login-form {
+  display: grid; gap: 23px; padding: 0 8px;
+  border: 0; border-radius: 0; background: transparent; box-shadow: none;
+}
+.yrel-login-form .wide-field { gap: 12px; }
+.yrel-mobile-prompt {
+  padding-left: 3px; color: #704b36; font-size: 15px; font-weight: 850;
+}
+.yrel-login-form .location-input {
+  min-height: 64px; height: 64px; padding: 0 19px;
+  border: 1.5px solid rgba(221,158,115,.72); border-radius: 19px;
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 10px 26px rgba(151,76,39,.08),inset 0 1px 0 #fff;
+  backdrop-filter: blur(8px);
+}
+.yrel-login-form .book-button.full {
+  min-height: 64px; border-radius: 20px; margin-top: 3px;
+  box-shadow: 0 14px 28px rgba(220,75,39,.25),inset 0 1px 0 rgba(255,255,255,.28);
+}
+.yrel-login-form .notice { margin-top: 0; }
+@media (max-width: 420px) {
+  .yrel-login-brandline h1 { font-size: clamp(30px,8.5vw,37px); }
+  .yrel-login-brandline p { font-size: 12px; }
+  .yrel-login-content { gap: 34px; }
+  .yrel-login-form { padding-inline: 2px; }
+}
