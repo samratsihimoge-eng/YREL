@@ -1861,7 +1861,7 @@ export default function Home() {
 
           {service === "cab" && (
             <>
-              <div className="field-label">Choose your vehicle</div>
+              <div className="field-label">Choose vehicle</div>
 
               <div className="vehicle-grid">
                 {seatShareEligible && (
@@ -2288,11 +2288,9 @@ export default function Home() {
                   <ArrowRight size={18} />
                 </button>
               </div>
-              <RoadAnimation />
-
               {service === "cab" &&
                 bookingArea === "outstation" && (
-                  <p className="hint">
+                  <p className="hint fare-disclaimer">
                     One-way outstation fare. Toll and parking are extra
                     at actuals. Final fare may vary based on completed
                     trip.
@@ -2301,7 +2299,7 @@ export default function Home() {
 
               {service === "driver" &&
                 area === "outstation" && (
-                  <p className="hint">
+                  <p className="hint fare-disclaimer">
                     One day (up to 12 hours): ₹1,300. Two or more days:
                     ₹1,499 per day. For 2+ days, food is to be provided
                     separately by the customer. Extra hour on a one-day
@@ -2310,13 +2308,15 @@ export default function Home() {
                 )}
 
               {service === "rental" &&
-                area === "outstation" && (
-                  <p className="hint">
+                rentalBookingArea === "outstation" && (
+                  <p className="hint fare-disclaimer">
                     Round trip only. Minimum 300 km per day. AC /
                     Non-AC is a preference at the same fare. Toll and
                     parking are extra at actuals.
                   </p>
                 )}
+
+              <RoadAnimation />
             </>
           )}
 
