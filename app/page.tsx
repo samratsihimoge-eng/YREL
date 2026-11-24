@@ -83,7 +83,6 @@ type SeatShareBooking = {
 const PHONE_STORAGE_KEY = "yrel_pending_customer_phone";
 const BOOKING_DRAFT_STORAGE_KEY = "yrel_booking_draft_v1";
 const SAVED_LOCATIONS_KEY = "yrel_saved_locations_v1";
-const SPLASH_SEEN_KEY = "yrel_splash_seen_v1";
 const LANGUAGE_STORAGE_KEY = "yrel_customer_language_v2";
 
 const CITY_CAB: Record<string, { min: number; nonAc: number; ac: number }> = {
