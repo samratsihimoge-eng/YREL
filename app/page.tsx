@@ -783,12 +783,9 @@ export default function Home() {
     } catch { setNotice("Could not identify this location. Please move the pin or try another search."); }
   }
 
-  // English is the default; persist only the customer's explicit language choice.
+  // Start every fresh app load in English. Customers can explicitly choose Hindi or Kannada from Menu > Language.
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-      if (saved === "en" || saved === "kn" || saved === "hi") setLanguage(saved);
-    } catch { /* Keep English if storage is unavailable. */ }
+    setLanguage("en");
   }, []);
 
   useEffect(() => {
@@ -1777,7 +1774,7 @@ export default function Home() {
         <div className="pin-map-backdrop" onClick={() => setPinMapTarget(null)}>
           <section className="pin-map-panel" onClick={(e) => e.stopPropagation()}>
             <div className="pin-map-heading"><strong>{pinMapTarget === "save" ? "Save a location" : pinMapTarget === "pickup" ? "Choose pickup location" : "Choose destination"}</strong><button type="button" onClick={() => { setPinMapTarget(null); setMapLocationQuery(""); }} aria-label="Close map"><X size={21}/></button></div>
-            <p>Map ಮೇಲೆ pin ಅನ್ನು drag ಮಾಡಿ ಅಥವಾ ಬೇಕಾದ ಜಾಗದಲ್ಲಿ tap ಮಾಡಿ.</p>
+            <p>Drag the pin on the map or tap your preferred location.</p>
             <div id="yrel-pin-map" className="yrel-pin-map" />
             {pinMapTarget === "save" ? <div className="save-location-map-footer"><input value={mapLocationQuery} onChange={(e) => setMapLocationQuery(e.target.value)} placeholder="Enter Location (optional)" aria-label="Enter location to save" /><button type="button" className="pin-map-confirm" onClick={saveSelectedMapPin}>Save Location</button></div> : <button type="button" className="pin-map-confirm" onClick={saveSelectedMapPin}>Use this location</button>}
           </section>
@@ -1841,10 +1838,10 @@ export default function Home() {
                   <h3>If no driver accepts</h3><p>No cancellation fee applies if no driver accepts an instant cab request within one minute.</p>
                 </>}
                 {menuSection === "saved" && <div className="saved-locations-panel">
-                  <p>ನಿಮ್ಮ Pickup ಸ್ಥಳವನ್ನು ಉಳಿಸಿ. ಮುಂದಿನ ಬಾರಿ Pickup ಅಥವಾ Destination ಆಗಿ ಬಳಸಬಹುದು.</p>
-                  <p>ಗರಿಷ್ಠ 5 ಸ್ಥಳಗಳನ್ನು ಉಳಿಸಬಹುದು. Map‌ನಲ್ಲಿ Pin ಮಾಡಿ ಅಥವಾ ಕೆಳಗೆ Location ನಮೂದಿಸಿ.</p>
+                  <p>Save your pickup locations and use them again as Pickup or Destination next time.</p>
+                  <p>You can save up to 5 locations. Drop a pin on the map or enter a location below.</p>
                   <button type="button" className="saved-location-save" disabled={savedLocations.length >= 5} onClick={() => { setMapLocationQuery(""); setPinMapCoords([12.9716,77.5946]); setPinMapTarget("save"); }}>＋ Save a new location</button>
-                  {savedLocations.length === 0 ? <p className="saved-location-empty">ಇನ್ನೂ ಯಾವುದೇ ಸ್ಥಳವನ್ನು ಉಳಿಸಿಲ್ಲ.</p> : savedLocations.map((place, index) => <div className="saved-location-row" key={`${place.label}-${index}`}><span><MapPin size={17}/><b>{place.label}</b></span><div><button onClick={() => useSavedLocation(place,"pickup")}>Use Pickup</button><button onClick={() => useSavedLocation(place,"drop")}>Use Drop</button><button onClick={() => { const next=savedLocations.filter((_,i)=>i!==index); localStorage.setItem(`${SAVED_LOCATIONS_KEY}_${session?.user?.id || "guest"}`,JSON.stringify(next)); setSavedLocations(next); }}>Remove</button></div></div>)}
+                  {savedLocations.length === 0 ? <p className="saved-location-empty">You have not saved any locations yet.</p> : savedLocations.map((place, index) => <div className="saved-location-row" key={`${place.label}-${index}`}><span><MapPin size={17}/><b>{place.label}</b></span><div><button onClick={() => useSavedLocation(place,"pickup")}>Use Pickup</button><button onClick={() => useSavedLocation(place,"drop")}>Use Drop</button><button onClick={() => { const next=savedLocations.filter((_,i)=>i!==index); localStorage.setItem(`${SAVED_LOCATIONS_KEY}_${session?.user?.id || "guest"}`,JSON.stringify(next)); setSavedLocations(next); }}>Remove</button></div></div>)}
                 </div>}
                 {menuSection === "language" && <div className="language-options">
                   <button className={language === "en" ? "language-option active" : "language-option"} onClick={() => { setLanguage("en"); setMenuSection("list"); }}><span>🇬🇧</span> English {language === "en" && <Check size={18}/>}</button>
@@ -2627,7 +2624,7 @@ export default function Home() {
             </div>
             {bottomPanel === "support" ? (
               <div className="app-menu-detail support-actions">
-                <p>YREL ಸಹಾಯಕ್ಕಾಗಿ ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ.</p>
+                <p>Contact us for help with YREL.</p>
                 <a className="support-call" href="tel:+919742809306"><Phone size={19} /> Call YREL Support</a>
                 <a className="support-whatsapp" href="https://wa.me/919742809306" target="_blank" rel="noreferrer"><MessageCircle size={19} /> WhatsApp Support</a>
                 <a className="support-chat" href="mailto:yrelcabs@gmail.com"><Mail size={19} /> Chat / Email Support</a>
@@ -2651,11 +2648,11 @@ export default function Home() {
                   <div className="compact-profile-row"><small><UserRound size={15} /> Full name</small>{profileEditMode ? <input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Full name" /> : <b>{customer.full_name}</b>}</div>
                   <div className="compact-profile-row"><small><Phone size={15} /> Mobile number</small>{profileEditMode ? <div className="location-input profile-phone-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" /></div> : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}</div>
                   <div className="compact-profile-row"><small><Mail size={15} /> Email ID</small><b className="profile-email">{session.user.email || "Not available"}</b></div>
-                  <p className="compact-profile-hint">Google ಮೂಲಕ Login ಆಗಿರುವ Email ID ಅನ್ನು ಇಲ್ಲಿ ತೋರಿಸಲಾಗುತ್ತದೆ. Email ಬದಲಾವಣೆ Google Account ಮೂಲಕವೇ ಮಾಡಬೇಕು.</p>
+                  <p className="compact-profile-hint">Your Google account email is shown here. To change it, update your Google account.</p>
                   {profileEditMode ? <button className="book-button full compact-profile-action" onClick={saveCustomerProfile} disabled={busy}>{busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} /></button> : <button className="book-button full compact-profile-action" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, "")); setProfileEditMode(true); setNotice(""); }}>Edit profile</button>}
                   <button className="profile-signout-button compact-profile-action" onClick={signOut}><LogOut size={17} /> Sign out</button>
                   {notice && <div className="notice">{notice}</div>}
-                </> : <p>ನಿಮ್ಮ Profile ನೋಡಲು ದಯವಿಟ್ಟು Login ಮಾಡಿ.</p>}
+                </> : <p>Please log in to view your profile.</p>}
               </div>
             ) : (
               <div className="app-menu-detail">
