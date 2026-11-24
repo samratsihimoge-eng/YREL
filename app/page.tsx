@@ -339,7 +339,7 @@ export default function Home() {
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation">("list");
-  const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | "bookings" | null>(null);
+  const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | "bookings" | "profile" | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
   const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
 
@@ -1489,23 +1489,12 @@ export default function Home() {
           <img className="brand-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
         </a>
         <button
-          className="profile-button header-profile-button"
-          onClick={() => {
-            if (session && customer) {
-              setProfileNameDraft(customer.full_name);
-              setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, ""));
-              setProfileEditMode(false);
-              setNotice("");
-              setProfileOpen(true);
-            } else {
-              setNotice("");
-              setAuthOpen(true);
-            }
-          }}
-          aria-label="Profile"
-          title="Profile"
+          className="header-notification-button"
+          onClick={() => setBottomPanel("notifications")}
+          aria-label="Notifications"
+          title="Notifications"
         >
-          <UserRound size={20} />
+          <Bell size={22} />
         </button>
       </header>
 
@@ -2283,17 +2272,28 @@ export default function Home() {
 
       <nav className="yrel-bottom-nav" aria-label="Main navigation">
         <button aria-label="Home" title="Home" onClick={() => { setBottomPanel(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /></button>
-        <button aria-label="My Bookings" title="My Bookings" onClick={() => { setBottomPanel(null); if (!session) setAuthOpen(true); else setBottomPanel("bookings"); }}><ClipboardList size={22} /></button>
+        <button aria-label="Profile" title="Profile" onClick={() => {
+          if (session && customer) {
+            setProfileNameDraft(customer.full_name);
+            setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, ""));
+            setProfileEditMode(false);
+            setNotice("");
+            setBottomPanel("profile");
+          } else {
+            setNotice("");
+            setAuthOpen(true);
+          }
+        }}><UserRound size={22} /></button>
+        <button aria-label="My Bookings" title="My Bookings" onClick={() => { if (!session) setAuthOpen(true); else setBottomPanel("bookings"); }}><ClipboardList size={22} /></button>
         <button className="support-nav-button" aria-label="Support" onClick={() => setBottomPanel("support")}><Headphones size={21} /><span>Support</span></button>
-        <button aria-label="Notifications" title="Notifications" onClick={() => setBottomPanel("notifications")}><Bell size={22} /></button>
       </nav>
 
       {bottomPanel && (
         <div className="app-panel-backdrop bottom-panel-backdrop" onClick={() => setBottomPanel(null)}>
           <section className="app-menu-panel bottom-info-panel" onClick={(e) => e.stopPropagation()}>
             <div className="app-panel-heading">
-              <span className="app-panel-mark">{bottomPanel === "support" ? <Headphones size={19} /> : bottomPanel === "bookings" ? <ClipboardList size={19} /> : <Bell size={19} />}</span>
-              <h2>{bottomPanel === "support" ? "Support" : bottomPanel === "bookings" ? "My Bookings" : "Notifications"}</h2>
+              <span className="app-panel-mark">{bottomPanel === "support" ? <Headphones size={19} /> : bottomPanel === "bookings" ? <ClipboardList size={19} /> : bottomPanel === "profile" ? <UserRound size={19} /> : <Bell size={19} />}</span>
+              <h2>{bottomPanel === "support" ? "Support" : bottomPanel === "bookings" ? "My Bookings" : bottomPanel === "profile" ? "Customer Profile" : "Notifications"}</h2>
               <button className="app-panel-close" onClick={() => setBottomPanel(null)} aria-label="Close"><X size={20} /></button>
             </div>
             {bottomPanel === "support" ? (
@@ -2309,6 +2309,19 @@ export default function Home() {
                   {bookings.map((b) => <article className="history-item" key={b.id}><div className="history-icon"><CarFront size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_"," ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString()}</small></div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className="status">{b.status}</span></div></article>)}
                   {seatBookings.map((b) => <article className="history-item" key={b.id}><div className="history-icon"><Users size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>Seat Sharing · {b.seats_booked} seat(s)</span><small>{b.seat_share_trips?.pickup || "Pickup"} → {b.seat_share_trips?.dropoff || "Destination"}</small></div><div className="history-right"><b>{money(Number(b.total_fare))}</b><span className="status">{b.status}</span></div></article>)}
                 </div>}
+              </div>
+            ) : bottomPanel === "profile" ? (
+              <div className="app-menu-detail compact-profile-panel">
+                {customer && session ? <>
+                  <div className="compact-profile-row"><small>Customer ID</small><b>{customer.customer_code}</b></div>
+                  <div className="compact-profile-row"><small>Full name</small>{profileEditMode ? <input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Full name" /> : <b>{customer.full_name}</b>}</div>
+                  <div className="compact-profile-row"><small>Mobile number</small>{profileEditMode ? <div className="location-input profile-phone-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" /></div> : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}</div>
+                  <div className="compact-profile-row"><small>Email ID</small><b className="profile-email">{session.user.email || "Not available"}</b></div>
+                  <p className="compact-profile-hint">Google ಮೂಲಕ Login ಆಗಿರುವ Email ID ಅನ್ನು ಇಲ್ಲಿ ತೋರಿಸಲಾಗುತ್ತದೆ. Email ಬದಲಾವಣೆ Google Account ಮೂಲಕವೇ ಮಾಡಬೇಕು.</p>
+                  {profileEditMode ? <button className="book-button full compact-profile-action" onClick={saveCustomerProfile} disabled={busy}>{busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} /></button> : <button className="book-button full compact-profile-action" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, "")); setProfileEditMode(true); setNotice(""); }}>Edit profile</button>}
+                  <button className="profile-signout-button compact-profile-action" onClick={signOut}><LogOut size={17} /> Sign out</button>
+                  {notice && <div className="notice">{notice}</div>}
+                </> : <p>ನಿಮ್ಮ Profile ನೋಡಲು ದಯವಿಟ್ಟು Login ಮಾಡಿ.</p>}
               </div>
             ) : (
               <div className="app-menu-detail">
@@ -2364,49 +2377,7 @@ export default function Home() {
         </div>
       )}
 
-      {profileOpen && customer && session && (
-        <div className="modal-backdrop" onClick={() => setProfileOpen(false)}>
-          <div className="auth-modal profile-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setProfileOpen(false)} aria-label="Close profile">
-              <X />
-            </button>
-            <div className="modal-symbol"><UserRound /></div>
-            <span className="eyebrow">YOUR YREL ACCOUNT</span>
-            <h2>Customer Profile</h2>
-            <div className="profile-details">
-              <div><small>Customer ID</small><b>{customer.customer_code}</b></div>
-              <div>
-                <small>Full name</small>
-                {profileEditMode ? (
-                  <input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Full name" />
-                ) : <b>{customer.full_name}</b>}
-              </div>
-              <div>
-                <small>Mobile number</small>
-                {profileEditMode ? (
-                  <div className="location-input profile-phone-input">
-                    <span>+91</span>
-                    <input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" />
-                  </div>
-                ) : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}
-              </div>
-              <div><small>Email ID</small><b className="profile-email">{session.user.email || "Not available"}</b></div>
-            </div>
-            <p className="hint">Google ಮೂಲಕ Login ಆಗಿರುವ Email ID ಅನ್ನು ಇಲ್ಲಿ ತೋರಿಸಲಾಗುತ್ತದೆ. Email ಬದಲಾವಣೆ Google Account ಮೂಲಕವೇ ಮಾಡಬೇಕು.</p>
-            {profileEditMode ? (
-              <button className="book-button full" onClick={saveCustomerProfile} disabled={busy}>
-                {busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} />
-              </button>
-            ) : (
-              <button className="book-button full" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, "")); setProfileEditMode(true); setNotice(""); }}>
-                Edit profile
-              </button>
-            )}
-            <button className="profile-signout-button" onClick={signOut}><LogOut size={17} /> Sign out</button>
-            {notice && <div className="notice">{notice}</div>}
-          </div>
-        </div>
-      )}
+
 
       {profileSetupOpen && session && (
         <div className="modal-backdrop">
