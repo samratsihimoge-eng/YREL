@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  ArrowRight, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
+  ArrowRight, ArrowDownUp, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
   UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users,
   Home as HomeIcon, ClipboardList, Bell, Headphones, BookOpen, FileText, Ban, ArrowLeft, Phone, MessageCircle, Mail
 } from "lucide-react";
@@ -1748,6 +1748,18 @@ export default function Home() {
                   </div>
                 )}
             </div>
+
+            <button type="button" className="location-swap-button"
+              onClick={() => {
+                setPickup(drop); setDrop(pickup);
+                setPickupPoint(dropPoint); setDropPoint(pickupPoint);
+                setPickupOptions([]); setDropOptions([]); setActiveSearch(null);
+                setDistance(null); setEta(null); setSeatTrips([]); setSelectedSeatTrip(null);
+                setSeatSearchDone(false); setSeatShareMode(false);
+              }}
+              aria-label="Swap pickup and destination" title="Swap pickup and destination">
+              <ArrowDownUp size={18} />
+            </button>
 
             <div className="field-wrap">
               
