@@ -484,6 +484,7 @@ export default function Home() {
     }
     await loadBookings(session.user.id);
     setTrackingBookingId(null);
+    if (instantSearchBooking?.id === booking.id) setInstantSearchBooking(null);
     setNotice(arrived
       ? "Booking cancelled. The ₹30 cancellation charge is recorded for this booking."
       : "Booking cancelled successfully. No cancellation fee.");
@@ -621,13 +622,32 @@ export default function Home() {
   useEffect(() => {
     if (!instantSearchBooking) return;
     if (instantSearchSeconds <= 0) {
+      const expiredBooking = instantSearchBooking;
       setInstantSearchBooking(null);
-      setNotice("No driver accepted within 1 minute. No cancellation fee has been charged. Please try again.");
+      void (async () => {
+        await supabase.from("bookings").update({ status: "cancelled", booking_details: { ...(expiredBooking.booking_details || {}), cancellation_reason: "No driver accepted within 1 minute", cancellation_fee: 0, cancelled_at: new Date().toISOString() } }).eq("id", expiredBooking.id).eq("status", "requested");
+        if (session?.user?.id) await loadBookings(session.user.id);
+        setNotice("Sorry, no driver accepted within 1 minute. Your request was closed with no cancellation fee.");
+      })();
       return;
     }
     const timer = window.setTimeout(() => setInstantSearchSeconds((seconds) => seconds - 1), 1000);
     return () => window.clearTimeout(timer);
-  }, [instantSearchBooking, instantSearchSeconds]);
+  }, [instantSearchBooking, instantSearchSeconds, session]);
+
+  useEffect(() => {
+    if (!instantSearchBooking?.id) return;
+    const channel = supabase.channel(`yrel-booking-${instantSearchBooking.id}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "bookings", filter: `id=eq.${instantSearchBooking.id}` }, (payload) => {
+        const updated = payload.new as Booking;
+        if (["accepted", "assigned", "driver_assigned", "driver_arrived", "ongoing"].includes((updated.status || "").toLowerCase())) {
+          setInstantSearchBooking(null);
+          setNotice(`A driver has been assigned to booking ${updated.booking_code}. Open My Bookings → Active to view trip details and tracking.`);
+          if (session?.user?.id) void loadBookings(session.user.id);
+        }
+      }).subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [instantSearchBooking?.id, session]);
 
   useEffect(() => {
     if (!seatShareEligible) {
