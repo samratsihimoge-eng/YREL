@@ -2419,11 +2419,11 @@ export default function Home() {
 
       {bottomPanel && (
         <div className="app-panel-backdrop bottom-panel-backdrop" onClick={() => setBottomPanel(null)}>
-          <section className="app-menu-panel bottom-info-panel" onClick={(e) => e.stopPropagation()}>
+          <section className={`app-menu-panel bottom-info-panel bottom-info-panel-${bottomPanel}`} onClick={(e) => e.stopPropagation()}>
             <div className="app-panel-heading">
               <span className="app-panel-mark">{bottomPanel === "support" ? <Headphones size={19} /> : bottomPanel === "bookings" ? <ClipboardList size={19} /> : bottomPanel === "profile" ? <UserRound size={19} /> : <Bell size={19} />}</span>
               <h2>{bottomPanel === "support" ? "Support" : bottomPanel === "bookings" ? "My Bookings" : bottomPanel === "profile" ? "Customer Profile" : "Notifications"}</h2>
-              <button className="app-panel-close" onClick={() => setBottomPanel(null)} aria-label="Close"><X size={20} /></button>
+              {bottomPanel === "notifications" && <button className="app-panel-close" onClick={() => setBottomPanel(null)} aria-label="Close notifications"><X size={20} /></button>}
             </div>
             {bottomPanel === "support" ? (
               <div className="app-menu-detail support-actions">
