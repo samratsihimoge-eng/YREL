@@ -1216,3 +1216,50 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .dashboard-logo-reveal .brand-logo { animation: none; opacity: 1; transform: none; }
 }
+
+
+/* Dashboard: extend the brand gradient across the page; keep the slogan unboxed */
+.site-shell {
+  background:
+    radial-gradient(ellipse at 8% 8%, rgba(255,190,112,.24), transparent 34%),
+    radial-gradient(ellipse at 92% 26%, rgba(239,117,100,.16), transparent 36%),
+    linear-gradient(145deg, #fff7ec 0%, #fff0e5 48%, #fff8f2 100%);
+}
+.dashboard-brand-banner {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto 22px;
+  padding: 30px 16px 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.dashboard-brand-banner::before { content: none; }
+.topbar.yrel-fixed-header {
+  background: rgba(48,43,63,.86);
+  border-bottom: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 5px 22px rgba(32,24,40,.12);
+  backdrop-filter: blur(12px) saturate(135%);
+  -webkit-backdrop-filter: blur(12px) saturate(135%);
+}
+.header-menu-button { color: #ffe0b5; }
+.header-menu-button:active { background: rgba(255,255,255,.14); }
+.header-profile-button {
+  color: #ffe0b5;
+  border-color: rgba(255,224,181,.42);
+  background: rgba(255,255,255,.09);
+}
+.yrel-bottom-nav {
+  background: rgba(48,43,63,.88) !important;
+  border-top: 1px solid rgba(255,255,255,.16) !important;
+  backdrop-filter: blur(12px) saturate(135%);
+  -webkit-backdrop-filter: blur(12px) saturate(135%);
+}
+@media (max-width: 760px) {
+  .dashboard-brand-banner {
+    width: 100%;
+    margin: 0 auto 16px;
+    padding: 24px 12px 20px;
+  }
+}
