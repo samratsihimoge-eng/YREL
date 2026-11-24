@@ -3461,3 +3461,16 @@ html, body, .site-shell {
     transition: none !important;
   }
 }
+
+
+/* Keep app chrome completely out of the splash screen on every mobile browser. */
+.site-shell:has(> .yrel-splash-screen) > .yrel-fixed-header,
+.site-shell:has(> .yrel-splash-screen) > .yrel-bottom-nav {
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+.site-shell:has(> .yrel-splash-screen) > .yrel-splash-screen {
+  z-index:99999 !important;
+}
