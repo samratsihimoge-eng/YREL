@@ -1690,3 +1690,7 @@ button {
   .yrel-bottom-nav { grid-template-columns: repeat(4,minmax(0,1fr)); }
   .yrel-bottom-nav button { min-height: 46px; }
 }
+
+/* Header: notifications on the left, menu on the right, logo centered. */
+.header-notification-button { grid-column: 1; justify-self: start; }
+.header-menu-button.header-menu-right { grid-column: 3; justify-self: end; }
