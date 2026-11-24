@@ -1001,3 +1001,93 @@ button {
   .yrel-login-content { gap: 34px; }
   .yrel-login-form { padding-inline: 2px; }
 }
+
+
+/* YREL 2026 visual refresh: subtle aurora, route-inspired details and motion */
+.yrel-login-screen {
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse 58% 36% at 0% 8%,rgba(255,178,82,.42),transparent 72%),
+    radial-gradient(ellipse 52% 42% at 100% 22%,rgba(242,91,67,.25),transparent 72%),
+    radial-gradient(ellipse 55% 42% at 50% 100%,rgba(255,202,135,.36),transparent 72%),
+    linear-gradient(135deg,#fff0df 0%,#fffaf3 43%,#ffebe1 100%);
+  background-size: 150% 150%;
+  animation: yrel-aurora-drift 16s ease-in-out infinite alternate;
+}
+.yrel-login-screen::before {
+  content: ""; position: absolute; z-index: -1; inset: 0; pointer-events: none;
+  opacity: .32;
+  background-image: radial-gradient(rgba(181,105,62,.20) .7px,transparent .7px);
+  background-size: 19px 19px;
+  mask-image: linear-gradient(to bottom,transparent 2%,#000 28%,transparent 95%);
+}
+.yrel-login-content { position: relative; }
+.yrel-login-brandline h1 {
+  gap: 0; line-height: 1.08; letter-spacing: -.055em;
+  filter: drop-shadow(0 5px 12px rgba(181,74,38,.10));
+}
+.yrel-login-brandline h1 span {
+  animation: yrel-title-rise .75s cubic-bezier(.2,.75,.25,1) both;
+}
+.yrel-login-brandline h1 span:nth-child(2) { animation-delay: .10s; }
+.yrel-login-brandline h1 span:nth-child(3) { animation-delay: .20s; }
+.yrel-login-brandline h1 .yrel-slogan-highlight {
+  position: relative; display: inline-block; padding: 0 .08em .07em;
+}
+.yrel-login-brandline h1 .yrel-slogan-highlight::after {
+  content: ""; position: absolute; left: 9%; right: 9%; bottom: 0;
+  height: 4px; border-radius: 8px;
+  background: linear-gradient(90deg,#ff9b21,#f05b32,#c93643);
+  transform: scaleX(0); transform-origin: left;
+  animation: yrel-underline-in .7s .55s ease-out forwards;
+}
+.yrel-login-brandline p {
+  display: inline-flex; align-items: center; justify-content: center;
+  margin: 18px auto 0; padding: 9px 15px; border-radius: 999px;
+  border: 1px solid rgba(222,164,122,.40);
+  background: rgba(255,255,255,.46);
+  box-shadow: 0 5px 18px rgba(157,87,48,.06);
+  backdrop-filter: blur(8px);
+}
+.yrel-login-form .location-input {
+  transition: border-color .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+.yrel-login-form .location-input:focus-within { transform: translateY(-1px); }
+.yrel-login-form .book-button.full {
+  position: relative; overflow: hidden; isolation: isolate;
+  transition: transform .2s ease,box-shadow .2s ease,filter .2s ease;
+}
+.yrel-login-form .book-button.full::before {
+  content: ""; position: absolute; z-index: -1; top: -80%; bottom: -80%; left: -35%;
+  width: 24%; transform: rotate(22deg) translateX(-220%);
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,.34),transparent);
+  animation: yrel-button-sheen 4.8s 1.2s ease-in-out infinite;
+}
+.yrel-login-form .book-button.full:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: saturate(1.08);
+  box-shadow: 0 17px 32px rgba(220,75,39,.29);
+}
+@keyframes yrel-aurora-drift {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+@keyframes yrel-title-rise {
+  from { opacity: 0; transform: translateY(13px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes yrel-underline-in {
+  to { transform: scaleX(1); }
+}
+@keyframes yrel-button-sheen {
+  0%,58%,100% { transform: rotate(22deg) translateX(-220%); }
+  75% { transform: rotate(22deg) translateX(650%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yrel-login-screen,
+  .yrel-login-brandline h1 span,
+  .yrel-login-brandline h1 .yrel-slogan-highlight::after,
+  .yrel-login-form .book-button.full::before {
+    animation: none !important;
+  }
+}
