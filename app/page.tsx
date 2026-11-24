@@ -775,7 +775,10 @@ export default function Home() {
     try {
       const restoreAfterLogin = sessionStorage.getItem("yrel_restore_booking_after_login") === "1";
       sessionStorage.removeItem("yrel_restore_booking_after_login");
-      const savedDraft = restoreAfterLogin ? localStorage.getItem(BOOKING_DRAFT_STORAGE_KEY) : null;
+      const savedDraft = restoreAfterLogin
+        ? (sessionStorage.getItem("yrel_booking_draft_oauth") || localStorage.getItem(BOOKING_DRAFT_STORAGE_KEY))
+        : null;
+      sessionStorage.removeItem("yrel_booking_draft_oauth");
       if (!restoreAfterLogin) localStorage.removeItem(BOOKING_DRAFT_STORAGE_KEY);
       if (savedDraft) {
         const draft = JSON.parse(savedDraft);
@@ -1177,6 +1180,7 @@ export default function Home() {
     localStorage.setItem(PHONE_STORAGE_KEY, digits);
     sessionStorage.setItem("yrel_oauth_in_progress", "1");
     sessionStorage.setItem("yrel_restore_booking_after_login", "1");
+    sessionStorage.setItem("yrel_booking_draft_oauth", localStorage.getItem(BOOKING_DRAFT_STORAGE_KEY) || "");
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
