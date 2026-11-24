@@ -1843,7 +1843,7 @@ export default function Home() {
                   <button type="button" className={schedule === "now" ? "pill active" : "pill"} aria-pressed={schedule === "now"} onClick={() => { setSchedule("now"); setDate(""); setTime(""); }}>Instant</button>
                   <button type="button" className={schedule === "later" ? "pill active" : "pill"} aria-pressed={schedule === "later"} onClick={() => setSchedule("later")}>Advance</button>
                 </div>
-                {service === "cab" && !seatShareMode && ride !== "Auto" && (
+                {(service === "cab" || service === "rental") && !seatShareMode && ride !== "Auto" && (
                   <div className="choice-row compact-choice" aria-label="AC preference">
                     <button type="button" className={ac === "AC" ? "choice active" : "choice"} onClick={() => setAc("AC")}>AC</button>
                     <button type="button" className={ac === "Non-AC" ? "choice active" : "choice"} onClick={() => setAc("Non-AC")}>Non-AC</button>
