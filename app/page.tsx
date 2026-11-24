@@ -515,7 +515,7 @@ export default function Home() {
 
   // First-launch sequence: show the YREL splash, then require customer login.
   useEffect(() => {
-    const splashTimer = window.setTimeout(() => setSplashVisible(false), 1400);
+    const splashTimer = window.setTimeout(() => setSplashVisible(false), 2400);
     return () => window.clearTimeout(splashTimer);
   }, []);
 
@@ -2652,84 +2652,47 @@ export default function Home() {
         </div>
       )}
 
-      <footer className="footer">
-        <a className="brand" href="#" aria-label="YREL home">
-          
-<img
-  className="brand-logo"
-  src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png"
-  alt="YREL — Run with Fun"
-/>
-        </a>
-
-        <span>
-          © {new Date().getFullYear()} YREL. All rights reserved.
-        </span>
-
-        <span className="footer-tagline">
-          Your city. Your fun. Just YREL it.
-        </span>
+      <footer className="footer yrel-login-footer">
+        <span>© {new Date().getFullYear()} YREL Technologies Private Limited</span>
+        <span className="yrel-app-version">App Version 1.0</span>
+        <img
+          className="yrel-footer-logo"
+          src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png"
+          alt="YREL logo"
+        />
       </footer>
 
       {authOpen && (
-        <div className="modal-backdrop" onClick={closeAuth}>
-          <div
-            className="auth-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button className="modal-close" onClick={closeAuth}>
-              <X />
-            </button>
-
-            <div className="modal-symbol">
-              <UserRound />
+        <div className="yrel-login-screen" role="dialog" aria-modal="true" aria-label="Customer login">
+          <div className="yrel-login-content">
+            <div className="yrel-login-brandline">
+              <h1>Your city. Your fun. Just YREL it.</h1>
+              <p>Instant Booking <span>•</span> Pan India Service</p>
             </div>
-
-            <span className="eyebrow">WELCOME TO YREL</span>
-            <h2>Continue with Google</h2>
-
-            <p>
-              Enter your 10-digit mobile number, then sign in securely
-              with your Google Account.
-            </p>
-
-            <label className="wide-field">
-              Mobile number
-              <div className="location-input">
-                <span>+91</span>
-                <input
-                  className="phone-number-input"
-                  type="tel"
-                  inputMode="numeric"
-                  autoComplete="tel-national"
-                  maxLength={10}
-                  value={phone}
-                  onChange={(e) =>
-                    setPhone(
-                      e.target.value.replace(/\D/g, "").slice(0, 10)
-                    )
-                  }
-                  placeholder="10-digit mobile number"
-                />
-              </div>
-            </label>
-
-            <p className="hint">
-              Your mobile number is saved as unverified until phone
-              verification is added.
-            </p>
-
-            <button
-              className="book-button full"
-              onClick={startGoogleLogin}
-              disabled={busy}
-            >
-              {busy && <Loader2 className="spin" />}
-              <span>Continue with Google</span>
-              <ArrowRight size={18} />
-            </button>
-
-            {notice && <div className="notice">{notice}</div>}
+            <div className="yrel-login-form">
+              <label className="wide-field">
+                <span className="yrel-mobile-prompt">Enter your ten digit mobile number</span>
+                <div className="location-input">
+                  <span>+91</span>
+                  <input
+                    className="phone-number-input"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    maxLength={10}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    placeholder="10-digit mobile number"
+                  />
+                </div>
+              </label>
+              <button className="book-button full" onClick={startGoogleLogin} disabled={busy}>
+                {busy && <Loader2 className="spin" />}
+                <span>Continue with Google</span>
+                <ArrowRight size={18} />
+              </button>
+              {notice && <div className="notice">{notice}</div>}
+            </div>
           </div>
         </div>
       )}
