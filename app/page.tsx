@@ -1665,11 +1665,11 @@ export default function Home() {
         </div>
       )}
       <header className="topbar yrel-fixed-header">
-        <button className="header-menu-button header-menu-left" onClick={() => { setMenuOpen(true); setMenuSection("list"); }} aria-label="Open menu"><Menu size={23} /></button>
+        <button className="header-menu-button header-menu-left" onClick={() => { if (menuOpen) { setMenuOpen(false); setMenuSection("list"); } else { setBottomPanel(null); setMenuOpen(true); setMenuSection("list"); } }} aria-label="Toggle menu"><Menu size={23} /></button>
         <a className="brand header-brand" href="#" aria-label="YREL home">
           <img className="brand-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
         </a>
-        <button className="header-notification-button" onClick={() => setBottomPanel("notifications")} aria-label="Notifications" title="Notifications"><Bell size={22} /></button>
+        <button className="header-notification-button" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "notifications" ? null : "notifications"); }} aria-label="Notifications" title="Notifications"><Bell size={22} /></button>
       </header>
 
       {pinMapTarget && (
@@ -1692,7 +1692,7 @@ export default function Home() {
                 how: "How it works", services: "Services", privacy: "Privacy Policy",
                 terms: "Terms & Conditions", cancellation: "Cancellation Policy", language: "Language"
               } as const)[menuSection]}</h2>
-              <button className="app-panel-close" onClick={() => { setMenuOpen(false); setMenuSection("list"); }} aria-label="Close menu"><X size={20} /></button>
+              <button className="app-panel-close" onClick={() => { if (menuSection !== "list") setMenuSection("list"); else setMenuOpen(false); }} aria-label={menuSection !== "list" ? "Back to menu" : "Close menu"}>{menuSection !== "list" ? <ArrowLeft size={20} /> : <X size={20} />}</button>
             </div>
             {menuSection === "list" ? (
               <div className="app-menu-options">
@@ -2458,21 +2458,21 @@ export default function Home() {
       )}
 
       <nav className={`yrel-bottom-nav${instantSearchBooking ? " search-mode" : ""}`} aria-label="Main navigation">
-        <button aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /></button>
+        <button aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); setMenuOpen(false); setMenuSection("list"); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /></button>
         <button aria-label="Profile" title="Profile" onClick={() => {
           if (session && customer) {
             setProfileNameDraft(customer.full_name);
             setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, ""));
             setProfileEditMode(false);
             setNotice("");
-            setBottomPanel("profile");
+            setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "profile" ? null : "profile");
           } else {
             setNotice("");
             setAuthOpen(true);
           }
         }}><UserRound size={22} /></button>
-        <button aria-label="My Bookings" title="My Bookings" onClick={() => { if (!session) setAuthOpen(true); else { setBookingFilter("active"); setBottomPanel("bookings"); } }}><ClipboardList size={22} /></button>
-        <button className="support-nav-button" aria-label="Support" onClick={() => setBottomPanel("support")}><Headphones size={21} /><span>Support</span></button>
+        <button aria-label="My Bookings" title="My Bookings" onClick={() => { if (!session) setAuthOpen(true); else { setMenuOpen(false); setMenuSection("list"); setBookingFilter("active"); setBottomPanel(bottomPanel === "bookings" ? null : "bookings"); } }}><ClipboardList size={22} /></button>
+        <button className="support-nav-button" aria-label="Support" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "support" ? null : "support"); }}><Headphones size={21} /><span>Support</span></button>
       </nav>
 
       {bottomPanel && (
