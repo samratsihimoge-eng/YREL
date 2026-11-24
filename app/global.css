@@ -2043,3 +2043,64 @@ button {
   .yrel-road-animation { height: 68px !important; }
   .footer.yrel-app-footer { padding: 10px 12px 14px !important; }
 }
+
+
+/* YREL accessible controls and illustrated moving-road scene. */
+.language-picker-heading { display:flex; align-items:center; gap:10px; color:#a9512e; }
+.language-picker-heading label { font-weight:800; }
+.app-menu-options button, .support-actions a, .yrel-bottom-nav button,
+.header-notification-button, .header-menu-button, .app-panel-mark,
+.app-panel-close, .app-back-button, .profile-action, .compact-profile-action,
+.history-icon, .map-pin-button, .location-swap-button, .service-tab,
+.vehicle-option, .booking-mode-block .schedule-row .pill,
+.booking-switch-row .compact-choice .choice {
+  border-radius:999px !important;
+}
+.app-menu-options button, .support-actions a, .yrel-bottom-nav button,
+.header-notification-button, .header-menu-button, .app-panel-mark,
+.app-panel-close, .app-back-button, .profile-action, .compact-profile-action,
+.history-icon, .map-pin-button, .location-swap-button {
+  background:#fff2c9 !important;
+  border-color:rgba(221,174,92,.42) !important;
+  color:#a9512e !important;
+}
+.compact-profile-row small { display:flex; align-items:center; gap:7px; }
+.yrel-road-animation {
+  position:relative !important; display:flex !important; align-items:flex-end !important;
+  justify-content:space-around !important; gap:10px !important; overflow:hidden !important;
+  width:100% !important; height:132px !important; margin:18px 0 22px !important;
+  padding:0 5% 18px !important; border-radius:18px !important;
+  background:linear-gradient(180deg,rgba(255,241,207,.12),rgba(255,241,207,.45)) !important;
+}
+.road-surface {
+  position:absolute; left:-3%; right:-3%; bottom:0; height:54px;
+  background:linear-gradient(180deg,#41464b 0%,#171a1d 100%);
+  border-top:4px solid #777b7d; border-bottom:4px solid #0e1012;
+  transform:perspective(180px) rotateX(5deg);
+}
+.road-markings {
+  position:absolute; left:0; right:0; top:22px; height:6px;
+  background:repeating-linear-gradient(90deg,#fff 0 34px,transparent 34px 62px);
+  animation:yrelRoadDashTravel .72s linear infinite;
+}
+.road-auto-illustration,.road-cab-illustration,.road-driver-illustration {
+  position:relative; z-index:2; display:block; overflow:visible;
+  flex:0 1 27%; max-width:30%; height:88px; margin-bottom:24px;
+}
+.road-auto-illustration { animation:yrelAutoBounce .72s ease-in-out infinite; }
+.road-cab-illustration { animation:yrelCabBounce .82s ease-in-out infinite; }
+.road-driver-illustration { flex-basis:18%; max-width:20%; height:104px; margin-bottom:24px; }
+.driver-wave-hand { transform-origin:7px 28px; animation:yrelDriverWave .42s ease-in-out infinite alternate; }
+@keyframes yrelRoadDashTravel { to { background-position:-62px 0; } }
+@keyframes yrelAutoBounce { 0%,100% { transform:translateY(0) rotate(-1deg); } 50% { transform:translateY(-7px) rotate(1deg); } }
+@keyframes yrelCabBounce { 0%,100% { transform:translateY(-1px) rotate(1deg); } 50% { transform:translateY(-8px) rotate(-1deg); } }
+@keyframes yrelDriverWave { from { transform:rotate(-20deg); } to { transform:rotate(24deg); } }
+.login-road-animation { width:min(100%,480px) !important; margin:26px auto 0 !important; }
+@media(max-width:390px) {
+  .yrel-road-animation { height:118px !important; padding-inline:2% !important; }
+  .road-auto-illustration,.road-cab-illustration { height:76px; max-width:32%; }
+  .road-driver-illustration { height:92px; max-width:22%; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .road-markings,.road-auto-illustration,.road-cab-illustration,.driver-wave-hand { animation:none !important; }
+}
