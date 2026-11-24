@@ -377,6 +377,8 @@ export default function Home() {
   const [profilePhoneDraft, setProfilePhoneDraft] = useState("");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingFilter, setBookingFilter] = useState<"all" | "active" | "completed" | "cancelled">("all");
+  const [trackingBookingId, setTrackingBookingId] = useState<string | null>(null);
+  const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -448,6 +450,39 @@ export default function Home() {
     if (!error && data) {
       setBookings(data as Booking[]);
     }
+  }
+
+  async function cancelCustomerBooking(booking: Booking) {
+    const status = booking.status.toLowerCase();
+    const cancellable = ["requested", "accepted", "assigned", "driver_assigned", "driver_arrived"].includes(status);
+    if (!cancellable || !session?.user?.id || cancellingBookingId) return;
+    const arrived = status === "driver_arrived";
+    const message = arrived
+      ? "The driver has reached the pickup point. A ₹30 cancellation charge may apply. Do you want to continue?"
+      : "Cancel this booking? No cancellation fee applies before the driver reaches the pickup point.";
+    if (!window.confirm(message)) return;
+    setCancellingBookingId(booking.id);
+    const details = {
+      ...(booking.booking_details || {}),
+      cancellation_reason: "Cancelled by customer",
+      cancellation_fee: arrived ? 30 : 0,
+      cancelled_at: new Date().toISOString(),
+    };
+    const { error } = await supabase
+      .from("bookings")
+      .update({ status: "cancelled", booking_details: details })
+      .eq("id", booking.id)
+      .eq("user_id", session.user.id);
+    setCancellingBookingId(null);
+    if (error) {
+      setNotice("Booking cancellation failed. Please try again or contact YREL Support.");
+      return;
+    }
+    await loadBookings(session.user.id);
+    setTrackingBookingId(null);
+    setNotice(arrived
+      ? "Booking cancelled. The ₹30 cancellation charge is recorded for this booking."
+      : "Booking cancelled successfully. No cancellation fee.");
   }
 
   async function loadSeatShareBookings(userId: string) {
@@ -2404,7 +2439,7 @@ export default function Home() {
                     {(["all","active","completed","cancelled"] as const).map((filter) => <button key={filter} role="tab" aria-selected={bookingFilter===filter} className={bookingFilter===filter ? "active" : ""} onClick={() => setBookingFilter(filter)}>{filter === "all" ? "All" : filter === "active" ? "Active" : filter === "completed" ? "Completed" : "Cancelled"}</button>)}
                   </div>
                   <div className="history-list">
-                    {bookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><CarFront size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_"," ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small></div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
+                    {bookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><CarFront size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>{b.service_type.replaceAll("_"," ")} · {b.vehicle_type || "YREL service"}</span><small>{b.pickup} → {b.dropoff || "—"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small><div className="history-actions">{["requested","accepted","assigned","driver_assigned","driver_arrived"].includes(b.status.toLowerCase()) && <button type="button" className="history-action-cancel" disabled={cancellingBookingId===b.id} onClick={() => cancelCustomerBooking(b)}><Ban size={15}/>{cancellingBookingId===b.id ? "Cancelling…" : "Cancel Booking"}</button>}{["accepted","assigned","driver_assigned","driver_arrived","ongoing"].includes(b.status.toLowerCase()) && <button type="button" className="history-action-track" onClick={() => setTrackingBookingId(trackingBookingId===b.id ? null : b.id)}><MapPin size={15}/>{trackingBookingId===b.id ? "Hide Tracking" : "Track Driver"}</button>}</div>{trackingBookingId===b.id && <div className="driver-tracking-panel"><b>Driver & trip status</b><span>Status: {b.status.replaceAll("_"," ")}</span>{typeof b.booking_details?.driver_name === "string" && <span>Driver: {b.booking_details.driver_name}</span>}{typeof b.booking_details?.driver_phone === "string" && <a href={"tel:"+b.booking_details.driver_phone}>Call driver: {b.booking_details.driver_phone}</a>}{typeof b.booking_details?.vehicle_number === "string" && <span>Vehicle: {b.booking_details.vehicle_number}</span>}{typeof b.booking_details?.driver_latitude === "number" && typeof b.booking_details?.driver_longitude === "number" ? <a href={"https://www.google.com/maps?q="+b.booking_details.driver_latitude+","+b.booking_details.driver_longitude} target="_blank" rel="noreferrer">Open driver location in Maps</a> : <small>Live driver location will appear here when the assigned driver app shares GPS coordinates.</small>}</div>}</div><div className="history-right"><b>{money(Number(b.estimated_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
                     {seatBookings.filter((b) => { const s=b.status.toLowerCase(); return bookingFilter==="all" || (bookingFilter==="completed" && s==="completed") || (bookingFilter==="cancelled" && s==="cancelled") || (bookingFilter==="active" && !["completed","cancelled"].includes(s)); }).map((b) => <article className="history-item" key={b.id}><div className="history-icon"><Users size={18} /></div><div className="history-main"><b>{b.booking_code}</b><span>Seat Sharing · {b.seats_booked} seat(s)</span><small>{b.seat_share_trips?.pickup || "Pickup"} → {b.seat_share_trips?.dropoff || "Destination"}</small><small>{new Date(b.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}</small></div><div className="history-right"><b>{money(Number(b.total_fare))}</b><span className={"status status-"+b.status.toLowerCase()}>{b.status.replaceAll("_"," ")}</span></div></article>)}
                   </div>
                 </>}
