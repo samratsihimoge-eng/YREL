@@ -2798,3 +2798,107 @@ html, body, .site-shell {
   .yrel-login-screen { padding-left:18px !important; padding-right:18px !important; }
   .yrel-login-form .book-button.full span { font-size:clamp(15px,4.2vw,18px) !important; }
 }
+
+
+/* Mobile login: remove horizontal overflow and center the road illustration. */
+.yrel-login-screen {
+  position:fixed !important;
+  inset:0 !important;
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  padding:clamp(22px,4vh,42px) 18px calc(112px + env(safe-area-inset-bottom)) !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+}
+.yrel-login-content {
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  width:100% !important;
+  max-width:440px !important;
+  min-width:0 !important;
+  margin:0 auto !important;
+  padding:0 !important;
+  gap:clamp(26px,5vh,44px) !important;
+}
+.yrel-login-brandline,
+.yrel-login-form {
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+.yrel-login-brandline { align-items:center !important; }
+.yrel-login-brandline h1,
+.yrel-login-brandline p {
+  width:100% !important;
+  max-width:100% !important;
+  text-align:center !important;
+}
+.yrel-login-form { gap:24px !important; }
+.yrel-login-form .wide-field {
+  display:flex !important;
+  flex-direction:column !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+.yrel-login-form .location-input {
+  display:flex !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  flex:0 1 auto !important;
+  overflow:hidden !important;
+  margin:0 !important;
+}
+.yrel-login-form .phone-number-input {
+  display:block !important;
+  flex:1 1 0 !important;
+  width:0 !important;
+  min-width:0 !important;
+  max-width:100% !important;
+}
+.yrel-login-form .book-button.full {
+  display:flex !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  margin:0 !important;
+  justify-content:center !important;
+}
+.yrel-login-content > .yrel-road-animation {
+  position:relative !important;
+  left:auto !important;
+  right:auto !important;
+  width:calc(100% + 36px) !important;
+  max-width:none !important;
+  min-width:0 !important;
+  margin:0 -18px !important;
+  transform:none !important;
+  flex:0 0 auto !important;
+  align-self:stretch !important;
+  overflow:hidden !important;
+}
+.yrel-login-footer {
+  position:fixed !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  z-index:160 !important;
+}
+@media(max-width:420px) {
+  .yrel-login-screen { padding-left:18px !important; padding-right:18px !important; }
+  .yrel-login-content { max-width:100% !important; gap:clamp(24px,4vh,36px) !important; }
+  .yrel-login-form .book-button.full { padding-inline:10px !important; }
+}
