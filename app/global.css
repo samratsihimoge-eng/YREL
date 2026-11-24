@@ -2430,3 +2430,39 @@ button {
   .booking-section .booking-card { padding:12px 12px 14px !important; }
   .yrel-road-animation { height:88px !important; }
 }
+
+
+/* Final refinement: first-visit splash, compact fare hierarchy and clean motion strip. */
+.yrel-splash-screen {
+  position:fixed !important; inset:0 !important; z-index:99999 !important;
+  display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important;
+  gap:22px !important; padding:28px !important;
+  background:linear-gradient(180deg,#ff8a24 0%,#f45b20 60%,#c72e43 100%) !important;
+}
+.yrel-splash-screen img {
+  width:min(76vw,340px) !important; height:auto !important; max-height:230px !important;
+  object-fit:contain !important; border:0 !important; border-radius:0 !important;
+  background:transparent !important; box-shadow:none !important; filter:drop-shadow(0 8px 12px rgba(75,28,20,.12)) !important;
+}
+.yrel-splash-screen span { color:#fffaf3 !important; font-size:14px !important; letter-spacing:.025em !important; }
+.yrel-splash-loader { opacity:.62 !important; }
+.fare-panel { min-height:0 !important; padding:14px 16px !important; margin:10px 0 0 !important; }
+.fare-panel .fare-info strong { font-size:clamp(25px,7vw,34px) !important; line-height:1.12 !important; }
+.fare-disclaimer { margin:8px 0 0 !important; }
+.fare-disclaimer + .yrel-road-animation { margin-top:18px !important; }
+.yrel-road-animation {
+  position:relative !important; display:flex !important; align-items:flex-end !important;
+  width:100vw !important; max-width:100vw !important; height:82px !important;
+  margin:18px 0 12px calc(50% - 50vw) !important; padding:0 7% !important;
+  overflow:hidden !important; border-radius:0 !important;
+  background:linear-gradient(180deg,#fff4e8 0%,#ffe4d1 100%) !important;
+}
+.yrel-road-animation .road-surface { height:30px !important; bottom:0 !important; }
+.yrel-road-animation .road-auto-illustration,
+.yrel-road-animation .road-cab-illustration { height:60px !important; margin-bottom:13px !important; }
+.yrel-road-animation .road-driver-illustration { height:68px !important; margin-bottom:13px !important; }
+.trust-strip { margin-top:10px !important; }
+@media(max-width:760px) {
+  .fare-panel { padding:13px 14px !important; }
+  .yrel-road-animation { height:78px !important; margin-top:16px !important; margin-bottom:10px !important; }
+}
