@@ -82,6 +82,8 @@ type SeatShareBooking = {
 
 const PHONE_STORAGE_KEY = "yrel_pending_customer_phone";
 const BOOKING_DRAFT_STORAGE_KEY = "yrel_booking_draft_v1";
+const SAVED_LOCATIONS_KEY = "yrel_saved_locations_v1";
+const SPLASH_SEEN_KEY = "yrel_splash_seen_v1";
 const LANGUAGE_STORAGE_KEY = "yrel_customer_language_v1";
 
 const CITY_CAB: Record<string, { min: number; nonAc: number; ac: number }> = {
@@ -386,11 +388,12 @@ export default function Home() {
   const [instantSearchSeconds, setInstantSearchSeconds] = useState(60);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation" | "language">("list");
+  const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation" | "language" | "saved">("list");
   const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | "bookings" | "profile" | null>(null);
   const [pinMapTarget, setPinMapTarget] = useState<"pickup" | "drop" | null>(null);
   const [pinMapCoords, setPinMapCoords] = useState<[number, number]>([12.9716, 77.5946]);
   const [draftRestored, setDraftRestored] = useState(false);
+  const [savedLocations, setSavedLocations] = useState<Place[]>([]);
   const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
 
   const autoCabArea = getAutoCabArea(pickupPoint, dropPoint);
@@ -442,6 +445,31 @@ export default function Home() {
       history: "आपकी बुकिंग",
     },
   }[language];
+
+  function loadSavedLocations(userId?: string) {
+    try {
+      const key = `${SAVED_LOCATIONS_KEY}_${userId || "guest"}`;
+      const items = JSON.parse(localStorage.getItem(key) || "[]");
+      setSavedLocations(Array.isArray(items) ? items : []);
+    } catch { setSavedLocations([]); }
+  }
+
+  function saveCurrentPickup() {
+    if (!pickupPoint) { setNotice("ಮೊದಲು Pickup location ಆಯ್ಕೆಮಾಡಿ."); return; }
+    const key = `${SAVED_LOCATIONS_KEY}_${session?.user?.id || "guest"}`;
+    const next = [...savedLocations.filter(p => p.label !== pickupPoint.label), pickupPoint];
+    try {
+      localStorage.setItem(key, JSON.stringify(next));
+      setSavedLocations(next);
+      setNotice("Pickup location Saved Locations‌ಗೆ ಸೇರಿಸಲಾಗಿದೆ.");
+    } catch { setNotice("Location save ಆಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."); }
+  }
+
+  function useSavedLocation(place: Place, kind: "pickup" | "drop") {
+    if (kind === "pickup") { setPickup(place.label); setPickupPoint(place); }
+    else { setDrop(place.label); setDropPoint(place); }
+    setDistance(null); setEta(null); setActiveSearch(null); setMenuSection("list");
+  }
 
   async function loadBookings(userId: string) {
     const { data, error } = await supabase
@@ -724,10 +752,31 @@ export default function Home() {
     catch { /* Language remains active for this visit. */ }
   }, [language]);
 
-  // Restore unfinished booking form after login redirect or page refresh.
+  // Show the branded splash once per browser session, never after OAuth returns.
   useEffect(() => {
     try {
-      const savedDraft = localStorage.getItem(BOOKING_DRAFT_STORAGE_KEY);
+      const isOAuthReturn = sessionStorage.getItem("yrel_oauth_in_progress") === "1";
+      if (isOAuthReturn) {
+        sessionStorage.removeItem("yrel_oauth_in_progress");
+        sessionStorage.setItem(SPLASH_SEEN_KEY, "1");
+        return;
+      }
+      if (!sessionStorage.getItem(SPLASH_SEEN_KEY)) {
+        setSplashVisible(true);
+        sessionStorage.setItem(SPLASH_SEEN_KEY, "1");
+        const timer = window.setTimeout(() => setSplashVisible(false), 1350);
+        return () => window.clearTimeout(timer);
+      }
+    } catch { /* Continue without splash if browser storage is unavailable. */ }
+  }, []);
+
+  // Restore unfinished booking form only when returning from Google OAuth.
+  useEffect(() => {
+    try {
+      const restoreAfterLogin = sessionStorage.getItem("yrel_restore_booking_after_login") === "1";
+      sessionStorage.removeItem("yrel_restore_booking_after_login");
+      const savedDraft = restoreAfterLogin ? localStorage.getItem(BOOKING_DRAFT_STORAGE_KEY) : null;
+      if (!restoreAfterLogin) localStorage.removeItem(BOOKING_DRAFT_STORAGE_KEY);
       if (savedDraft) {
         const draft = JSON.parse(savedDraft);
         if (draft.service) setService(draft.service);
@@ -1126,6 +1175,8 @@ export default function Home() {
     setNotice("");
 
     localStorage.setItem(PHONE_STORAGE_KEY, digits);
+    sessionStorage.setItem("yrel_oauth_in_progress", "1");
+    sessionStorage.setItem("yrel_restore_booking_after_login", "1");
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -1690,7 +1741,7 @@ export default function Home() {
               <span className="app-panel-mark"><Menu size={19} /></span>
               <h2>{menuSection === "list" ? "Menu" : ({
                 how: "How it works", services: "Services", privacy: "Privacy Policy",
-                terms: "Terms & Conditions", cancellation: "Cancellation Policy", language: "Language"
+                terms: "Terms & Conditions", cancellation: "Cancellation Policy", language: "Language", saved: "Saved Locations"
               } as const)[menuSection]}</h2>
               <button className="app-panel-close" onClick={() => { if (menuSection !== "list") setMenuSection("list"); else setMenuOpen(false); }} aria-label={menuSection !== "list" ? "Back to menu" : "Close menu"}>{menuSection !== "list" ? <ArrowLeft size={20} /> : <X size={20} />}</button>
             </div>
@@ -1701,6 +1752,7 @@ export default function Home() {
                 <button onClick={() => setMenuSection("privacy")}><ShieldCheck size={20} /><span>Privacy Policy</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("terms")}><FileText size={20} /><span>Terms & Conditions</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("cancellation")}><Ban size={20} /><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
+                <button onClick={() => { loadSavedLocations(session?.user?.id); setMenuSection("saved"); }}><MapPin size={20} /><span>Saved Locations</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("language")}><Languages size={20} /><span>Language</span><ArrowRight size={17} /></button>
               </div>
             ) : (
@@ -1738,6 +1790,11 @@ export default function Home() {
                   <h3>If the driver cancels</h3><p>No cancellation fee applies if the driver cancels or does not arrive.</p>
                   <h3>If no driver accepts</h3><p>No cancellation fee applies if no driver accepts an instant cab request within one minute.</p>
                 </>}
+                {menuSection === "saved" && <div className="saved-locations-panel">
+                  <p>ನಿಮ್ಮ Pickup ಸ್ಥಳವನ್ನು ಉಳಿಸಿ. ಮುಂದಿನ ಬಾರಿ Pickup ಅಥವಾ Destination ಆಗಿ ಬಳಸಬಹುದು.</p>
+                  <button type="button" className="saved-location-save" onClick={saveCurrentPickup}>＋ Save current pickup location</button>
+                  {savedLocations.length === 0 ? <p className="saved-location-empty">ಇನ್ನೂ ಯಾವುದೇ ಸ್ಥಳವನ್ನು ಉಳಿಸಿಲ್ಲ.</p> : savedLocations.map((place, index) => <div className="saved-location-row" key={`${place.label}-${index}`}><span><MapPin size={17}/><b>{place.label}</b></span><div><button onClick={() => useSavedLocation(place,"pickup")}>Use Pickup</button><button onClick={() => useSavedLocation(place,"drop")}>Use Drop</button></div></div>)}
+                </div>}
                 {menuSection === "language" && <div className="language-options">
                   <button className={language === "en" ? "language-option active" : "language-option"} onClick={() => { setLanguage("en"); setMenuSection("list"); }}><span>🇬🇧</span> English {language === "en" && <Check size={18}/>}</button>
                   <button className={language === "kn" ? "language-option active" : "language-option"} onClick={() => { setLanguage("kn"); setMenuSection("list"); }}><span>ಕ</span> ಕನ್ನಡ {language === "kn" && <Check size={18}/>}</button>
@@ -2440,7 +2497,6 @@ export default function Home() {
         </div>
       </section>
 
-      <RoadAnimation />
       <section className="dashboard-brand-banner dashboard-brand-banner-bottom" aria-label="YREL tagline">
         <h1><span>Your city.</span> <em>Your fun.</em> <strong>Just YREL it.</strong></h1>
         <p><span className="banner-live-dot" /> Instant Booking <i>•</i> Pan India Service</p>
@@ -2524,6 +2580,7 @@ export default function Home() {
         </div>
       )}
 
+      {!authOpen && !instantSearchBooking && <RoadAnimation />}
       <footer className={`footer ${authOpen ? "yrel-login-footer" : "yrel-app-footer"}`}>
         <span>© {new Date().getFullYear()} YREL Technologies Private Limited</span>
         <span className="yrel-app-version">App Version 1.0</span>
