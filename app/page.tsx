@@ -340,6 +340,8 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation">("list");
   const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | "bookings" | "profile" | null>(null);
+  const [pinMapTarget, setPinMapTarget] = useState<"pickup" | "drop" | null>(null);
+  const [pinMapCoords, setPinMapCoords] = useState<[number, number]>([12.9716, 77.5946]);
   const [draftRestored, setDraftRestored] = useState(false);
   const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
 
@@ -532,6 +534,59 @@ export default function Home() {
           }
   }, [seatShareEligible]);
       
+
+  useEffect(() => {
+    if (!pinMapTarget) return;
+    let cancelled = false;
+    const initMap = () => {
+      const L = (window as any).L;
+      const el = document.getElementById("yrel-pin-map");
+      if (!L || !el || cancelled) return;
+      const map = L.map(el).setView(pinMapCoords, 14);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors", maxZoom: 19 }).addTo(map);
+      const marker = L.marker(pinMapCoords, { draggable: true }).addTo(map);
+      const update = (latlng: any) => setPinMapCoords([latlng.lat, latlng.lng]);
+      map.on("click", (event: any) => { marker.setLatLng(event.latlng); update(event.latlng); });
+      marker.on("dragend", () => update(marker.getLatLng()));
+      window.setTimeout(() => map.invalidateSize(), 120);
+      (window as any).__yrelPinMap = map;
+    };
+    if ((window as any).L) initMap();
+    else {
+      if (!document.querySelector('link[data-yrel-leaflet]')) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet"; link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        link.dataset.yrelLeaflet = "1"; document.head.appendChild(link);
+      }
+      let script = document.querySelector('script[data-yrel-leaflet]') as HTMLScriptElement | null;
+      if (!script) {
+        script = document.createElement("script");
+        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+        script.dataset.yrelLeaflet = "1"; document.body.appendChild(script);
+      }
+      script.addEventListener("load", initMap, { once: true });
+    }
+    return () => { cancelled = true; try { (window as any).__yrelPinMap?.remove(); } catch {} };
+  }, [pinMapTarget]);
+
+  async function saveSelectedMapPin() {
+    if (!pinMapTarget) return;
+    const lat = pinMapCoords[0], lon = pinMapCoords[1];
+    if (!isIndia(lat, lon)) { setNotice("YREL currently supports locations within India only."); return; }
+    try {
+      const response = await fetch("https://photon.komoot.io/reverse?lat=" + lat + "&lon=" + lon + "&lang=en");
+      const json = await response.json();
+      const p = json.features?.[0]?.properties || {};
+      const name = p.name || p.street || p.locality || "Pinned location";
+      const city = p.city || p.town || p.village || p.municipality || p.locality || "";
+      const state = p.state || "";
+      const place: Place = { name, city, state, lat, lon, label: [name, city, state].filter(Boolean).join(", ") };
+      if (pinMapTarget === "pickup") { setPickup(place.label); setPickupPoint(place); }
+      else { setDrop(place.label); setDropPoint(place); }
+      setDistance(null); setEta(null); setPinMapTarget(null); setActiveSearch(null);
+    } catch { setNotice("Could not identify this map pin. Please move the pin and try again."); }
+  }
+
   // English is the default; persist only the customer's explicit language choice.
   useEffect(() => {
     try {
@@ -1482,21 +1537,23 @@ export default function Home() {
         </div>
       )}
       <header className="topbar yrel-fixed-header">
-        <button className="header-menu-button header-menu-right" onClick={() => { setMenuOpen(true); setMenuSection("list"); }} aria-label="Open menu">
-          <Menu size={23} />
-        </button>
-        <a className={`brand header-brand ${session ? "dashboard-logo-reveal" : ""}`} href="#" aria-label="YREL home">
+        <button className="header-notification-button" onClick={() => setBottomPanel("notifications")} aria-label="Notifications" title="Notifications"><Bell size={22} /></button>
+        <a className="brand header-brand" href="#" aria-label="YREL home">
           <img className="brand-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
         </a>
-        <button
-          className="header-notification-button"
-          onClick={() => setBottomPanel("notifications")}
-          aria-label="Notifications"
-          title="Notifications"
-        >
-          <Bell size={22} />
-        </button>
+        <button className="header-menu-button header-menu-right" onClick={() => { setMenuOpen(true); setMenuSection("list"); }} aria-label="Open menu"><Menu size={23} /></button>
       </header>
+
+      {pinMapTarget && (
+        <div className="pin-map-backdrop" onClick={() => setPinMapTarget(null)}>
+          <section className="pin-map-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="pin-map-heading"><strong>{pinMapTarget === "pickup" ? "Choose pickup location" : "Choose destination"}</strong><button type="button" onClick={() => setPinMapTarget(null)} aria-label="Close map"><X size={21}/></button></div>
+            <p>Map ಮೇಲೆ pin ಅನ್ನು drag ಮಾಡಿ ಅಥವಾ ಬೇಕಾದ ಜಾಗದಲ್ಲಿ tap ಮಾಡಿ.</p>
+            <div id="yrel-pin-map" className="yrel-pin-map" />
+            <button type="button" className="pin-map-confirm" onClick={saveSelectedMapPin}>Use this location</button>
+          </section>
+        </div>
+      )}
 
       {menuOpen && (
         <div className="app-panel-backdrop" onClick={() => { setMenuOpen(false); setMenuSection("list"); }}>
@@ -1643,7 +1700,7 @@ export default function Home() {
 
           <div className="location-grid">
             <div className="field-wrap">
-              <label>{words.pickup}</label>
+              
 
               <div className="location-input">
                 <MapPin size={18} />
@@ -1672,6 +1729,7 @@ export default function Home() {
                     <Navigation size={17} />
                   )}
                 </button>
+                <button type="button" className="map-pin-button" onClick={() => { setPinMapCoords(pickupPoint ? [pickupPoint.lat, pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("pickup"); }} title="Select pickup on map" aria-label="Select pickup on map"><MapPin size={17}/></button>
               </div>
 
               {activeSearch === "pickup" &&
@@ -1692,7 +1750,7 @@ export default function Home() {
             </div>
 
             <div className="field-wrap">
-              <label>{words.drop}</label>
+              
 
               <div className="location-input">
                 <MapPin size={18} />
@@ -1708,6 +1766,7 @@ export default function Home() {
                   onFocus={() => setActiveSearch("drop")}
                   placeholder="Enter destination"
                 />
+                <button type="button" className="map-pin-button" onClick={() => { setPinMapCoords(dropPoint ? [dropPoint.lat,dropPoint.lon] : pickupPoint ? [pickupPoint.lat,pickupPoint.lon] : [12.9716,77.5946]); setPinMapTarget("drop"); }} title="Select destination on map" aria-label="Select destination on map"><MapPin size={17}/></button>
               </div>
 
               {activeSearch === "drop" &&
