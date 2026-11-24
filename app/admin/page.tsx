@@ -16,8 +16,8 @@ type Booking = {
   created_at: string; booking_details: Record<string, any> | null;
   assigned_driver_id: string | null; assigned_at: string | null;
 };
-type Customer = { id: string; full_name: string; phone: string | null };
-type Driver = { user_id: string; driver_type: string; approval_status: string; created_at: string };
+type Customer = { id: string; full_name: string; phone: string | null; is_blocked: boolean };
+type Driver = { user_id: string; driver_type: string; approval_status: string; created_at: string; full_name?: string | null; phone?: string | null; vehicle_type?: string | null; vehicle_number?: string | null; gear_type?: string | null; license_number?: string | null; is_blocked: boolean };
 
 const statusOptions = ["requested", "searching", "assigned", "accepted", "in_progress", "completed", "cancelled"];
 
@@ -41,8 +41,8 @@ export default function AdminPage() {
     setMessage("");
     const [b, c, d] = await Promise.all([
       supabase.from("bookings").select("*").order("created_at", { ascending: false }).limit(300),
-      supabase.from("customers").select("id,full_name,phone").order("created_at", { ascending: false }).limit(500),
-      supabase.from("driver_profiles").select("user_id,driver_type,approval_status,created_at").order("created_at", { ascending: false }).limit(300)
+      supabase.from("customers").select("id,full_name,phone,is_blocked").order("created_at", { ascending: false }).limit(500),
+      supabase.from("driver_profiles").select("user_id,driver_type,approval_status,created_at,full_name,phone,vehicle_type,vehicle_number,gear_type,license_number,is_blocked").order("created_at", { ascending: false }).limit(300)
     ]);
     const error = b.error || c.error || d.error;
     if (error) setMessage(error.message);
@@ -101,6 +101,77 @@ export default function AdminPage() {
       setDrivers(current => current.map(item => item.user_id === id ? { ...item, approval_status } : item));
       setMessage("Driver profile updated.");
     }
+    setSavingId("");
+  }
+
+  async function editCustomer(c: Customer) {
+    const full_name = window.prompt("Customer full name", c.full_name || "");
+    if (full_name === null) return;
+    const phone = window.prompt("Customer phone number", c.phone || "");
+    if (phone === null) return;
+    setSavingId(c.id);
+    const { error } = await supabase.from("customers").update({ full_name: full_name.trim(), phone: phone.trim() || null }).eq("id", c.id);
+    if (error) setMessage(error.message);
+    else { setCustomers(items => items.map(x => x.id === c.id ? { ...x, full_name: full_name.trim(), phone: phone.trim() || null } : x)); setMessage("Customer profile saved."); }
+    setSavingId("");
+  }
+
+  async function toggleCustomerBlock(c: Customer) {
+    const next = !c.is_blocked;
+    if (!window.confirm(next ? "Temporarily block this customer profile?" : "Unblock this customer profile?")) return;
+    setSavingId(c.id);
+    const { error } = await supabase.from("customers").update({ is_blocked: next, blocked_at: next ? new Date().toISOString() : null }).eq("id", c.id);
+    if (error) setMessage(error.message);
+    else { setCustomers(items => items.map(x => x.id === c.id ? { ...x, is_blocked: next } : x)); setMessage(next ? "Customer marked as blocked in Admin." : "Customer block removed."); }
+    setSavingId("");
+  }
+
+  async function deleteCustomerProfile(c: Customer) {
+    if (!window.confirm("Delete this customer PROFILE only? Login account and booking history will remain.")) return;
+    setSavingId(c.id);
+    const { error } = await supabase.from("customers").delete().eq("id", c.id);
+    if (error) setMessage(error.message);
+    else { setCustomers(items => items.filter(x => x.id !== c.id)); setMessage("Customer profile deleted. Login account and bookings were kept."); }
+    setSavingId("");
+  }
+
+  async function editDriver(d: Driver) {
+    const full_name = window.prompt("Driver full name", d.full_name || "");
+    if (full_name === null) return;
+    const phone = window.prompt("Phone number", d.phone || "");
+    if (phone === null) return;
+    const vehicle_type = window.prompt("Vehicle type", d.vehicle_type || "");
+    if (vehicle_type === null) return;
+    const vehicle_number = window.prompt("Vehicle number", d.vehicle_number || "");
+    if (vehicle_number === null) return;
+    const gear_type = window.prompt("Gear type (Manual / Automatic)", d.gear_type || "");
+    if (gear_type === null) return;
+    const license_number = window.prompt("Driving licence number", d.license_number || "");
+    if (license_number === null) return;
+    setSavingId(d.user_id);
+    const patch = { full_name: full_name.trim() || null, phone: phone.trim() || null, vehicle_type: vehicle_type.trim() || null, vehicle_number: vehicle_number.trim() || null, gear_type: gear_type.trim() || null, license_number: license_number.trim() || null };
+    const { error } = await supabase.from("driver_profiles").update(patch).eq("user_id", d.user_id);
+    if (error) setMessage(error.message);
+    else { setDrivers(items => items.map(x => x.user_id === d.user_id ? { ...x, ...patch } : x)); setMessage("Driver profile saved."); }
+    setSavingId("");
+  }
+
+  async function toggleDriverBlock(d: Driver) {
+    const next = !d.is_blocked;
+    if (!window.confirm(next ? "Temporarily block this driver profile?" : "Unblock this driver profile?")) return;
+    setSavingId(d.user_id);
+    const { error } = await supabase.from("driver_profiles").update({ is_blocked: next, blocked_at: next ? new Date().toISOString() : null }).eq("user_id", d.user_id);
+    if (error) setMessage(error.message);
+    else { setDrivers(items => items.map(x => x.user_id === d.user_id ? { ...x, is_blocked: next } : x)); setMessage(next ? "Driver marked as blocked in Admin." : "Driver block removed."); }
+    setSavingId("");
+  }
+
+  async function deleteDriverProfile(d: Driver) {
+    if (!window.confirm("Delete this driver PROFILE only? Login account and booking history will remain.")) return;
+    setSavingId(d.user_id);
+    const { error } = await supabase.from("driver_profiles").delete().eq("user_id", d.user_id);
+    if (error) setMessage(error.message);
+    else { setDrivers(items => items.filter(x => x.user_id !== d.user_id)); setMessage("Driver profile deleted. Login account and bookings were kept."); }
     setSavingId("");
   }
 
@@ -194,8 +265,8 @@ export default function AdminPage() {
           </div>
         </>}
         {section === "bookings" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head admin-booking-head"><div><h3>All bookings</h3><p>Search and manage customer booking requests.</p></div><button className="admin-primary" onClick={exportBookings}><Download size={16}/> Export CSV</button></div><div className="admin-toolbar"><label className="admin-search"><Search size={18}/><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search booking ID, customer, phone or location"/></label><span>{filteredBookings.length} bookings</span></div><BookingTable rows={filteredBookings} customerById={customerById} onStatus={updateBooking} savingId={savingId} drivers={drivers.filter(d => d.approval_status === "approved")}/></div>}
-        {section === "customers" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head"><div><h3>Customers</h3><p>Customer profiles created in YREL.</p></div><span className="admin-count">{customers.length} total</span></div><div className="admin-table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Customer ID</th><th>Bookings</th></tr></thead><tbody>{customers.map(c => <tr key={c.id}><td><b>{c.full_name || "Customer"}</b></td><td>{c.phone || "—"}</td><td className="admin-mono">{c.id.slice(0,12)}…</td><td>{bookings.filter(b => b.user_id === c.id).length}</td></tr>)}</tbody></table>{customers.length === 0 && <div className="admin-empty">No customer profiles found.</div>}</div></div>}
-        {section === "drivers" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head"><div><h3>Drivers & partners</h3><p>Review partner profiles and control approval status.</p></div><span className="admin-count">{drivers.length} profiles</span></div><div className="admin-table-wrap"><table><thead><tr><th>Partner ID</th><th>Partner type</th><th>Joined</th><th>Approval</th><th>Action</th></tr></thead><tbody>{drivers.map(d => <tr key={d.user_id}><td className="admin-mono">{d.user_id.slice(0,14)}…</td><td>{d.driver_type === "cab_driver" ? "Cab Driver" : "Spare Driver"}</td><td>{new Date(d.created_at).toLocaleDateString("en-IN")}</td><td><StatusPill value={d.approval_status}/></td><td><select className="admin-select" value={d.approval_status} disabled={savingId === d.user_id} onChange={e => void updateDriver(d.user_id,e.target.value)}><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></td></tr>)}</tbody></table>{drivers.length === 0 && <div className="admin-empty">No driver or partner profiles yet. New registrations will appear here.</div>}</div></div>}
+        {section === "customers" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head"><div><h3>Customers</h3><p>Customer profiles created in YREL.</p></div><span className="admin-count">{customers.length} total</span></div><div className="admin-table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Customer ID</th><th>Bookings</th><th>Profile controls</th></tr></thead><tbody>{customers.map(c => <tr key={c.id}><td><b>{c.full_name || "Customer"}</b><small className="admin-subcell">{c.is_blocked ? "Blocked" : "Active"}</small></td><td>{c.phone || "—"}</td><td className="admin-mono">{c.id.slice(0,12)}…</td><td>{bookings.filter(b => b.user_id === c.id).length}</td><td><div className="admin-actions"><button className="admin-outline" disabled={savingId===c.id} onClick={()=>void editCustomer(c)}>Edit</button><button className="admin-outline" disabled={savingId===c.id} onClick={()=>void toggleCustomerBlock(c)}>{c.is_blocked ? "Unblock" : "Block"}</button><button className="admin-outline" disabled={savingId===c.id} onClick={()=>void deleteCustomerProfile(c)}>Delete profile</button></div></td></tr>)}</tbody></table>{customers.length === 0 && <div className="admin-empty">No customer profiles found.</div>}</div></div>}
+        {section === "drivers" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head"><div><h3>Drivers & partners</h3><p>Review partner profiles and control approval status.</p></div><span className="admin-count">{drivers.length} profiles</span></div><div className="admin-table-wrap"><table><thead><tr><th>Driver</th><th>Partner type</th><th>Vehicle</th><th>Joined</th><th>Status</th><th>Approval</th><th>Profile controls</th></tr></thead><tbody>{drivers.map(d => <tr key={d.user_id}><td><b>{d.full_name || "Driver"}</b><small className="admin-subcell">{d.phone || d.user_id.slice(0,12)+"…"}</small></td><td>{d.driver_type === "cab_driver" ? "Cab Driver" : "Spare Driver"}</td><td>{d.vehicle_type || "—"} {d.vehicle_number || ""}</td><td>{new Date(d.created_at).toLocaleDateString("en-IN")}</td><td><StatusPill value={d.is_blocked ? "blocked" : d.approval_status}/></td><td><select className="admin-select" value={d.approval_status} disabled={savingId === d.user_id} onChange={e => void updateDriver(d.user_id,e.target.value)}><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></td><td><div className="admin-actions"><button className="admin-outline" disabled={savingId===d.user_id} onClick={()=>void editDriver(d)}>Edit</button><button className="admin-outline" disabled={savingId===d.user_id} onClick={()=>void toggleDriverBlock(d)}>{d.is_blocked ? "Unblock" : "Block"}</button><button className="admin-outline" disabled={savingId===d.user_id} onClick={()=>void deleteDriverProfile(d)}>Delete profile</button></div></td></tr>)}</tbody></table>{drivers.length === 0 && <div className="admin-empty">No driver or partner profiles yet. New registrations will appear here.</div>}</div></div>}
         <footer className="admin-footer"><span>© {new Date().getFullYear()} YREL Technologies Private Limited</span><span>Admin Console · Version 1.0</span></footer>
         {loading && <div className="admin-loading"><RefreshCw size={15}/> Syncing latest data…</div>}
       </section>
