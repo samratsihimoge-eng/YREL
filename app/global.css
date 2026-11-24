@@ -2504,3 +2504,27 @@ button {
 .yrel-bottom-nav.search-mode { justify-content:flex-start !important; padding-left:7vw !important; }
 @keyframes yrelSearchPulse { 0%,100% { transform:scale(.96); } 50% { transform:scale(1.04); } }
 @media(max-width:760px) { .yrel-road-animation { height:100px !important; margin-top:24px !important; margin-bottom:16px !important; } .dashboard-brand-banner-bottom { margin-bottom:calc(90px + env(safe-area-inset-bottom)) !important; } .instant-search-screen { inset:76px 0 calc(70px + env(safe-area-inset-bottom)) !important; } }
+
+
+/* Final interaction and viewport corrections requested from customer screenshots. */
+html, body, .site-shell {
+  max-width: 100%;
+  overflow-x: clip;
+}
+.yrel-splash-screen {
+  inset: var(--yrel-header-height, 78px) 0 calc(var(--yrel-nav-height, 76px) + env(safe-area-inset-bottom)) !important;
+  z-index: 119 !important;
+  background: linear-gradient(180deg,#ff8a24 0%,#f56b20 60%,#c72e43 100%) !important;
+  overflow: hidden !important;
+}
+.yrel-splash-screen img {
+  width: min(72vw,320px) !important;
+  max-height: 210px !important;
+  padding: 18px !important;
+  border-radius: 30px !important;
+  background: radial-gradient(ellipse at center,rgba(255,250,241,.98) 0%,rgba(255,244,228,.92) 66%,rgba(255,244,228,0) 100%) !important;
+  filter: drop-shadow(0 4px 7px rgba(74,27,18,.10)) !important;
+  box-shadow: none !important;
+}
+.yrel-splash-screen span { text-align:center !important; }
+.yrel-fixed-header,.yrel-bottom-nav { z-index: 121 !important; }
