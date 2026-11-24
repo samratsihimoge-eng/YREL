@@ -1537,11 +1537,11 @@ export default function Home() {
         </div>
       )}
       <header className="topbar yrel-fixed-header">
-        <button className="header-notification-button" onClick={() => setBottomPanel("notifications")} aria-label="Notifications" title="Notifications"><Bell size={22} /></button>
+        <button className="header-menu-button header-menu-left" onClick={() => { setMenuOpen(true); setMenuSection("list"); }} aria-label="Open menu"><Menu size={23} /></button>
         <a className="brand header-brand" href="#" aria-label="YREL home">
           <img className="brand-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
         </a>
-        <button className="header-menu-button header-menu-right" onClick={() => { setMenuOpen(true); setMenuSection("list"); }} aria-label="Open menu"><Menu size={23} /></button>
+        <button className="header-notification-button" onClick={() => setBottomPanel("notifications")} aria-label="Notifications" title="Notifications"><Bell size={22} /></button>
       </header>
 
       {pinMapTarget && (
@@ -1789,9 +1789,17 @@ export default function Home() {
 
           {!seatShareMode && (
             <div className="booking-mode-block">
-              <div className="schedule-row">
-                <button type="button" className={schedule === "now" ? "pill active" : "pill"} aria-pressed={schedule === "now"} onClick={() => { setSchedule("now"); setDate(""); setTime(""); }}>Instant Booking</button>
-                <button type="button" className={schedule === "later" ? "pill active" : "pill"} aria-pressed={schedule === "later"} onClick={() => setSchedule("later")}>Advance Booking</button>
+              <div className="booking-switch-row">
+                <div className="schedule-row">
+                  <button type="button" className={schedule === "now" ? "pill active" : "pill"} aria-pressed={schedule === "now"} onClick={() => { setSchedule("now"); setDate(""); setTime(""); }}>Instant</button>
+                  <button type="button" className={schedule === "later" ? "pill active" : "pill"} aria-pressed={schedule === "later"} onClick={() => setSchedule("later")}>Advance</button>
+                </div>
+                {service === "cab" && !seatShareMode && ride !== "Auto" && (
+                  <div className="choice-row compact-choice" aria-label="AC preference">
+                    <button type="button" className={ac === "AC" ? "choice active" : "choice"} onClick={() => setAc("AC")}>AC</button>
+                    <button type="button" className={ac === "Non-AC" ? "choice active" : "choice"} onClick={() => setAc("Non-AC")}>Non-AC</button>
+                  </div>
+                )}
               </div>
               {schedule === "later" && (
                 <div className="option-fields date-fields">
@@ -2072,30 +2080,6 @@ export default function Home() {
             </div>
           )}
 
-          {service === "cab" &&
-            !seatShareMode &&
-            ride !== "Auto" && (
-              <div className="choice-row compact-choice">
-                <span className="choice-caption">AC preference</span>
-                <button
-                  className={
-                    ac === "AC" ? "choice active" : "choice"
-                  }
-                  onClick={() => setAc("AC")}
-                >
-                  AC
-                </button>
-                <button
-                  className={
-                    ac === "Non-AC" ? "choice active" : "choice"
-                  }
-                  onClick={() => setAc("Non-AC")}
-                >
-                  Non-AC
-                </button>
-              </div>
-            )}
-
           {service === "rental" && rentalBookingArea === "city" && (
             <>
               <div className="field-label">
@@ -2254,6 +2238,12 @@ export default function Home() {
                   {words.book}
                   <ArrowRight size={18} />
                 </button>
+              </div>
+              <div className="yrel-road-animation" aria-label="YREL cab and driver animation">
+                <span className="road-vehicle road-auto">🛺</span>
+                <span className="road-driver">🧑‍✈️</span>
+                <span className="road-vehicle road-cab">🚕</span>
+                <span className="road-dashes" />
               </div>
 
               {service === "cab" &&
@@ -2431,6 +2421,12 @@ export default function Home() {
                 <ArrowRight size={18} />
               </button>
               {notice && <div className="notice">{notice}</div>}
+            </div>
+            <div className="yrel-road-animation login-road-animation" aria-label="YREL cab and driver animation">
+              <span className="road-vehicle road-auto">🛺</span>
+              <span className="road-driver">🧑‍✈️</span>
+              <span className="road-vehicle road-cab">🚕</span>
+              <span className="road-dashes" />
             </div>
           </div>
         </div>
