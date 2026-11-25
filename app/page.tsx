@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Msg91PhoneOtp from "@/components/Msg91PhoneOtp";
 import {
   ArrowRight, ArrowDownUp, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
   UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users,
@@ -427,7 +428,7 @@ export default function Home() {
       pickup: "Pickup location",
       drop: "Destination",
       book: "Book now",
-      login: "Continue with Google",
+      login: "Continue with WhatsApp OTP",
       history: "Your bookings",
     },
     kn: {
@@ -435,7 +436,7 @@ export default function Home() {
       pickup: "ಪಿಕಪ್ ಸ್ಥಳ",
       drop: "ತಲುಪುವ ಸ್ಥಳ",
       book: "ಈಗ ಬುಕ್ ಮಾಡಿ",
-      login: "Google ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ",
+      login: "WhatsApp OTP ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ",
       history: "ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳು",
     },
     hi: {
@@ -443,7 +444,7 @@ export default function Home() {
       pickup: "पिकअप स्थान",
       drop: "गंतव्य",
       book: "अभी बुक करें",
-      login: "Google से जारी रखें",
+      login: "WhatsApp OTP से जारी रखें",
       history: "आपकी बुकिंग",
     },
   }[language];
@@ -804,7 +805,7 @@ export default function Home() {
 
   // Splash timing is managed by the auth-ready effect above to prevent competing timers.
 
-  // Restore unfinished booking form only when returning from Google OAuth.
+  // Restore unfinished booking form after OTP login.
   useEffect(() => {
     try {
       const restoreAfterLogin = sessionStorage.getItem("yrel_restore_booking_after_login") === "1";
@@ -849,7 +850,7 @@ export default function Home() {
     }
   }, []);
 
-  // Save booking choices so Google Login does not clear the form.
+  // Save booking choices so OTP Login does not clear the form.
   useEffect(() => {
     if (!draftRestored) return;
 
@@ -1198,36 +1199,15 @@ export default function Home() {
     setNotice("");
   }
 
-  async function startGoogleLogin() {
-    const digits = phone.replace(/\D/g, "");
-
-    if (!/^[6-9]\d{9}$/.test(digits)) {
-      setNotice(
-        "Please enter a valid 10-digit Indian mobile number."
-      );
-      return;
-    }
-
-    setBusy(true);
-    setNotice("");
-
+  function handleCustomerOtpAuthenticated(phoneNumber: string) {
+    const digits = phoneNumber.replace(/\D/g, "").slice(-10);
     localStorage.setItem(PHONE_STORAGE_KEY, digits);
     sessionStorage.setItem("yrel_oauth_in_progress", "1");
     sessionStorage.setItem("yrel_restore_booking_after_login", "1");
     sessionStorage.setItem("yrel_booking_draft_oauth", localStorage.getItem(BOOKING_DRAFT_STORAGE_KEY) || "");
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-
-    if (error) {
-      setBusy(false);
-      setNotice(error.message);
-      localStorage.removeItem(PHONE_STORAGE_KEY);
-    }
+    setPhone(digits);
+    setAuthOpen(false);
+    setNotice("");
   }
 
   async function createCustomerProfile() {
@@ -1246,7 +1226,7 @@ export default function Home() {
 
     if (!session?.user) {
       setNotice(
-        "Google login session not found. Please log in again."
+        "WhatsApp OTP login session not found. Please verify your mobile number again."
       );
       return;
     }
@@ -1267,7 +1247,7 @@ export default function Home() {
         id: session.user.id,
         full_name: name,
         phone: `+91${digits}`,
-        phone_verified: false,
+        phone_verified: true,
       })
       .select(
         "id, customer_code, full_name, phone, phone_verified"
@@ -1279,7 +1259,7 @@ export default function Home() {
     if (error) {
       if (error.code === "23505") {
         setNotice(
-          "A customer profile already exists for this Google account. Please refresh the page."
+          "A customer profile already exists for this account. Please refresh the page."
         );
       } else {
         setNotice(`Profile save failed: ${error.message}`);
@@ -2631,8 +2611,8 @@ export default function Home() {
                   <div className="compact-profile-row"><small><BadgeCheck size={15} /> Customer ID</small><b>{customer.customer_code}</b></div>
                   <div className="compact-profile-row"><small><UserRound size={15} /> Full name</small>{profileEditMode ? <input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Full name" /> : <b>{customer.full_name}</b>}</div>
                   <div className="compact-profile-row"><small><Phone size={15} /> Mobile number</small>{profileEditMode ? <div className="location-input profile-phone-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" /></div> : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}</div>
-                  <div className="compact-profile-row"><small><Mail size={15} /> Email ID</small><b className="profile-email">{session.user.email || "Not available"}</b></div>
-                  <p className="compact-profile-hint">Your Google account email is shown here. To change it, update your Google account.</p>
+                  <div className="compact-profile-row"><small><ShieldCheck size={15} /> Login method</small><b className="profile-email">WhatsApp OTP verified</b></div>
+                  <p className="compact-profile-hint">Your YREL account is verified using your mobile number.</p>
                   {profileEditMode ? <button className="book-button full compact-profile-action" onClick={saveCustomerProfile} disabled={busy}>{busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} /></button> : <button className="book-button full compact-profile-action" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, "")); setProfileEditMode(true); setNotice(""); }}>Edit profile</button>}
                   <button className="profile-signout-button compact-profile-action" onClick={signOut}><LogOut size={17} /> Sign out</button>
                   {notice && <div className="notice">{notice}</div>}
@@ -2666,27 +2646,10 @@ export default function Home() {
               <p>Instant Booking <span>•</span> Pan India Service</p>
             </div>
             <div className="yrel-login-form">
-              <label className="wide-field">
-                <span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span>
-                <div className="location-input">
-                  <span>+91</span>
-                  <input
-                    className="phone-number-input"
-                    type="tel"
-                    inputMode="numeric"
-                    autoComplete="tel-national"
-                    maxLength={10}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                    placeholder="Enter mobile number"
-                  />
-                </div>
-              </label>
-              <button className="book-button full" onClick={startGoogleLogin} disabled={busy}>
-                {busy && <Loader2 className="spin" />}
-                <span>Continue with Google</span>
-                <ArrowRight size={18} />
-              </button>
+              <Msg91PhoneOtp
+                accountType="customer"
+                onAuthenticated={handleCustomerOtpAuthenticated}
+              />
               {notice && <div className="notice">{notice}</div>}
             </div>
           </div>
