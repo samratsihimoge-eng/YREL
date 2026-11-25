@@ -63,10 +63,18 @@ export async function POST(request: NextRequest) {
       const { data, error } = await admin.from("customers").select("id").in("phone", aliases).limit(1).maybeSingle();
       if (error) throw error;
       userId = data?.id ?? null;
+      if (userId) {
+        const { error: updateError } = await admin.from("customers").update({ phone: "+" + verifiedPhone, phone_verified: true }).eq("id", userId);
+        if (updateError) throw updateError;
+      }
     } else {
       const { data, error } = await admin.from("driver_profiles").select("user_id").in("phone", aliases).limit(1).maybeSingle();
       if (error) throw error;
       userId = data?.user_id ?? null;
+      if (userId) {
+        const { error: updateError } = await admin.from("driver_profiles").update({ phone: "+" + verifiedPhone }).eq("user_id", userId);
+        if (updateError) throw updateError;
+      }
     }
 
     let email: string;
