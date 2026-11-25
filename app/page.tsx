@@ -1226,7 +1226,7 @@ export default function Home() {
 
     if (!session?.user) {
       setNotice(
-        "Google login session not found. Please log in again."
+        "WhatsApp OTP login session not found. Please verify your mobile number again."
       );
       return;
     }
@@ -1247,7 +1247,7 @@ export default function Home() {
         id: session.user.id,
         full_name: name,
         phone: `+91${digits}`,
-        phone_verified: false,
+        phone_verified: true,
       })
       .select(
         "id, customer_code, full_name, phone, phone_verified"
@@ -1259,7 +1259,7 @@ export default function Home() {
     if (error) {
       if (error.code === "23505") {
         setNotice(
-          "A customer profile already exists for this Google account. Please refresh the page."
+          "A customer profile already exists for this account. Please refresh the page."
         );
       } else {
         setNotice(`Profile save failed: ${error.message}`);
@@ -2612,7 +2612,7 @@ export default function Home() {
                   <div className="compact-profile-row"><small><UserRound size={15} /> Full name</small>{profileEditMode ? <input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Full name" /> : <b>{customer.full_name}</b>}</div>
                   <div className="compact-profile-row"><small><Phone size={15} /> Mobile number</small>{profileEditMode ? <div className="location-input profile-phone-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" /></div> : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}</div>
                   <div className="compact-profile-row"><small><Mail size={15} /> Email ID</small><b className="profile-email">{session.user.email || "Not available"}</b></div>
-                  <p className="compact-profile-hint">Your Google account email is shown here. To change it, update your Google account.</p>
+                  <p className="compact-profile-hint">Your YREL account is verified using your mobile number.</p>
                   {profileEditMode ? <button className="book-button full compact-profile-action" onClick={saveCustomerProfile} disabled={busy}>{busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} /></button> : <button className="book-button full compact-profile-action" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, "")); setProfileEditMode(true); setNotice(""); }}>Edit profile</button>}
                   <button className="profile-signout-button compact-profile-action" onClick={signOut}><LogOut size={17} /> Sign out</button>
                   {notice && <div className="notice">{notice}</div>}
