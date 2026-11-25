@@ -166,7 +166,7 @@ export default function Msg91PhoneOtp({ accountType, onAuthenticated, compact = 
         </div>
       </label>
       {!requestId ? (
-        <button className="book-button full" type="button" onClick={sendCode} disabled={busy || !ready}>
+        <button className={compact ? "partner-primary" : "book-button full"} type="button" onClick={sendCode} disabled={busy || !ready}>
           {busy ? "Sending OTP…" : "Continue with WhatsApp OTP"}
         </button>
       ) : (
@@ -185,15 +185,15 @@ export default function Msg91PhoneOtp({ accountType, onAuthenticated, compact = 
               disabled={busy}
             />
           </label>
-          <button className="book-button full" type="button" onClick={verifyCode} disabled={busy || otp.length !== 6}>
+          <button className={compact ? "partner-primary" : "book-button full"} type="button" onClick={verifyCode} disabled={busy || otp.length !== 6}>
             {busy ? "Verifying…" : "Verify & Login"}
           </button>
-          <button className="profile-signout-button" type="button" disabled={busy} onClick={() => { setRequestId(""); setOtp(""); setMessage(""); }}>
+          <button className={compact ? "partner-link" : "profile-signout-button"} type="button" disabled={busy} onClick={() => { setRequestId(""); setOtp(""); setMessage(""); }}>
             Change mobile number
           </button>
         </>
       )}
-      {message && <div className="notice" role="status">{message}</div>}
+      {message && <div className={compact ? "partner-error" : "notice"} role="status">{message}</div>}
     </div>
   );
 }
