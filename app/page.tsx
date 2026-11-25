@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Msg91PhoneOtp from "@/components/Msg91PhoneOtp";
 import {
   ArrowRight, ArrowDownUp, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
   UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users,
@@ -1198,36 +1199,15 @@ export default function Home() {
     setNotice("");
   }
 
-  async function startGoogleLogin() {
-    const digits = phone.replace(/\D/g, "");
-
-    if (!/^[6-9]\d{9}$/.test(digits)) {
-      setNotice(
-        "Please enter a valid 10-digit Indian mobile number."
-      );
-      return;
-    }
-
-    setBusy(true);
-    setNotice("");
-
+  function handleCustomerOtpAuthenticated(phoneNumber: string) {
+    const digits = phoneNumber.replace(/\D/g, "").slice(-10);
     localStorage.setItem(PHONE_STORAGE_KEY, digits);
     sessionStorage.setItem("yrel_oauth_in_progress", "1");
     sessionStorage.setItem("yrel_restore_booking_after_login", "1");
     sessionStorage.setItem("yrel_booking_draft_oauth", localStorage.getItem(BOOKING_DRAFT_STORAGE_KEY) || "");
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-
-    if (error) {
-      setBusy(false);
-      setNotice(error.message);
-      localStorage.removeItem(PHONE_STORAGE_KEY);
-    }
+    setPhone(digits);
+    setAuthOpen(false);
+    setNotice("");
   }
 
   async function createCustomerProfile() {
@@ -2666,27 +2646,10 @@ export default function Home() {
               <p>Instant Booking <span>•</span> Pan India Service</p>
             </div>
             <div className="yrel-login-form">
-              <label className="wide-field">
-                <span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span>
-                <div className="location-input">
-                  <span>+91</span>
-                  <input
-                    className="phone-number-input"
-                    type="tel"
-                    inputMode="numeric"
-                    autoComplete="tel-national"
-                    maxLength={10}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                    placeholder="Enter mobile number"
-                  />
-                </div>
-              </label>
-              <button className="book-button full" onClick={startGoogleLogin} disabled={busy}>
-                {busy && <Loader2 className="spin" />}
-                <span>Continue with Google</span>
-                <ArrowRight size={18} />
-              </button>
+              <Msg91PhoneOtp
+                accountType="customer"
+                onAuthenticated={handleCustomerOtpAuthenticated}
+              />
               {notice && <div className="notice">{notice}</div>}
             </div>
           </div>
