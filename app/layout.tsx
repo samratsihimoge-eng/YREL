@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./global.css";
+import "./customer-premium-theme.css";
 const yrelBrandIcon = "https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png?v=20261125";
 
 export const metadata: Metadata = {
