@@ -428,7 +428,7 @@ export default function Home() {
       pickup: "Pickup location",
       drop: "Destination",
       book: "Book now",
-      login: "Continue with Google",
+      login: "Continue with WhatsApp OTP",
       history: "Your bookings",
     },
     kn: {
@@ -436,7 +436,7 @@ export default function Home() {
       pickup: "ಪಿಕಪ್ ಸ್ಥಳ",
       drop: "ತಲುಪುವ ಸ್ಥಳ",
       book: "ಈಗ ಬುಕ್ ಮಾಡಿ",
-      login: "Google ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ",
+      login: "WhatsApp OTP ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ",
       history: "ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳು",
     },
     hi: {
@@ -444,7 +444,7 @@ export default function Home() {
       pickup: "पिकअप स्थान",
       drop: "गंतव्य",
       book: "अभी बुक करें",
-      login: "Google से जारी रखें",
+      login: "WhatsApp OTP से जारी रखें",
       history: "आपकी बुकिंग",
     },
   }[language];
@@ -805,7 +805,7 @@ export default function Home() {
 
   // Splash timing is managed by the auth-ready effect above to prevent competing timers.
 
-  // Restore unfinished booking form only when returning from Google OAuth.
+  // Restore unfinished booking form after OTP login.
   useEffect(() => {
     try {
       const restoreAfterLogin = sessionStorage.getItem("yrel_restore_booking_after_login") === "1";
@@ -850,7 +850,7 @@ export default function Home() {
     }
   }, []);
 
-  // Save booking choices so Google Login does not clear the form.
+  // Save booking choices so OTP Login does not clear the form.
   useEffect(() => {
     if (!draftRestored) return;
 
