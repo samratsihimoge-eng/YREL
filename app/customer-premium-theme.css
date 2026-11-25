@@ -1,0 +1,220 @@
+/* YREL Customer App — premium violet / ocean theme.
+   Presentation-only overrides: booking/auth/location state and Supabase flows stay untouched.
+   Official YREL logo assets and their URLs are intentionally unchanged. */
+:root {
+  --ink:#241936;
+  --muted:#756987;
+  --orange:#F36B21;
+  --orange-dark:#D95119;
+  --orange-soft:#FFF0E7;
+  --cream:#FBF8FF;
+  --paper:#F5F0FC;
+  --line:#E4D9F1;
+  --white:#FFFFFF;
+  --red-orange:#F36B21;
+  --shadow:0 22px 60px rgba(54,31,92,.11);
+}
+html, body {
+  background:
+    radial-gradient(ellipse at 8% 4%,rgba(142,91,219,.13),transparent 32%),
+    radial-gradient(ellipse at 94% 22%,rgba(49,130,210,.10),transparent 27%),
+    #FBF8FF !important;
+  color:#241936 !important;
+}
+body { font-family:'DM Sans',sans-serif !important; }
+.site-shell {
+  background:
+    radial-gradient(ellipse at 88% 3%,rgba(243,107,33,.07),transparent 25%),
+    transparent !important;
+}
+.yrel-fixed-header, .topbar.yrel-fixed-header {
+  border-bottom:1px solid rgba(117,89,155,.12) !important;
+  background:rgba(251,248,255,.88) !important;
+  box-shadow:0 8px 30px rgba(54,31,92,.055) !important;
+  -webkit-backdrop-filter:blur(18px) !important;
+  backdrop-filter:blur(18px) !important;
+}
+.header-menu-button, .header-notification-button {
+  border-color:#E4D9F1 !important;
+  background:#fff !important;
+  color:#58338E !important;
+  box-shadow:0 5px 16px rgba(54,31,92,.08) !important;
+}
+.booking-section, .history-section { color:#241936 !important; }
+.booking-section .section-heading h2,
+.booking-section h2, .booking-section h3,
+.dashboard-brand-banner h1 { color:#2A1B43 !important; }
+.booking-card, .seat-share-panel, .fare-panel, .trust-strip,
+.dashboard-brand-banner, .history-item, .app-menu-panel,
+.pin-map-panel, .auth-modal, .advance-confirmation-card {
+  border:1px solid #E5D9F1 !important;
+  background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(247,242,253,.96)) !important;
+  box-shadow:0 18px 48px rgba(54,31,92,.10) !important;
+}
+.booking-card { border-radius:28px !important; }
+.booking-section .service-tab,
+.booking-section .choice,
+.booking-section .pill,
+.booking-section .vehicle-option,
+.booking-section .package-option,
+.history-filters button {
+  border:1px solid #E1D5EE !important;
+  border-radius:17px !important;
+  background:linear-gradient(145deg,#fff,#F7F2FC) !important;
+  color:#5C4A72 !important;
+  box-shadow:0 5px 16px rgba(54,31,92,.065) !important;
+}
+.booking-section .service-tab svg,
+.booking-section .vehicle-option svg,
+.booking-section .package-option svg { color:#7650B7 !important; }
+.booking-section .service-tab.active,
+.booking-section .choice.active,
+.booking-section .pill.active,
+.booking-section .vehicle-option.selected,
+.booking-section .package-option.selected,
+.history-filters button.active {
+  border-color:#7041B6 !important;
+  background:linear-gradient(120deg,#542D91,#7650C6 68%,#3D78C7) !important;
+  color:#fff !important;
+  box-shadow:0 10px 24px rgba(91,52,153,.22) !important;
+}
+.booking-section .service-tab.active *,
+.booking-section .choice.active *,
+.booking-section .pill.active *,
+.booking-section .vehicle-option.selected *,
+.booking-section .package-option.selected *,
+.history-filters button.active * { color:#fff !important; }
+.location-input, .option-fields input, .option-fields select,
+.wide-field input, .email-input, .save-location-map-footer input {
+  border-color:#DED2EC !important;
+  border-radius:15px !important;
+  background:#FFFDFF !important;
+  color:#2A1B43 !important;
+}
+.location-input:focus-within, .option-fields input:focus,
+.option-fields select:focus, .wide-field input:focus,
+.email-input:focus {
+  border-color:#8054C7 !important;
+  box-shadow:0 0 0 4px rgba(128,84,199,.12) !important;
+}
+.location-input > svg, .gps-button, .location-shortcuts svg,
+.field-wrap > label svg { color:#7041B6 !important; }
+.gps-button { background:#F0E9FA !important; }
+.suggestions, .field-saved-locations {
+  border-color:#E1D5EE !important;
+  background:#fff !important;
+  box-shadow:0 18px 42px rgba(54,31,92,.16) !important;
+}
+.suggestions button:hover, .field-saved-locations button:hover {
+  background:#F4EEFC !important;
+}
+.booking-section .book-button, .book-button,
+.pin-map-confirm, .advance-confirmation-gotit {
+  border:0 !important;
+  background:linear-gradient(105deg,#6235A5 0%,#7950C6 52%,#287AC6 100%) !important;
+  color:#fff !important;
+  box-shadow:0 11px 25px rgba(91,52,153,.24) !important;
+}
+.booking-section .book-button:hover, .book-button:hover {
+  filter:brightness(1.06) !important;
+  box-shadow:0 15px 30px rgba(91,52,153,.30) !important;
+}
+.fare-panel {
+  border-color:#E0D3F0 !important;
+  background:linear-gradient(110deg,#F1EAFB,#F4F4FF 58%,#EAF4FF) !important;
+}
+.fare-info strong, .package-option strong,
+.history-main span, .history-right b { color:#6339A0 !important; }
+.step-label, .eyebrow, .secure-note, .hint,
+.field-wrap label, .field-label { color:#756987 !important; }
+.trust-strip { border-radius:22px !important; }
+.trust-strip svg, .history-icon, .modal-symbol {
+  color:#7041B6 !important;
+}
+.history-icon, .modal-symbol {
+  background:#F0E9FA !important;
+}
+.yrel-bottom-nav {
+  border-top:1px solid rgba(117,89,155,.16) !important;
+  background:rgba(255,255,255,.92) !important;
+  box-shadow:0 -8px 30px rgba(54,31,92,.07) !important;
+  -webkit-backdrop-filter:blur(18px) !important;
+  backdrop-filter:blur(18px) !important;
+}
+.yrel-bottom-nav button { color:#74658A !important; }
+.yrel-bottom-nav button svg { color:#7041B6 !important; }
+.yrel-bottom-nav button[aria-current="page"],
+.yrel-bottom-nav button.active { color:#6339A0 !important; }
+.app-panel-backdrop, .modal-backdrop, .pin-map-backdrop {
+  background:rgba(35,22,55,.48) !important;
+  -webkit-backdrop-filter:blur(7px) !important;
+  backdrop-filter:blur(7px) !important;
+}
+.app-panel-heading h2, .auth-modal h2,
+.pin-map-heading h2 { color:#2A1B43 !important; }
+.app-panel-mark {
+  background:#F0E9FA !important;
+  color:#7041B6 !important;
+}
+.app-menu-options button {
+  border-color:#E5D9F1 !important;
+  background:#fff !important;
+  color:#4E3A68 !important;
+}
+.app-menu-options button > span:not(.yrel-menu-icon) { color:#4E3A68 !important; }
+.app-menu-options button .yrel-menu-icon,
+.app-menu-options button svg:last-child { color:#7041B6 !important; }
+.yrel-login-screen {
+  background:
+    radial-gradient(circle at 50% 8%,rgba(132,84,198,.16),transparent 34%),
+    linear-gradient(160deg,#FBF8FF,#F3EDFC 62%,#EDF5FF) !important;
+}
+.yrel-login-content, .yrel-login-form {
+  border-color:#E5D9F1 !important;
+}
+.yrel-login-brandline h1 { color:#2A1B43 !important; }
+.yrel-slogan-highlight { color:#7041B6 !important; }
+.yrel-login-form .book-button,
+.auth-modal .book-button {
+  background:linear-gradient(105deg,#6235A5,#7950C6 55%,#287AC6) !important;
+}
+.notice {
+  border-color:#DCCEF0 !important;
+  background:#F5F0FC !important;
+  color:#543A77 !important;
+}
+.notice.success {
+  border-color:#CFC0E8 !important;
+  background:#F1EAFB !important;
+  color:#4C3472 !important;
+}
+.status {
+  background:#F0E9FA !important;
+  color:#6339A0 !important;
+}
+.instant-search-screen {
+  background:linear-gradient(145deg,#FBF8FF,#F0E9FA) !important;
+  color:#2A1B43 !important;
+}
+.instant-search-screen h2 { color:#2A1B43 !important; }
+.instant-search-progress-value { stroke:#7950C6 !important; }
+.instant-search-progress-track { stroke:#E2D8EF !important; }
+.instant-search-cancel {
+  background:linear-gradient(105deg,#6235A5,#7950C6) !important;
+}
+.advance-confirmation-card h2 { color:#2A1B43 !important; }
+.advance-confirmation-gotit {
+  background:linear-gradient(105deg,#6235A5,#7950C6 55%,#287AC6) !important;
+}
+.footer { border-color:#E4D9F1 !important; color:#756987 !important; }
+@media (max-width:760px) {
+  .booking-section, .history-section { padding-left:14px !important; padding-right:14px !important; }
+  .booking-card { padding:20px 15px !important; border-radius:22px !important; }
+  .service-tabs { gap:8px !important; }
+  .service-tab { border-radius:15px !important; }
+  .fare-panel { border-radius:18px !important; }
+  .app-menu-panel { border-radius:22px !important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; }
+}
