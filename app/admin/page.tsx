@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  Activity, ArrowDownRight, ArrowUpRight, BadgeCheck, Bell, CarFront, Check,
+  Activity, ArrowDownRight, ArrowUpRight, BadgeCheck, Bell, CarFront, Check, Wallet,
   ChevronDown, CircleAlert, ClipboardList, Clock3, Download, LayoutDashboard,
   LogOut, Menu, RefreshCw, Search, ShieldCheck, Users, X
 } from "lucide-react";
@@ -18,6 +18,7 @@ type Booking = {
 };
 type Customer = { id: string; full_name: string; phone: string | null; is_blocked: boolean };
 type Driver = { user_id: string; driver_type: string; approval_status: string; created_at: string; full_name?: string | null; phone?: string | null; vehicle_type?: string | null; vehicle_number?: string | null; gear_type?: string | null; license_number?: string | null; is_blocked: boolean };
+type WalletRow = { driver_user_id: string; balance: number; is_online_blocked: boolean; updated_at: string };
 
 const statusOptions = ["requested", "searching", "assigned", "accepted", "in_progress", "completed", "cancelled"];
 
@@ -26,10 +27,11 @@ export default function AdminPage() {
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loginBusy, setLoginBusy] = useState(false);
-  const [section, setSection] = useState<"overview" | "bookings" | "customers" | "drivers">("overview");
+  const [section, setSection] = useState<"overview" | "bookings" | "customers" | "drivers" | "wallet">("overview");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [wallets, setWallets] = useState<WalletRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
@@ -39,16 +41,18 @@ export default function AdminPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     setMessage("");
-    const [b, c, d] = await Promise.all([
+    const [b, c, d, w] = await Promise.all([
       supabase.from("bookings").select("*").order("created_at", { ascending: false }).limit(300),
       supabase.from("customers").select("id,full_name,phone,is_blocked").order("created_at", { ascending: false }).limit(500),
-      supabase.from("driver_profiles").select("user_id,driver_type,approval_status,created_at,full_name,phone,vehicle_type,vehicle_number,gear_type,license_number,is_blocked").order("created_at", { ascending: false }).limit(300)
+      supabase.from("driver_profiles").select("user_id,driver_type,approval_status,created_at,full_name,phone,vehicle_type,vehicle_number,gear_type,license_number,is_blocked").order("created_at", { ascending: false }).limit(300),
+      supabase.from("driver_wallets").select("driver_user_id,balance,is_online_blocked,updated_at").order("updated_at", { ascending: false }).limit(500)
     ]);
-    const error = b.error || c.error || d.error;
+    const error = b.error || c.error || d.error || w.error;
     if (error) setMessage(error.message);
     setBookings((b.data || []) as Booking[]);
     setCustomers((c.data || []) as Customer[]);
     setDrivers((d.data || []) as Driver[]);
+    setWallets((w.data || []) as WalletRow[]);
     setLoading(false);
   }, []);
 
@@ -249,7 +253,8 @@ export default function AdminPage() {
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "bookings", label: "Bookings", icon: ClipboardList },
     { id: "customers", label: "Customers", icon: Users },
-    { id: "drivers", label: "Drivers & Partners", icon: CarFront }
+    { id: "drivers", label: "Drivers & Partners", icon: CarFront },
+    { id: "wallet", label: "Wallets", icon: Wallet }
   ] as const;
 
   if (authLoading) return <main className="admin-auth"><div className="admin-auth-card"><div className="admin-mark">Y</div><p>Loading secure admin access…</p></div></main>;
@@ -311,6 +316,7 @@ export default function AdminPage() {
         </>}
         {section === "bookings" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head admin-booking-head"><div><h3>All bookings</h3><p>Search and manage customer booking requests.</p></div><div className="admin-actions"><button className="admin-primary" disabled={savingId==="new-booking"} onClick={()=>void createDirectBooking()}>+ Direct booking</button><button className="admin-primary" onClick={exportBookings}><Download size={16}/> Export CSV</button></div></div><div className="admin-toolbar"><label className="admin-search"><Search size={18}/><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search booking ID, customer, phone or location"/></label><span>{filteredBookings.length} bookings</span></div><BookingTable rows={filteredBookings} customerById={customerById} onStatus={updateBooking} savingId={savingId} onPayment={editPayment} drivers={drivers.filter(d => d.approval_status === "approved")}/></div>}
         {section === "customers" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head"><div><h3>Customers</h3><p>Customer profiles created in YREL.</p></div><span className="admin-count">{customers.length} total</span></div><div className="admin-table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Customer ID</th><th>Bookings</th><th>Profile controls</th></tr></thead><tbody>{customers.map(c => <tr key={c.id}><td><b>{c.full_name || "Customer"}</b><small className="admin-subcell">{c.is_blocked ? "Blocked" : "Active"}</small></td><td>{c.phone || "—"}</td><td className="admin-mono">{c.id.slice(0,12)}…</td><td>{bookings.filter(b => b.user_id === c.id).length}</td><td><div className="admin-actions"><button className="admin-outline" disabled={savingId===c.id} onClick={()=>void editCustomer(c)}>Edit</button><button className="admin-outline" disabled={savingId===c.id} onClick={()=>void toggleCustomerBlock(c)}>{c.is_blocked ? "Unblock" : "Block"}</button><button className="admin-outline" disabled={savingId===c.id} onClick={()=>void deleteCustomerProfile(c)}>Delete profile</button></div></td></tr>)}</tbody></table>{customers.length === 0 && <div className="admin-empty">No customer profiles found.</div>}</div></div>}
+        {section === "wallet" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head"><div><h3>Driver Wallets</h3><p>Read-only wallet balances and online restriction status. Recharge and ledger adjustments are not enabled until payment and server-side settlement are configured.</p></div><span className="admin-count">{wallets.length} wallets</span></div><div className="admin-table-wrap"><table><thead><tr><th>Driver</th><th>Partner type</th><th>Available balance</th><th>Online access</th><th>Last updated</th></tr></thead><tbody>{wallets.map(w=>{const d=drivers.find(x=>x.user_id===w.driver_user_id);return <tr key={w.driver_user_id}><td><b>{d?.full_name || "Partner"}</b><small className="admin-subcell">{d?.phone || w.driver_user_id.slice(0,12)+"…"}</small></td><td>{d?.driver_type==="cab_driver"?"Cab Driver":d?.driver_type==="spare_driver"?"Spare Driver":"—"}</td><td><b>₹{Number(w.balance).toFixed(2)}</b></td><td><StatusPill value={w.is_online_blocked?"blocked":"active"}/></td><td>{new Date(w.updated_at).toLocaleString("en-IN")}</td></tr>})}</tbody></table>{wallets.length===0&&<div className="admin-empty">No driver wallets found.</div>}</div></div>}
         {section === "drivers" && <div className="admin-panel admin-full-panel"><div className="admin-panel-head"><div><h3>Drivers & partners</h3><p>Review partner profiles and control approval status.</p></div><span className="admin-count">{drivers.length} profiles</span></div><div className="admin-table-wrap"><table><thead><tr><th>Driver</th><th>Partner type</th><th>Vehicle</th><th>Joined</th><th>Status</th><th>Approval</th><th>Profile controls</th></tr></thead><tbody>{drivers.map(d => <tr key={d.user_id}><td><b>{d.full_name || "Driver"}</b><small className="admin-subcell">{d.phone || d.user_id.slice(0,12)+"…"}</small></td><td>{d.driver_type === "cab_driver" ? "Cab Driver" : "Spare Driver"}</td><td>{d.vehicle_type || "—"} {d.vehicle_number || ""}</td><td>{new Date(d.created_at).toLocaleDateString("en-IN")}</td><td><StatusPill value={d.is_blocked ? "blocked" : d.approval_status}/></td><td><select className="admin-select" value={d.approval_status} disabled={savingId === d.user_id} onChange={e => void updateDriver(d.user_id,e.target.value)}><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></td><td><div className="admin-actions"><button className="admin-outline" disabled={savingId===d.user_id} onClick={()=>void editDriver(d)}>Edit</button><button className="admin-outline" disabled={savingId===d.user_id} onClick={()=>void toggleDriverBlock(d)}>{d.is_blocked ? "Unblock" : "Block"}</button><button className="admin-outline" disabled={savingId===d.user_id} onClick={()=>void deleteDriverProfile(d)}>Delete profile</button></div></td></tr>)}</tbody></table>{drivers.length === 0 && <div className="admin-empty">No driver or partner profiles yet. New registrations will appear here.</div>}</div></div>}
         <footer className="admin-footer"><span>© {new Date().getFullYear()} YREL Technologies Private Limited</span><span>Admin Console · Version 1.0</span></footer>
         {loading && <div className="admin-loading"><RefreshCw size={15}/> Syncing latest data…</div>}
