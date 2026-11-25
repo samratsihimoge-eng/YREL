@@ -83,9 +83,21 @@ export async function POST(request: NextRequest) {
       if (error || !data.user) {
         return NextResponse.json({ error: "Your existing YREL account needs admin review before OTP login." }, { status: 409 });
       }
-      email = data.user.email || "";
-      if (!email) {
-        return NextResponse.json({ error: "Your existing account has no login email. Please contact YREL Admin." }, { status: 409 });
+      email = data.user.email || `${accountType}+${verifiedPhone}@auth.yrel.invalid`;
+      if (!data.user.email) {
+        // Preserve the existing Auth UUID (and all booking/profile foreign keys) for
+        // legacy phone-auth accounts by adding a confirmed internal email alias.
+        const { error: updateUserError } = await admin.auth.admin.updateUserById(userId, {
+          email,
+          email_confirm: true,
+          user_metadata: {
+            ...data.user.user_metadata,
+            account_type: accountType === "partner" ? "yrel_partner" : "yrel_customer",
+            phone: "+" + verifiedPhone,
+            phone_verified: true
+          }
+        });
+        if (updateUserError) throw updateUserError;
       }
     } else {
       email = `${accountType}+${verifiedPhone}@auth.yrel.invalid`;
