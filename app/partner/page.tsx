@@ -99,7 +99,7 @@ export default function PartnerPage() {
         <span className="partner-eyebrow">YREL DRIVER & PARTNER APP</span>
         <h1>Partner Login</h1>
         <p>Sign in or create your partner account using the WhatsApp OTP sent to your verified Indian mobile number.</p>
-        <Msg91PhoneOtp accountType="partner" compact />
+        <Msg91PhoneOtp accountType="partner" compact onAuthenticated={(verifiedPhone) => setPhone(verifiedPhone)} />
         <a href="/">Back to Customer App</a>
       </section>
     </main>
