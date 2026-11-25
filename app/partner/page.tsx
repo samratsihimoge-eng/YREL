@@ -57,12 +57,14 @@ export default function PartnerPage() {
   useEffect(() => { void loadPartner(); }, [loadPartner]);
 
   function normalizedPhone(value: string) {
-    const digits = value.replace(/\\D/g, "");
-    return digits.startsWith("91") ? "+" + digits : "+91" + digits;
+    const digits = value.replace(/\D/g, "");
+    if (digits.length === 10) return "+91" + digits;
+    if (digits.length === 12 && digits.startsWith("91")) return "+" + digits;
+    return "";
   }
   async function authenticatePartner() {
     const mobile = normalizedPhone(phone);
-    if (mobile.length < 12 || password.length < 8) { setError("Enter a valid Indian mobile number and a password with at least 8 characters."); return; }
+    if (!mobile || mobile.length !== 13 || password.length < 8) { setError("Enter exactly 10 Indian mobile digits (or +91 followed by 10 digits) and a password with at least 8 characters. Do not type +91 twice."); return; }
     setBusy(true); setError("");
     if (authMode === "login") {
       const { error: e } = await supabase.auth.signInWithPassword({ phone: mobile, password });
