@@ -616,6 +616,15 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("verified") === "1") {
+      setAuthMode("login");
+      setRegistrationPending(false);
+      setAuthOpen(true);
+      setNotice("Mobile number verified. Please log in.");
+    }
+  }, []);
+
+  useEffect(() => {
     let mounted = true;
 
     supabase.auth.getSession().then(({ data }) => {
