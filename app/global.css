@@ -3498,3 +3498,26 @@ html, body, .site-shell {
   outline: none !important;
   box-shadow: 0 0 0 4px rgba(255, 123, 22, .12) !important;
 }
+
+
+/* Final approved customer app chrome: menu left, YREL logo center, profile right. */
+.topbar.yrel-fixed-header .header-menu-button.header-menu-left {
+  grid-column: 1 !important;
+  justify-self: start !important;
+}
+.topbar.yrel-fixed-header .header-notification-button {
+  grid-column: 3 !important;
+  justify-self: end !important;
+}
+.yrel-bottom-nav button span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: inherit;
+  font-size: 10px;
+  line-height: 1.15;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.yrel-bottom-nav button[aria-label="My Bookings"] span { font-size: 9px; }
