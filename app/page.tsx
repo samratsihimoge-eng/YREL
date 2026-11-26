@@ -2620,6 +2620,18 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="yrel-dashboard-shortcuts" aria-label="Quick actions">
+        <button type="button" className="yrel-seat-share-banner" onClick={() => {setService("cab");setSeatShareMode(true);setNotice("Choose an eligible outstation or airport route to find shared trips.");window.scrollTo({top:0,behavior:"smooth"});}}>
+          <span className="yrel-shortcut-icon">👥</span><span><b>Seat Sharing</b><small>Share your journey on eligible outstation and airport routes</small></span><strong>Explore →</strong>
+        </button>
+        <div className="yrel-dashboard-quick-grid">
+          <button type="button" onClick={()=>{setBookingFilter("active");setBottomPanel("bookings");}}><span>▤</span><b>My Bookings</b></button>
+          <button type="button" onClick={()=>{setBookingFilter("history");setBottomPanel("bookings");}}><span>₹</span><b>My Payments</b></button>
+          <button type="button" onClick={()=>{setMenuOpen(true);setMenuSection("saved");}}><span>⌖</span><b>Saved Locations</b></button>
+          <button type="button" onClick={()=>setBottomPanel("support")}><span>☏</span><b>Help & Support</b></button>
+        </div>
+      </section>
+
       <section className="trust-strip" id="how">
         <div>
           <ShieldCheck />
