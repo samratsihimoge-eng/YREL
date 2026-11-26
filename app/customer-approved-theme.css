@@ -1,0 +1,56 @@
+
+/* YREL approved customer visual language: warm cream, purple wave headers, orange actions. */
+:root{--ink:#351044;--muted:#80657a;--orange:#ff7a00;--orange-dark:#ef4328;--cream:#fff8f1;--purple:#5a0d80;--purple-dark:#3d075f;--line:#f3d6c3}
+html,body{background:#fff8f1!important;color:#351044!important}
+.site-shell{background:radial-gradient(ellipse at 5% 5%,rgba(255,255,255,.95),transparent 34%),linear-gradient(180deg,#fff9f2 0%,#fff2e8 100%)!important}
+.topbar.yrel-fixed-header{display:grid!important;grid-template-columns:54px minmax(0,1fr) 54px!important;align-items:center!important;gap:12px!important;max-width:none!important;height:106px!important;padding:10px clamp(12px,3vw,38px)!important;background:rgba(255,249,243,.96)!important;border-bottom:1px solid #f3d7c3!important;box-shadow:0 4px 18px rgba(95,44,22,.07)!important;backdrop-filter:blur(16px)!important}
+.topbar.yrel-fixed-header .header-menu-button{grid-column:1!important;justify-self:start!important;width:44px!important;height:44px!important;border:0!important;border-radius:50%!important;background:transparent!important;color:#5a0d60!important;box-shadow:none!important}
+.topbar.yrel-fixed-header .header-brand{grid-column:2!important;justify-self:center!important;display:flex!important;align-items:center!important;gap:14px!important;min-width:0!important}
+.topbar.yrel-fixed-header .brand-logo{width:145px!important;height:78px!important;max-width:145px!important;object-fit:contain!important}
+.topbar.yrel-fixed-header .header-brand:after{content:"Your City, Your Fun.\\A Just YREL it."!important;white-space:pre!important;border-left:2px solid #541078!important;padding-left:14px!important;color:#4d116b!important;font-size:clamp(12px,1.9vw,21px)!important;font-style:italic!important;font-weight:850!important;line-height:1.2!important}
+.topbar.yrel-fixed-header .header-notification-button{grid-column:3!important;justify-self:end!important;width:44px!important;height:44px!important;border:0!important;border-radius:50%!important;background:linear-gradient(145deg,#ffad00,#bb0089)!important;color:white!important;box-shadow:0 5px 14px rgba(101,12,112,.18)!important}
+.booking-section{max-width:1080px!important;padding:24px clamp(12px,3vw,28px) 24px!important}
+.booking-section:before{content:"Your City, Your Fun. Just YREL it."!important;color:#4d116b!important;font-size:clamp(20px,3vw,30px)!important;letter-spacing:-.02em!important;font-weight:900!important}
+.booking-section:after{content:"Book, Ride, Rent or Share – It’s Simple with YREL"!important;color:#856a7d!important}
+.service-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;padding:8px!important;border-radius:24px!important;background:linear-gradient(100deg,#5b0d83,#9a00a8)!important;border:0!important;box-shadow:0 7px 18px rgba(74,12,91,.15)!important}
+.service-tab{min-height:68px!important;border:1px solid #f4d6c0!important;border-radius:17px!important;background:linear-gradient(145deg,#fff,#fff4e9)!important;color:#4d116b!important;font-weight:850!important;box-shadow:0 5px 13px rgba(77,17,107,.08)!important}
+.service-tab.active{background:linear-gradient(120deg,#ff9b00,#f04425)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 8px 20px rgba(239,82,30,.22)!important}
+.booking-card{padding:clamp(16px,3vw,28px)!important;border-radius:25px!important;border:1px solid #f5d2b7!important;background:linear-gradient(145deg,#fffefa,#fff4e9)!important;box-shadow:0 12px 30px rgba(93,42,23,.10)!important}
+.booking-card:before{background:linear-gradient(90deg,#ff9c00,#ef3e28,#6b087f)!important}
+.choice,.pill{border-color:#edcfb8!important;border-radius:15px!important;background:#fff!important;color:#5a176d!important}
+.choice.active,.pill.active{background:linear-gradient(120deg,#ff9700,#f04b25)!important;color:#fff!important;border-color:transparent!important}
+.field-label,.step-label{color:#551174!important;font-weight:900!important}
+.location-input{border:1px solid #efcfb5!important;border-radius:17px!important;background:#fff!important;box-shadow:0 5px 15px rgba(93,42,23,.07)!important}
+.location-input:focus-within{border-color:#9b32a3!important;box-shadow:0 0 0 4px rgba(119,16,141,.10)!important}
+.gps-button{background:#fff0df!important;color:#e75b16!important;border-radius:13px!important}
+.vehicle-option,.package-option{border:1px solid #f2d7c4!important;border-radius:18px!important;background:linear-gradient(140deg,#fff,#fff5ec)!important;box-shadow:0 6px 16px rgba(83,35,18,.07)!important}
+.vehicle-option.selected,.package-option.selected{border:2px solid #f27619!important;background:linear-gradient(130deg,#fff0dc,#f8eaff)!important;box-shadow:0 8px 20px rgba(112,27,111,.13)!important}
+.fare-panel{border:1px solid #ffd4b0!important;border-radius:20px!important;background:linear-gradient(110deg,#fff0df,#fff8f1)!important}
+.fare-info strong{color:#541078!important}
+.book-button,.pin-map-confirm,.advance-confirmation-gotit{background:linear-gradient(105deg,#ff9800,#f04a27)!important;border-radius:16px!important;box-shadow:0 8px 20px rgba(239,77,27,.22)!important}
+.yrel-bottom-nav{background:rgba(255,252,248,.97)!important;border:1px solid #f3d6c3!important;border-radius:26px 26px 0 0!important;box-shadow:0 -8px 28px rgba(92,44,23,.12)!important;backdrop-filter:blur(15px)!important}
+.yrel-bottom-nav button{color:#531078!important}
+.yrel-bottom-nav button span{font-size:10px!important;font-weight:850!important}
+.yrel-bottom-nav button[aria-label="Notifications"],.yrel-bottom-nav button[aria-label="Support"]{color:#531078!important}
+.app-menu-panel,.auth-modal,.pin-map-panel{border:1px solid #f5d5bd!important;border-radius:26px!important;background:linear-gradient(145deg,#fffdf9,#fff4e9)!important;box-shadow:0 25px 70px rgba(58,13,73,.24)!important}
+.app-panel-heading{border-bottom:1px solid #f3d7c4!important}
+.app-panel-mark{background:#fff0df!important;color:#e85c17!important}
+.app-panel-heading h2{color:#4d116b!important}
+.app-menu-options button{border:1px solid #f2d2bc!important;border-radius:17px!important;background:linear-gradient(110deg,#fff,#fff4eb)!important;color:#4d116b!important;box-shadow:0 5px 14px rgba(88,36,19,.08)!important}
+.app-menu-options button .yrel-menu-icon{color:#e96519!important}
+.dashboard-brand-banner{background:linear-gradient(110deg,#4f0878,#87009e 55%,#ff8700)!important;border-radius:24px!important}
+.dashboard-brand-banner h1,.dashboard-brand-banner p{color:white!important}
+.trust-strip{border:1px solid #f1d3bd!important;border-radius:22px!important;background:rgba(255,255,255,.88)!important;box-shadow:0 10px 28px rgba(88,36,18,.07)!important}
+.trust-strip svg{color:#681080!important}
+.yrel-splash-screen{background:linear-gradient(180deg,#ff8b00 0%,#ff6a14 55%,#e82f47 100%)!important}
+@media(max-width:640px){.topbar.yrel-fixed-header{height:82px!important;grid-template-columns:34px minmax(0,1fr) 38px!important;gap:5px!important;padding:6px 9px!important}.topbar.yrel-fixed-header .brand-logo{width:85px!important;height:58px!important}.topbar.yrel-fixed-header .header-brand{gap:6px!important}.topbar.yrel-fixed-header .header-brand:after{font-size:10px!important;padding-left:7px!important}.topbar.yrel-fixed-header .header-menu-button,.topbar.yrel-fixed-header .header-notification-button{width:34px!important;height:34px!important}.service-tabs{gap:6px!important}.service-tab{min-height:60px!important;font-size:12px!important}.booking-section:before{font-size:22px!important}}
+.yrel-services-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.yrel-service-tile{display:flex;align-items:center;gap:14px;min-height:125px;padding:18px;border:1px solid #f4d3bd;border-radius:24px;background:linear-gradient(110deg,#fff,#fff4e9);box-shadow:0 7px 17px rgba(95,45,21,.09);color:#4d116b}
+.yrel-service-icon{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;flex:none;color:white;background:linear-gradient(140deg,#ff9c00,#ed4524)}
+.yrel-service-icon.purple{background:linear-gradient(140deg,#a000b4,#520078)}
+.yrel-service-icon svg{width:30px;height:30px}
+.yrel-service-copy{min-width:0}.yrel-service-copy b{font-size:19px}.yrel-service-copy small{display:block;color:#e45c1a;font-weight:800;margin-top:3px}.yrel-service-copy p{font-size:13px;line-height:1.45;color:#80657a;margin:7px 0 0}
+.yrel-service-arrow{margin-left:auto;flex:none;color:#681080}
+.yrel-policy-intro{margin:0 0 18px;padding:18px 20px;border-radius:20px;background:#fff;border:1px solid #f3d3bd;color:#6d536b;font-weight:650;line-height:1.6}
+.yrel-policy-num{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:12px;background:#fff0df;color:#ed641a;font-weight:900}
+@media(max-width:640px){.yrel-services-grid{grid-template-columns:1fr}.yrel-service-tile{min-height:100px;padding:14px}.yrel-service-copy b{font-size:17px}}
