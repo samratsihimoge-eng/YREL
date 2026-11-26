@@ -432,7 +432,7 @@ export default function Home() {
 
   const words = {
     en: {
-      tagline: "Your city. Your fun. Just YREL it.",
+      tagline: "Your City, Your Fun. Just YREL it.",
       pickup: "Pickup location",
       drop: "Destination",
       book: "Book now",
@@ -1844,7 +1844,7 @@ export default function Home() {
       {splashVisible && (
         <div className="yrel-splash-screen" role="status" aria-label="YREL loading">
           <img src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL" />
-          <span>Your city. Your fun. Just YREL it.</span>
+          <span>Your City, Your Fun. Just YREL it.</span>
           <div className="yrel-splash-loader" />
         </div>
       )}
