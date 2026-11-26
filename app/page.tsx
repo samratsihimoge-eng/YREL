@@ -371,7 +371,7 @@ export default function Home() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [phone, setPhone] = useState("");
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [authStep, setAuthStep] = useState<"phone" | "login" | "register">("phone");
   const [accountEmail, setAccountEmail] = useState("");
   const [accountPassword, setAccountPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -1216,13 +1216,27 @@ export default function Home() {
     setNotice("");
   }
 
+  async function checkCustomerPhone() {
+    const digits = phone.replace(/\D/g, "");
+    if (!/^[6-9]\d{9}$/.test(digits)) { setNotice("Please enter a valid 10-digit Indian mobile number."); return; }
+    setBusy(true); setNotice("");
+    try {
+      const response = await fetch("/api/auth/phone-lookup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits, accountType: "customer" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not check mobile number.");
+      setAuthStep(result.registered ? "login" : "register");
+      setNotice(result.registered ? "Welcome back. Enter your 4-digit passcode." : "This number is not registered. Create your YREL account.");
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not check mobile number."); }
+    finally { setBusy(false); }
+  }
+
   async function registerCustomerAccount() {
     const digits = phone.replace(/\D/g, "");
     if (!fullName.trim() || fullName.trim().length < 2) { setNotice("Please enter your full name."); return; }
     if (!/^[6-9]\d{9}$/.test(digits)) { setNotice("Please enter a valid 10-digit Indian mobile number."); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountEmail)) { setNotice("Please enter a valid email address."); return; }
-    if (accountPassword.length < 8) { setNotice("Password must contain at least 8 characters."); return; }
-    if (accountPassword !== confirmPassword) { setNotice("Passwords do not match."); return; }
+    if (!/^\d{4}$/.test(accountPassword)) { setNotice("Passcode must be exactly 4 digits."); return; }
+    if (accountPassword !== confirmPassword) { setNotice("Passcodes do not match."); return; }
     setBusy(true); setNotice("");
     try {
       const response = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fullName: fullName.trim(), phone: digits, email: accountEmail, password: accountPassword, accountType: "customer" }) });
@@ -1248,7 +1262,7 @@ export default function Home() {
 
   async function loginCustomer() {
     const digits = phone.replace(/\D/g, "");
-    if (!/^[6-9]\d{9}$/.test(digits) || !accountPassword) { setNotice("Enter your 10-digit mobile number and password."); return; }
+    if (!/^[6-9]\d{9}$/.test(digits) || !/^\d{4}$/.test(accountPassword)) { setNotice("Enter your 10-digit mobile number and 4-digit passcode."); return; }
     setBusy(true); setNotice("");
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ phone: `+91${digits}`, password: accountPassword });
@@ -2749,15 +2763,22 @@ export default function Home() {
               {registrationPending ? <>
                 <h2>Verify Mobile Number</h2><p>Your account has been created. Verify that this mobile number belongs to you to continue.</p>
                 <button className="book-button full" onClick={sendCustomerVerificationLink} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Send Verification Link by SMS</span><ArrowRight size={18} /></button>
-                <p className="hint">After opening the SMS link, return here and log in with your mobile number and password.</p>
+                <p className="hint">After opening the SMS link, return here and log in with your mobile number and 4-digit passcode.</p>
               </> : <>
-                <div className="auth-mode-switch"><button type="button" className={authMode === "login" ? "active" : ""} onClick={() => { setAuthMode("login"); setNotice(""); }}>Login</button><button type="button" className={authMode === "register" ? "active" : ""} onClick={() => { setAuthMode("register"); setNotice(""); }}>Create Account</button></div>
-                {authMode === "register" && <label className="wide-field"><span className="yrel-mobile-prompt">Full name</span><input className="phone-number-input" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter your full name" autoComplete="name" /></label>}
-                <label className="wide-field"><span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span><div className="location-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Enter mobile number" /></div></label>
-                {authMode === "register" && <label className="wide-field"><span className="yrel-mobile-prompt">Email ID</span><input className="phone-number-input" type="email" autoComplete="email" value={accountEmail} onChange={e => setAccountEmail(e.target.value)} placeholder="Enter email address" /></label>}
-                <label className="wide-field"><span className="yrel-mobile-prompt">Password</span><input className="phone-number-input" type="password" autoComplete={authMode === "login" ? "current-password" : "new-password"} value={accountPassword} onChange={e => setAccountPassword(e.target.value)} placeholder="Enter password" /></label>
-                {authMode === "register" && <label className="wide-field"><span className="yrel-mobile-prompt">Confirm password</span><input className="phone-number-input" type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" /></label>}
-                <button className="book-button full" onClick={authMode === "register" ? registerCustomerAccount : loginCustomer} disabled={busy}>{busy && <Loader2 className="spin" />}<span>{authMode === "register" ? "Create Account" : "Login"}</span><ArrowRight size={18} /></button>
+                <label className="wide-field"><span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span><div className="location-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setAuthStep("phone"); setAccountPassword(""); }} placeholder="Enter mobile number" /></div></label>
+                {authStep === "phone" && <button className="book-button full" onClick={checkCustomerPhone} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Next</span><ArrowRight size={18} /></button>}
+                {authStep === "login" && <>
+                  <label className="wide-field"><span className="yrel-mobile-prompt">4-digit Passcode</span><input className="phone-number-input" type="password" inputMode="numeric" maxLength={4} autoComplete="current-password" value={accountPassword} onChange={e => setAccountPassword(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="Enter 4-digit passcode" /></label>
+                  <button className="book-button full" onClick={loginCustomer} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Login</span><ArrowRight size={18} /></button>
+                </>}
+                {authStep === "register" && <>
+                  <label className="wide-field"><span className="yrel-mobile-prompt">Full name</span><input className="phone-number-input" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter your full name" autoComplete="name" /></label>
+                  <label className="wide-field"><span className="yrel-mobile-prompt">Email ID</span><input className="phone-number-input" type="email" autoComplete="email" value={accountEmail} onChange={e => setAccountEmail(e.target.value)} placeholder="Enter email address" /></label>
+                  <label className="wide-field"><span className="yrel-mobile-prompt">Create 4-digit Passcode</span><input className="phone-number-input" type="password" inputMode="numeric" maxLength={4} autoComplete="new-password" value={accountPassword} onChange={e => setAccountPassword(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="Create 4-digit passcode" /></label>
+                  <label className="wide-field"><span className="yrel-mobile-prompt">Confirm Passcode</span><input className="phone-number-input" type="password" inputMode="numeric" maxLength={4} autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="Re-enter 4-digit passcode" /></label>
+                  <button className="book-button full" onClick={registerCustomerAccount} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Create Account</span><ArrowRight size={18} /></button>
+                </>}
+                {authStep !== "phone" && <button className="pill" onClick={() => { setAuthStep("phone"); setAccountPassword(""); setConfirmPassword(""); setNotice(""); }}>Change mobile number</button>}
               </>}
               {notice && <div className="notice">{notice}</div>}
               {!registrationPending && <button className="pill" onClick={closeAuth}>Back</button>}
