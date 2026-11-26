@@ -1263,7 +1263,7 @@ export default function Home() {
 
     if (!session?.user) {
       setNotice(
-        "Google login session not found. Please log in again."
+        "WhatsApp login session not found. Please verify your mobile number again."
       );
       return;
     }
@@ -1296,7 +1296,7 @@ export default function Home() {
     if (error) {
       if (error.code === "23505") {
         setNotice(
-          "A customer profile already exists for this Google account. Please refresh the page."
+          "A customer profile already exists for this mobile number. Please refresh the page."
         );
       } else {
         setNotice(`Profile save failed: ${error.message}`);
