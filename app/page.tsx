@@ -370,7 +370,7 @@ export default function Home() {
   const [splashVisible, setSplashVisible] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState("");\n  const [customerOtp, setCustomerOtp] = useState("");\n  const [customerOtpReqId, setCustomerOtpReqId] = useState("");\n  const [customerOtpSent, setCustomerOtpSent] = useState(false);
   const [fullName, setFullName] = useState("");
   const [authOpen, setAuthOpen] = useState(false);
   const [profileSetupOpen, setProfileSetupOpen] = useState(false);
@@ -427,7 +427,7 @@ export default function Home() {
       pickup: "Pickup location",
       drop: "Destination",
       book: "Book now",
-      login: "Continue with Google",
+      login: "Continue with WhatsApp OTP",
       history: "Your bookings",
     },
     kn: {
@@ -435,7 +435,7 @@ export default function Home() {
       pickup: "ಪಿಕಪ್ ಸ್ಥಳ",
       drop: "ತಲುಪುವ ಸ್ಥಳ",
       book: "ಈಗ ಬುಕ್ ಮಾಡಿ",
-      login: "Google ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ",
+      login: "WhatsApp OTP ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ",
       history: "ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳು",
     },
     hi: {
@@ -804,7 +804,7 @@ export default function Home() {
 
   // Splash timing is managed by the auth-ready effect above to prevent competing timers.
 
-  // Restore unfinished booking form only when returning from Google OAuth.
+  // Restore unfinished booking form after WhatsApp OTP login.
   useEffect(() => {
     try {
       const restoreAfterLogin = sessionStorage.getItem("yrel_restore_booking_after_login") === "1";
@@ -849,7 +849,7 @@ export default function Home() {
     }
   }, []);
 
-  // Save booking choices so Google Login does not clear the form.
+  // Save booking choices so login does not clear the form.
   useEffect(() => {
     if (!draftRestored) return;
 
@@ -1198,36 +1198,50 @@ export default function Home() {
     setNotice("");
   }
 
-  async function startGoogleLogin() {
+  async function sendCustomerOtp() {
     const digits = phone.replace(/\D/g, "");
-
     if (!/^[6-9]\d{9}$/.test(digits)) {
-      setNotice(
-        "Please enter a valid 10-digit Indian mobile number."
-      );
+      setNotice("Please enter a valid 10-digit Indian mobile number.");
       return;
     }
+    setBusy(true); setNotice("");
+    try {
+      const response = await fetch("/api/auth/whatsapp/send", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: digits })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not send WhatsApp OTP.");
+      setCustomerOtpReqId(result.reqId);
+      setCustomerOtpSent(true);
+      localStorage.setItem(PHONE_STORAGE_KEY, digits);
+      setNotice("6-digit WhatsApp OTP sent. Please check WhatsApp.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Could not send WhatsApp OTP.");
+    } finally { setBusy(false); }
+  }
 
-    setBusy(true);
-    setNotice("");
-
-    localStorage.setItem(PHONE_STORAGE_KEY, digits);
-    sessionStorage.setItem("yrel_oauth_in_progress", "1");
-    sessionStorage.setItem("yrel_restore_booking_after_login", "1");
-    sessionStorage.setItem("yrel_booking_draft_oauth", localStorage.getItem(BOOKING_DRAFT_STORAGE_KEY) || "");
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-
-    if (error) {
-      setBusy(false);
-      setNotice(error.message);
-      localStorage.removeItem(PHONE_STORAGE_KEY);
+  async function verifyCustomerOtp() {
+    const digits = phone.replace(/\D/g, "");
+    if (!customerOtpReqId || !/^\d{6}$/.test(customerOtp)) {
+      setNotice("Enter the 6-digit WhatsApp OTP.");
+      return;
     }
+    setBusy(true); setNotice("");
+    try {
+      const response = await fetch("/api/auth/whatsapp/verify", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: digits, reqId: customerOtpReqId, otp: customerOtp, accountType: "customer" })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "OTP verification failed.");
+      const { error } = await supabase.auth.verifyOtp({ token_hash: result.tokenHash, type: "magiclink" });
+      if (error) throw error;
+      setCustomerOtpSent(false); setCustomerOtp(""); setCustomerOtpReqId("");
+      setNotice("Mobile number verified. Complete your customer profile.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "OTP verification failed.");
+    } finally { setBusy(false); }
   }
 
   async function createCustomerProfile() {
@@ -1267,7 +1281,7 @@ export default function Home() {
         id: session.user.id,
         full_name: name,
         phone: `+91${digits}`,
-        phone_verified: false,
+        phone_verified: true,
       })
       .select(
         "id, customer_code, full_name, phone, phone_verified"
@@ -2682,11 +2696,22 @@ export default function Home() {
                   />
                 </div>
               </label>
-              <button className="book-button full" onClick={startGoogleLogin} disabled={busy}>
-                {busy && <Loader2 className="spin" />}
-                <span>Continue with Google</span>
-                <ArrowRight size={18} />
-              </button>
+              {!customerOtpSent ? (
+                <button className="book-button full" onClick={sendCustomerOtp} disabled={busy}>
+                  {busy && <Loader2 className="spin" />}
+                  <span>Send WhatsApp OTP</span><ArrowRight size={18} />
+                </button>
+              ) : (
+                <>
+                  <label className="wide-field"><span className="yrel-mobile-prompt">Enter 6-digit WhatsApp OTP</span>
+                    <input className="phone-number-input" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={customerOtp} onChange={e => setCustomerOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="6-digit OTP" />
+                  </label>
+                  <button className="book-button full" onClick={verifyCustomerOtp} disabled={busy || customerOtp.length !== 6}>
+                    {busy && <Loader2 className="spin" />}<span>Verify OTP & Continue</span><ArrowRight size={18} />
+                  </button>
+                  <button className="pill" onClick={sendCustomerOtp} disabled={busy}>Resend OTP</button>
+                </>
+              )}
               {notice && <div className="notice">{notice}</div>}
             </div>
           </div>
