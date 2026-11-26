@@ -103,16 +103,16 @@ const RENTAL_CITY: Record<
   string,
   { fares: number[]; kmPerHour: number; extraKm: number; extraHour: number }
 > = {
-  Hatchback: { fares: [1150, 2150, 3150], kmPerHour: 10, extraKm: 18, extraHour: 250 },
-  Sedan: { fares: [1300, 2400, 3500], kmPerHour: 10, extraKm: 20, extraHour: 275 },
-  MPV: { fares: [1650, 3050, 4450], kmPerHour: 10, extraKm: 22, extraHour: 350 },
-  SUV: { fares: [1900, 3500, 5100], kmPerHour: 10, extraKm: 26, extraHour: 400 },
+  Hatchback: { fares: [399, 699, 899], kmPerHour: 10, extraKm: 18, extraHour: 250 },
+  Sedan: { fares: [449, 799, 999], kmPerHour: 10, extraKm: 20, extraHour: 275 },
+  MPV: { fares: [599, 999, 1299], kmPerHour: 10, extraKm: 22, extraHour: 350 },
+  SUV: { fares: [699, 1199, 1499], kmPerHour: 10, extraKm: 26, extraHour: 400 },
 };
 
 const RENTAL_CITY_PACKAGES = [
-  { hours: 4, km: 40 },
-  { hours: 8, km: 80 },
-  { hours: 12, km: 120 },
+  { hours: 1, km: 10 },
+  { hours: 2, km: 20 },
+  { hours: 3, km: 30 },
 ];
 
 const DRIVER_VEHICLES = ["Hatchback", "Sedan", "SUV"];
