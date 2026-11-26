@@ -397,7 +397,7 @@ export default function Home() {
   const [instantSearchSeconds, setInstantSearchSeconds] = useState(60);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation" | "language" | "saved">("list");
+  const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation" | "language" | "saved" | "support">("list");
   const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | "bookings" | "profile" | null>(null);
   const [pinMapTarget, setPinMapTarget] = useState<"pickup" | "drop" | "save" | null>(null);
   const [pinMapCoords, setPinMapCoords] = useState<[number, number]>([12.9716, 77.5946]);
@@ -1875,7 +1875,7 @@ export default function Home() {
             <div className="app-panel-heading">
               <span className="app-panel-mark"><Menu size={19} /></span>
               <h2>{menuSection === "list" ? "Menu" : ({
-                how: "How it works", services: "Services", privacy: "Privacy Policy",
+                how: "How it works", services: "Services", privacy: "Privacy Policy", support: "Help & Support",
                 terms: "Terms & Conditions", cancellation: "Cancellation Policy", language: "Language", saved: "Saved Locations"
               } as const)[menuSection]}</h2>
               <button className="app-panel-close" onClick={() => { if (menuSection !== "list") setMenuSection("list"); else setMenuOpen(false); }} aria-label={menuSection !== "list" ? "Back to menu" : "Close menu"}>{menuSection !== "list" ? <ArrowLeft size={20} /> : <X size={20} />}</button>
@@ -1885,6 +1885,7 @@ export default function Home() {
                 <button onClick={() => { loadSavedLocations(session?.user?.id); setMenuSection("saved"); }}><span className="yrel-menu-icon" aria-hidden="true">📍</span><span>Saved Locations</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("how")}><span className="yrel-menu-icon" aria-hidden="true">📖</span><span>How it works</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("services")}><span className="yrel-menu-icon" aria-hidden="true">🚕</span><span>Services</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("support")}><span className="yrel-menu-icon" aria-hidden="true">🎧</span><span>Help & Support</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("privacy")}><span className="yrel-menu-icon" aria-hidden="true">🛡️</span><span>Privacy Policy</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("terms")}><span className="yrel-menu-icon" aria-hidden="true">📄</span><span>Terms & Conditions</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("cancellation")}><span className="yrel-menu-icon" aria-hidden="true">🚫</span><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
@@ -1905,6 +1906,17 @@ export default function Home() {
                   <h3>Cab Rentals</h3><p>Rent a cab by the hour or by the day.</p>
                   <h3>Seat Sharing</h3><p>Book a seat when available on eligible outstation or airport routes.</p>
                 </>}
+                {menuSection === "support" && <div className="support-screen-content">
+                  <p>How can we help you today? Choose a topic or contact YREL Support directly.</p>
+                  <h3>Booking Help</h3><p>Help with new, ongoing or past Cab, Driver and Cab Rental bookings.</p>
+                  <h3>Payment & Fare</h3><p>Fare details, payment questions and receipts. Customers pay the Driver / YREL Partner directly after trip completion using Cash or UPI only.</p>
+                  <h3>Driver & Vehicle</h3><p>Driver assignment, vehicle details and trip-related concerns.</p>
+                  <h3>Account & Profile</h3><p>Login, profile information and account security.</p>
+                  <h3>App & Technical Support</h3><p>Report app errors, location problems or other technical issues.</p>
+                  <h3>Suggestions & Feedback</h3><p>Share ideas to help improve YREL.</p>
+                  <div className="support-contact-actions"><a href="tel:+919742809306"><Phone size={18}/> Call Support</a><a href="https://wa.me/919742809306" target="_blank" rel="noreferrer"><MessageCircle size={18}/> WhatsApp</a><a href="mailto:yrelcabs@gmail.com"><Mail size={18}/> Email Us</a></div>
+                  <p className="support-hours-note">Support hours: 8:00 AM – 10:00 PM (All Days)</p>
+                </div>}
                 {menuSection === "privacy" && <>
                   <p>YREL uses information needed to provide bookings and customer support.</p>
                   <h3>Information we use</h3><p>Your name, mobile number, account details, pickup and destination, and booking details.</p>
@@ -1915,12 +1927,13 @@ export default function Home() {
                   <p>The following basic terms apply when you make a booking using YREL.</p>
                   <h3>Booking information</h3><p>Customers are responsible for providing a correct contact number, pickup, destination and travel time.</p>
                   <h3>Fare and service</h3><p>Review the estimated fare and service details before booking. Additional distance or time may incur extra charges.</p>
+                  <h3>Payment after trip</h3><p>After trip completion, customers pay the Driver / YREL Partner directly by Cash or UPI. YREL does not collect customer payments through a wallet or company payment gateway.</p>
                   <h3>Safety</h3><p>Check driver and vehicle details before starting the trip. Share the OTP only with the driver when required.</p>
                   <h3>Support</h3><p>Contact YREL Support for service-related questions.</p>
                 </>}
                 {menuSection === "cancellation" && <>
                   <p>Cancellation charges depend on the driver's arrival status.</p>
-                  <h3>Before the driver arrives</h3><p>No cancellation fee applies if you cancel before the driver reaches the pickup location.</p>
+                  <h3>Before the driver arrives</h3><p>Cancellation requests are handled according to the booking status and the applicable service-specific cancellation terms shown before confirmation.</p>
                   <h3>After the driver arrives</h3><p>A ₹30 cancellation fee applies if you cancel after the driver reaches the pickup location.</p>
                   <h3>If the driver cancels</h3><p>No cancellation fee applies if the driver cancels or does not arrive.</p>
                   <h3>If no driver accepts</h3><p>No cancellation fee applies if no driver accepts an instant cab request within one minute.</p>
