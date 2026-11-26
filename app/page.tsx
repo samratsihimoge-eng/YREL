@@ -2764,19 +2764,14 @@ export default function Home() {
                   autoComplete="tel-national"
                   maxLength={10}
                   value={phone}
-                  onChange={(e) =>
-                    setPhone(
-                      e.target.value.replace(/\D/g, "").slice(0, 10)
-                    )
-                  }
-                  placeholder="10-digit mobile number"
+                  readOnly
+                  placeholder="Verified mobile number"
                 />
               </div>
             </label>
 
             <p className="hint">
-              This number has not been verified. You can verify it
-              later using WhatsApp or SMS OTP.
+              Your mobile number has been verified through WhatsApp OTP.
             </p>
 
             <button
