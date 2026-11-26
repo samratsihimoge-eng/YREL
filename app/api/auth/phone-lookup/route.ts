@@ -28,9 +28,6 @@ export async function POST(request: NextRequest) {
       if (match) { registered = true; break; }
       if (users.users.length < perPage) break;
     }
-    const { data: pending, error: tokenError } = await admin.from("phone_verification_tokens").select("id").eq("phone", phone).eq("account_type", accountType).is("used_at", null).gt("expires_at", new Date().toISOString()).limit(1);
-    if (tokenError) throw tokenError;
-    registered = registered || Boolean(pending?.length);
     return NextResponse.json({ registered });
   } catch (error) {
     console.error("YREL phone lookup error", error instanceof Error ? error.message : "Unknown error");
