@@ -13,15 +13,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Enter a valid 10-digit Indian mobile number." }, { status: 400 });
     }
 
-    const authKey = process.env.MSG91_AUTH_KEY;
     const widgetToken = process.env.MSG91_WIDGET_TOKEN;
-    if (!authKey || !widgetToken) {
+    if (!widgetToken) {
       return NextResponse.json({ error: "WhatsApp OTP is not configured on the server." }, { status: 500 });
     }
 
     const response = await fetch("https://api.msg91.com/api/v5/widget/sendOtp", {
       method: "POST",
-      headers: { authkey: authKey, "content-type": "application/json", accept: "application/json" },
+      headers: { "content-type": "application/json", accept: "application/json" },
       body: JSON.stringify({ widgetId: WIDGET_ID, identifier, tokenAuth: widgetToken }),
       cache: "no-store",
       signal: AbortSignal.timeout(12000)
