@@ -371,6 +371,12 @@ export default function Home() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [phone, setPhone] = useState("");
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [accountEmail, setAccountEmail] = useState("");
+  const [accountPassword, setAccountPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [registrationUserId, setRegistrationUserId] = useState("");
+  const [registrationPending, setRegistrationPending] = useState(false);
   const [customerOtp, setCustomerOtp] = useState("");
   const [customerOtpReqId, setCustomerOtpReqId] = useState("");
   const [customerOtpSent, setCustomerOtpSent] = useState(false);
@@ -1199,6 +1205,52 @@ export default function Home() {
   function closeAuth() {
     setAuthOpen(false);
     setNotice("");
+  }
+
+  async function registerCustomerAccount() {
+    const digits = phone.replace(/\D/g, "");
+    if (!fullName.trim() || fullName.trim().length < 2) { setNotice("Please enter your full name."); return; }
+    if (!/^[6-9]\d{9}$/.test(digits)) { setNotice("Please enter a valid 10-digit Indian mobile number."); return; }
+    if (accountEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountEmail)) { setNotice("Please enter a valid email address."); return; }
+    if (accountPassword.length < 8) { setNotice("Password must contain at least 8 characters."); return; }
+    if (accountPassword !== confirmPassword) { setNotice("Passwords do not match."); return; }
+    setBusy(true); setNotice("");
+    try {
+      const response = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fullName: fullName.trim(), phone: digits, email: accountEmail, password: accountPassword, accountType: "customer" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not create account.");
+      setRegistrationUserId(result.userId); setRegistrationPending(true);
+      setNotice("Account created. Verify your mobile number to continue.");
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not create account."); }
+    finally { setBusy(false); }
+  }
+
+  async function sendCustomerVerificationLink() {
+    if (!registrationUserId) return;
+    setBusy(true); setNotice("");
+    try {
+      const response = await fetch("/api/auth/phone-verification/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: registrationUserId, phone, accountType: "customer" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not send verification link.");
+      setNotice("Verification link sent by SMS. Open the link to continue to login.");
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not send verification link."); }
+    finally { setBusy(false); }
+  }
+
+  async function loginCustomer() {
+    const digits = phone.replace(/\D/g, "");
+    if (!/^[6-9]\d{9}$/.test(digits) || !accountPassword) { setNotice("Enter your 10-digit mobile number and password."); return; }
+    setBusy(true); setNotice("");
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ phone: `+91${digits}`, password: accountPassword });
+      if (error) throw error;
+      if (!data.user?.phone_confirmed_at) {
+        await supabase.auth.signOut();
+        throw new Error("Please verify your mobile number using the SMS link before login.");
+      }
+      setAuthOpen(false); setAccountPassword(""); setNotice("Login successful.");
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Login failed."); }
+    finally { setBusy(false); }
   }
 
   async function sendCustomerOtp() {
@@ -2680,53 +2732,30 @@ export default function Home() {
       </footer>
 
       {authOpen && (
-        <div className="yrel-login-screen" role="dialog" aria-modal="true" aria-label="Customer login">
+        <div className="yrel-login-screen" role="dialog" aria-modal="true" aria-label="Customer account">
           <div className="yrel-login-content">
-            <div className="yrel-login-brandline">
-              <h1><span>Your city.</span><span>Your fun.</span><span className="yrel-slogan-highlight">Just YREL it.</span></h1>
-              <p>Instant Booking <span>•</span> Pan India Service</p>
-            </div>
+            <div className="yrel-login-brandline"><h1><span>Your city.</span><span>Your fun.</span><span className="yrel-slogan-highlight">Just YREL it.</span></h1><p>Instant Booking <span>•</span> Pan India Service</p></div>
             <div className="yrel-login-form">
-              <label className="wide-field">
-                <span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span>
-                <div className="location-input">
-                  <span>+91</span>
-                  <input
-                    className="phone-number-input"
-                    type="tel"
-                    inputMode="numeric"
-                    autoComplete="tel-national"
-                    maxLength={10}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                    placeholder="Enter mobile number"
-                  />
-                </div>
-              </label>
-              {!customerOtpSent ? (
-                <button className="book-button full" onClick={sendCustomerOtp} disabled={busy}>
-                  {busy && <Loader2 className="spin" />}
-                  <span>Send WhatsApp OTP</span><ArrowRight size={18} />
-                </button>
-              ) : (
-                <>
-                  <label className="wide-field"><span className="yrel-mobile-prompt">Enter 6-digit WhatsApp OTP</span>
-                    <input className="phone-number-input" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={customerOtp} onChange={e => setCustomerOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="6-digit OTP" />
-                  </label>
-                  <button className="book-button full" onClick={verifyCustomerOtp} disabled={busy || customerOtp.length !== 6}>
-                    {busy && <Loader2 className="spin" />}<span>Verify OTP & Continue</span><ArrowRight size={18} />
-                  </button>
-                  <button className="pill" onClick={sendCustomerOtp} disabled={busy}>Resend OTP</button>
-                </>
-              )}
+              {registrationPending ? <>
+                <h2>Verify Mobile Number</h2><p>Your account has been created. Verify that this mobile number belongs to you to continue.</p>
+                <button className="book-button full" onClick={sendCustomerVerificationLink} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Send Verification Link by SMS</span><ArrowRight size={18} /></button>
+                <p className="hint">After opening the SMS link, return here and log in with your mobile number and password.</p>
+              </> : <>
+                <div className="auth-mode-switch"><button type="button" className={authMode === "login" ? "active" : ""} onClick={() => { setAuthMode("login"); setNotice(""); }}>Login</button><button type="button" className={authMode === "register" ? "active" : ""} onClick={() => { setAuthMode("register"); setNotice(""); }}>Create Account</button></div>
+                {authMode === "register" && <label className="wide-field"><span className="yrel-mobile-prompt">Full name</span><input className="phone-number-input" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter your full name" autoComplete="name" /></label>}
+                <label className="wide-field"><span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span><div className="location-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Enter mobile number" /></div></label>
+                {authMode === "register" && <label className="wide-field"><span className="yrel-mobile-prompt">Email ID (optional)</span><input className="phone-number-input" type="email" autoComplete="email" value={accountEmail} onChange={e => setAccountEmail(e.target.value)} placeholder="Enter email address" /></label>}
+                <label className="wide-field"><span className="yrel-mobile-prompt">Password</span><input className="phone-number-input" type="password" autoComplete={authMode === "login" ? "current-password" : "new-password"} value={accountPassword} onChange={e => setAccountPassword(e.target.value)} placeholder="Enter password" /></label>
+                {authMode === "register" && <label className="wide-field"><span className="yrel-mobile-prompt">Confirm password</span><input className="phone-number-input" type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" /></label>}
+                <button className="book-button full" onClick={authMode === "register" ? registerCustomerAccount : loginCustomer} disabled={busy}>{busy && <Loader2 className="spin" />}<span>{authMode === "register" ? "Create Account" : "Login"}</span><ArrowRight size={18} /></button>
+              </>}
               {notice && <div className="notice">{notice}</div>}
+              {!registrationPending && <button className="pill" onClick={closeAuth}>Back</button>}
             </div>
           </div>
           <RoadAnimation />
         </div>
       )}
-
-
 
       {profileSetupOpen && session && (
         <div className="modal-backdrop">
