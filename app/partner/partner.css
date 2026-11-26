@@ -123,3 +123,7 @@
 .partner-custom-recharge{display:flex;flex-direction:column;gap:7px;margin:12px 0;color:#6d526a;font-size:12px;font-weight:800}
 .partner-custom-recharge input{height:46px;border:1px solid #edcdb5;border-radius:12px;padding:0 12px;background:#fff;color:#42105f}
 @media(max-width:420px){.partner-recharge-options{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+
+.partner-logo-image{object-fit:contain!important;padding:3px!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+.partner-logo-image.small{width:56px!important;height:56px!important}
