@@ -1211,7 +1211,7 @@ export default function Home() {
     const digits = phone.replace(/\D/g, "");
     if (!fullName.trim() || fullName.trim().length < 2) { setNotice("Please enter your full name."); return; }
     if (!/^[6-9]\d{9}$/.test(digits)) { setNotice("Please enter a valid 10-digit Indian mobile number."); return; }
-    if (accountEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountEmail)) { setNotice("Please enter a valid email address."); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountEmail)) { setNotice("Please enter a valid email address."); return; }
     if (accountPassword.length < 8) { setNotice("Password must contain at least 8 characters."); return; }
     if (accountPassword !== confirmPassword) { setNotice("Passwords do not match."); return; }
     setBusy(true); setNotice("");
@@ -1244,6 +1244,7 @@ export default function Home() {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ phone: `+91${digits}`, password: accountPassword });
       if (error) throw error;
+      if (data.user?.user_metadata?.account_type !== "customer") { await supabase.auth.signOut(); throw new Error("This account is not registered as a YREL Customer account."); }
       if (!data.user?.phone_confirmed_at) {
         await supabase.auth.signOut();
         throw new Error("Please verify your mobile number using the SMS link before login.");
@@ -2744,7 +2745,7 @@ export default function Home() {
                 <div className="auth-mode-switch"><button type="button" className={authMode === "login" ? "active" : ""} onClick={() => { setAuthMode("login"); setNotice(""); }}>Login</button><button type="button" className={authMode === "register" ? "active" : ""} onClick={() => { setAuthMode("register"); setNotice(""); }}>Create Account</button></div>
                 {authMode === "register" && <label className="wide-field"><span className="yrel-mobile-prompt">Full name</span><input className="phone-number-input" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter your full name" autoComplete="name" /></label>}
                 <label className="wide-field"><span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span><div className="location-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="Enter mobile number" /></div></label>
-                {authMode === "register" && <label className="wide-field"><span className="yrel-mobile-prompt">Email ID (optional)</span><input className="phone-number-input" type="email" autoComplete="email" value={accountEmail} onChange={e => setAccountEmail(e.target.value)} placeholder="Enter email address" /></label>}
+                {authMode === "register" && <label className="wide-field"><span className="yrel-mobile-prompt">Email ID</span><input className="phone-number-input" type="email" autoComplete="email" value={accountEmail} onChange={e => setAccountEmail(e.target.value)} placeholder="Enter email address" /></label>}
                 <label className="wide-field"><span className="yrel-mobile-prompt">Password</span><input className="phone-number-input" type="password" autoComplete={authMode === "login" ? "current-password" : "new-password"} value={accountPassword} onChange={e => setAccountPassword(e.target.value)} placeholder="Enter password" /></label>
                 {authMode === "register" && <label className="wide-field"><span className="yrel-mobile-prompt">Confirm password</span><input className="phone-number-input" type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" /></label>}
                 <button className="book-button full" onClick={authMode === "register" ? registerCustomerAccount : loginCustomer} disabled={busy}>{busy && <Loader2 className="spin" />}<span>{authMode === "register" ? "Create Account" : "Login"}</span><ArrowRight size={18} /></button>
@@ -2804,7 +2805,7 @@ export default function Home() {
             </label>
 
             <p className="hint">
-              Your mobile number has been verified through WhatsApp OTP.
+              Your mobile number has been verified using the YREL secure verification link.
             </p>
 
             <button
