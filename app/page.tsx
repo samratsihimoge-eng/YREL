@@ -1242,8 +1242,8 @@ export default function Home() {
       const response = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fullName: fullName.trim(), phone: digits, email: accountEmail, password: accountPassword, accountType: "customer" }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not create account.");
-      setRegistrationUserId(result.userId); setRegistrationPending(true);
-      setNotice("Account created. Verify your mobile number to continue.");
+      setRegistrationUserId(result.userId); setRegistrationPending(false); setAuthStep("login"); setAccountPassword("");
+      setNotice("Account created. You can now log in with your 4-digit passcode.");
     } catch (error) { setNotice(error instanceof Error ? error.message : "Could not create account."); }
     finally { setBusy(false); }
   }
