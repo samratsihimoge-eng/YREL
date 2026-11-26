@@ -89,7 +89,7 @@ export default function PartnerPage() {
     const mobile = normalizedPhone(phone);
     if (!fullName.trim() || fullName.trim().length < 2) { setError("Enter your full name."); return; }
     if (!mobile) { setError("Enter a valid 10-digit Indian mobile number."); return; }
-    if (email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) { setError("Enter a valid email address."); return; }
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError("Enter a valid email address."); return; }
     if (password.length < 8) { setError("Password must contain at least 8 characters."); return; }
     if (password !== confirmPassword) { setError("Passwords do not match."); return; }
     setBusy(true); setError("");
@@ -223,7 +223,7 @@ export default function PartnerPage() {
     </> : <>
       <div className="partner-choice"><button className={authMode === "login" ? "active" : ""} onClick={() => { setAuthMode("login"); setError(""); }}>Login</button><button className={authMode === "register" ? "active" : ""} onClick={() => { setAuthMode("register"); setError(""); }}>Create Account</button></div>
       <h1>{authMode === "login" ? "Partner Login" : "Create Partner Account"}</h1>
-      {authMode === "register" && <><label>Full name</label><input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" autoComplete="name"/><label>Email ID</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" autoComplete="email"/></>}
+      {authMode === "register" && <><label>Full name</label><input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" autoComplete="name"/><label>Email ID</label><input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" autoComplete="email"/></>}
       <label>Mobile number</label><input value={phone} onChange={e => setPhone(e.target.value.replace(/[^0-9+]/g, "").slice(0, 13))} placeholder="10-digit mobile number" inputMode="tel" autoComplete="tel"/>
       <label>Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password" autoComplete={authMode === "login" ? "current-password" : "new-password"}/>
       {authMode === "register" && <><label>Confirm password</label><input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" autoComplete="new-password"/></>}
