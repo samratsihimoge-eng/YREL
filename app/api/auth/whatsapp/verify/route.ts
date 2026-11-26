@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       cache: "no-store", signal: AbortSignal.timeout(12000)
     });
     const verifyResult = await verifyResponse.json().catch(() => ({}));
-    const accessToken = verifyResult?.message?.access_token || verifyResult?.message?.accessToken || verifyResult?.access_token || verifyResult?.accessToken;
+    const accessToken = verifyResult?.message?.access_token || verifyResult?.message?.accessToken || verifyResult?.access_token || verifyResult?.accessToken || (typeof verifyResult?.message === "string" && verifyResult.message.split(".").length === 3 ? verifyResult.message : undefined);
     if (!verifyResponse.ok || verifyResult?.type !== "success" || typeof accessToken !== "string") {
       return NextResponse.json({ error: "OTP is incorrect or expired. Please try again." }, { status: 401 });
     }
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     let userId: string | undefined;
     const { data: userPage, error: listError } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
     if (listError) throw listError;
-    const existing = userPage.users.find(user => user.email === email || user.phone === `+${identifier}`);
+    const existing = userPage.users.find(user => user.email === email || (user.phone === `+${identifier}` && user.email?.toLowerCase() !== "yrelcabs@gmail.com" && user.app_metadata?.role !== "admin"));
     if (existing) {
       userId = existing.id;
       const { error: updateError } = await admin.auth.admin.updateUserById(userId, {
