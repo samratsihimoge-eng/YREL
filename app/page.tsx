@@ -2626,7 +2626,7 @@ export default function Home() {
         </button>
         <div className="yrel-dashboard-quick-grid">
           <button type="button" onClick={()=>{setBookingFilter("active");setBottomPanel("bookings");}}><span>▤</span><b>My Bookings</b></button>
-          <button type="button" onClick={()=>{setBookingFilter("history");setBottomPanel("bookings");}}><span>₹</span><b>My Payments</b></button>
+          <button type="button" onClick={()=>{setBookingFilter("completed");setBottomPanel("bookings");}}><span>₹</span><b>My Payments</b></button>
           <button type="button" onClick={()=>{setMenuOpen(true);setMenuSection("saved");}}><span>⌖</span><b>Saved Locations</b></button>
           <button type="button" onClick={()=>setBottomPanel("support")}><span>☏</span><b>Help & Support</b></button>
         </div>
