@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 type InfoSection = { title: string; body: string; bullets?: string[] };
