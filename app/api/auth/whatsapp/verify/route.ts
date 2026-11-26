@@ -51,19 +51,20 @@ export async function POST(request: NextRequest) {
     const admin = createClient(supabaseUrl, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
     const email = `phone-${identifier}@login.yrel.invalid`;
     let userId: string | undefined;
-    const existing = await admin.auth.admin.getUserByEmail(email);
-    if (existing.data.user) {
-      userId = existing.data.user.id;
+    const { data: userPage, error: listError } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    if (listError) throw listError;
+    const existing = userPage.users.find(user => user.email === email || user.phone === `+${identifier}`);
+    if (existing) {
+      userId = existing.id;
       const { error: updateError } = await admin.auth.admin.updateUserById(userId, {
-        phone: identifier,
-        phone_confirm: true,
-        user_metadata: { ...existing.data.user.user_metadata, phone: identifier, last_login_app: accountType }
+        email, email_confirm: true, phone: `+${identifier}`, phone_confirm: true,
+        user_metadata: { ...existing.user_metadata, phone: `+${identifier}`, last_login_app: accountType }
       });
       if (updateError) throw updateError;
     } else {
       const { data, error } = await admin.auth.admin.createUser({
-        email, email_confirm: true, phone: identifier, phone_confirm: true,
-        user_metadata: { phone: identifier, account_type: accountType }
+        email, email_confirm: true, phone: `+${identifier}`, phone_confirm: true,
+        user_metadata: { phone: `+${identifier}`, account_type: accountType }
       });
       if (error) throw error;
       userId = data.user.id;
