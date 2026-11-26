@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { CarFront, ClipboardList, Clock3, LogOut, MapPin, Phone, ShieldCheck, UserRound, Wallet, RefreshCw, CheckCircle2, Power, Navigation, LocateFixed, RadioTower } from "lucide-react";
+import { Bell, CarFront, ClipboardList, Clock3, LogOut, MapPin, Phone, ShieldCheck, UserRound, Wallet, RefreshCw, CheckCircle2, Power, Navigation, LocateFixed, RadioTower } from "lucide-react";
 import "./partner.css";
 
 type DriverProfile = {
