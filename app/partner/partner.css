@@ -63,3 +63,55 @@
 @media(max-width:650px){.partner-app{padding:0 14px 26px}.partner-header{margin:0 -14px;padding:13px 16px}.partner-welcome{margin-top:16px;padding:19px}.partner-stats{gap:8px}.partner-stats article{padding:12px 9px;grid-template-columns:1fr;gap:4px}.partner-stats article svg{grid-row:auto;width:20px;height:20px}.partner-stats article b{font-size:18px}.partner-stats article span{font-size:9px}.partner-tabs button{padding:11px 10px;font-size:11px}.partner-panel{padding:16px;border-radius:17px}.partner-route{grid-template-columns:1fr;gap:14px}.partner-actions{flex-wrap:wrap}.partner-actions button{flex:1}.partner-footer{padding:0 8px}}
 
 .partner-presence{max-width:1120px;margin:0 auto 14px;padding:16px 18px;border-radius:17px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid #e9edf1;box-shadow:0 6px 20px #25313e08}.partner-presence>div{display:flex;align-items:center;gap:12px}.partner-presence b,.partner-presence small{display:block}.partner-presence b{font-size:12px;letter-spacing:.8px}.partner-presence small{font-size:10px;color:#87919b;margin-top:4px}.presence-pulse{width:12px;height:12px;border-radius:50%;background:#9ca3af;box-shadow:0 0 0 5px #9ca3af20}.is-online .presence-pulse{background:#16a35b;box-shadow:0 0 0 5px #16a35b20}.partner-presence button{display:flex;align-items:center;gap:7px;border:0;border-radius:11px;padding:11px 15px;font-size:11px;font-weight:800}.presence-on{background:#159b57;color:#fff}.presence-off{background:#fff0e9;color:#d34d32}.partner-map-panel{max-width:1120px;margin:0 auto 15px;padding:17px;background:#fff;border:1px solid #e9edf1;border-radius:18px;box-shadow:0 6px 20px #25313e08}.partner-map-panel iframe{width:100%;height:230px;border:0;border-radius:13px;background:#f2f4f6}.partner-map-panel>small{display:block;color:#8b949d;font-size:10px;margin-top:8px}.partner-nearby{margin:0 auto 16px}.partner-nearby .partner-trip{margin-top:12px}.partner-nearby .partner-actions button{width:100%}@media(max-width:650px){.partner-presence{padding:13px;align-items:flex-start}.partner-presence button{padding:10px;font-size:10px;white-space:nowrap}.partner-presence small{max-width:190px;line-height:1.4}.partner-map-panel{padding:13px}.partner-map-panel iframe{height:190px}}
+
+
+/* YREL Partner 12-screen premium navigation and dashboard */
+.partner-app{background:radial-gradient(ellipse at 90% 0%,rgba(255,153,54,.16),transparent 32%),linear-gradient(180deg,#fff8f1,#fff0e5)!important;color:#38104f!important}
+.partner-header{height:82px!important;background:rgba(255,251,247,.96)!important;border-bottom:1px solid #f2d3bc!important;box-shadow:0 5px 20px rgba(74,20,80,.08)!important;backdrop-filter:blur(14px)}
+.partner-logo.small{background:linear-gradient(135deg,#5b0d83,#b3008e 55%,#ff8a00)!important;box-shadow:0 6px 14px rgba(87,12,117,.18)}
+.partner-header b{color:#4c0e70;letter-spacing:.04em}
+.partner-header small{color:#d65d1a!important}
+.partner-welcome{background:linear-gradient(112deg,#4b0879 0%,#8c149a 48%,#f36b22 100%)!important;color:#fff!important;border-radius:0 0 28px 28px!important;padding:28px 22px 24px!important}
+.partner-welcome>span,.partner-welcome h1,.partner-welcome p{color:#fff!important}
+.partner-welcome p{opacity:.95}
+.partner-presence{margin:14px 16px!important;border-radius:22px!important;border:1px solid #f2c9a8!important;background:linear-gradient(115deg,#fff,#fff1e3)!important;box-shadow:0 8px 22px rgba(80,28,20,.09)!important}
+.partner-presence .presence-on{background:linear-gradient(100deg,#ff9800,#ef4827)!important;color:white!important;border-radius:14px!important}
+.partner-presence .presence-off{background:#541078!important;color:white!important;border-radius:14px!important}
+.partner-map-panel{margin:0 16px 14px!important;border-radius:24px!important;border:1px solid #efcbb1!important;background:linear-gradient(145deg,#fff,#fff4e9)!important;box-shadow:0 10px 24px rgba(80,28,20,.09)!important;overflow:hidden}
+.partner-map-panel iframe{border:0!important;border-radius:16px!important}
+.partner-stats article{border-color:#efd1bb!important;border-radius:18px!important;background:linear-gradient(145deg,#fff,#fff5eb)!important;box-shadow:0 5px 14px rgba(80,28,20,.06)}
+.partner-stats svg{color:#7a0e8c!important}
+.partner-panel{border-color:#efcfb8!important;border-radius:23px!important;background:linear-gradient(145deg,#fff,#fff7ef)!important;box-shadow:0 9px 22px rgba(80,28,20,.08)!important}
+.partner-panel h2{color:#531078!important}
+.partner-panel-head button{background:#fff0df!important;color:#e35e1b!important}
+.partner-tabs button.active{background:linear-gradient(110deg,#5c0b80,#a000a8)!important;border-color:transparent!important;color:white!important}
+.partner-primary{background:linear-gradient(105deg,#ff9800,#ee4528)!important;border-radius:16px!important;box-shadow:0 7px 18px rgba(239,77,27,.18)!important}
+.partner-screen-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:14px 16px 18px}
+.partner-screen-nav button{min-height:78px;border:1px solid #f0d0b8;border-radius:18px;background:linear-gradient(145deg,#fff,#fff4e9);color:#51116b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;box-shadow:0 5px 14px rgba(81,32,20,.07)}
+.partner-screen-nav button span{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#ff9800,#ed4b27);color:white;font-size:18px;font-weight:900}
+.partner-screen-nav button b{font-size:11px;line-height:1.15;text-align:center}
+.partner-screen-nav button.active{background:linear-gradient(145deg,#5a0c80,#98009e);border-color:transparent;color:white;box-shadow:0 8px 20px rgba(83,10,119,.2)}
+.partner-screen-nav button.active span{background:linear-gradient(135deg,#ff9d00,#f04a25)}
+.partner-screen-panel{margin:0 16px 16px!important;padding:20px!important}
+.partner-earnings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.partner-earnings-grid article,.partner-reward-card{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid #f2d1b8;border-radius:18px;background:linear-gradient(130deg,#fff2df,#fff)}
+.partner-earnings-grid small,.partner-reward-card span{color:#9a5d3d;font-weight:800;font-size:12px}
+.partner-earnings-grid b,.partner-reward-card b{font-size:27px;color:#571078}
+.partner-earnings-grid span,.partner-reward-card small{font-size:11px;color:#8a7469}
+.partner-reward-card{margin:15px 0;background:linear-gradient(120deg,#5c0d80,#9d009f 55%,#f36c22);color:white}
+.partner-reward-card span,.partner-reward-card b,.partner-reward-card small{color:white}
+.partner-detail-row{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid #f1e2d6;font-size:14px}
+.partner-detail-row span{color:#8a7469}.partner-detail-row b{color:#50116b;text-align:right}
+.partner-document-row,.partner-notice-row{display:flex;align-items:center;gap:13px;padding:14px 0;border-bottom:1px solid #f1e2d6}
+.partner-document-row>svg{color:#ed681d;width:27px;height:27px;flex:none}
+.partner-document-row div,.partner-notice-row div{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.partner-document-row b,.partner-notice-row b{color:#51116b;font-size:14px}
+.partner-document-row small,.partner-notice-row small,.partner-notice-row time{color:#8a7469;font-size:11px}
+.partner-document-row>span{font-size:10px;padding:6px 9px;border-radius:99px;background:#fff0df;color:#a65121;font-weight:800;text-transform:capitalize}
+.partner-notice-dot{width:10px;height:10px;border-radius:50%;background:#f27b1b;flex:none}
+.partner-help-row{padding:13px 0;border-bottom:1px solid #f1e2d6}
+.partner-help-row b{color:#531078}.partner-help-row p{margin:5px 0 0;color:#8a7469;font-size:13px;line-height:1.5}
+.partner-screen-note{margin-top:14px;padding:13px 15px;border-radius:14px;background:#fff1e4;color:#87583f;font-size:12px;line-height:1.55}
+.partner-wallet-balance{background:linear-gradient(115deg,#5a0d80,#97009c 58%,#f37b1e)!important;border:0!important;color:#fff!important}
+.partner-wallet-balance span,.partner-wallet-balance strong,.partner-wallet-balance small{color:#fff!important}
+@media(max-width:540px){.partner-screen-nav{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:12px}.partner-screen-nav button{min-height:72px;border-radius:15px}.partner-screen-nav button b{font-size:10px}.partner-earnings-grid{gap:8px}.partner-earnings-grid article{padding:14px}.partner-earnings-grid b{font-size:22px}.partner-screen-panel{margin:0 12px 14px!important;padding:16px!important}}
