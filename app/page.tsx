@@ -1147,12 +1147,10 @@ export default function Home() {
 
     if (service === "rental" && rentalBookingArea === "outstation") {
       const rate = OUTSTATION[ride];
-      const totalKm = distance ? distance * 2 : 0;
-
-      return rate
-        ? Math.max(totalKm, days * 300) * rate.round +
-            rate.bata * days
-        : 0;
+      const totalKm = distance ? distance * (tripType === "round-trip" ? 2 : 1) : 0;
+      const billableKm = tripType === "round-trip" ? Math.max(totalKm, days * 300) : totalKm;
+      const perKmRate = tripType === "round-trip" ? rate?.round : rate?.one;
+      return rate && perKmRate ? billableKm * perKmRate + rate.bata * days : 0;
     }
 
     return 0;
@@ -2018,7 +2016,7 @@ export default function Home() {
           )}
 
           {service === "rental" && <div className="choice-row rental-trip-choice" aria-label="Rental trip type">
-            <button type="button" className={tripType === "one-way" ? "choice active" : "choice"} onClick={() => setTripType("one-way")}>One Way</button>
+            <button type="button" className={tripType === "one-way" ? "choice active" : "choice"} onClick={() => {setTripType("one-way");setDays(1);setArrivalDate("");}}>One Way</button>
             <button type="button" className={tripType === "round-trip" ? "choice active" : "choice"} onClick={() => setTripType("round-trip")}>Round Trip</button>
           </div>}
 
@@ -2149,8 +2147,8 @@ export default function Home() {
                 <div className="option-fields date-fields">
                   <label>Departure Date<input type="date" value={date} min={localDateString()} onChange={(e) => setDate(e.target.value)} /></label>
                   <label>Pickup Time<input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></label>
-                  {service === "rental" && rentalBookingArea === "outstation" && <label>Arrival Date<input type="date" value={arrivalDate} min={date || localDateString()} onChange={(e) => {const selected=e.target.value;setArrivalDate(selected);if(date&&selected){const start=new Date(`${date}T00:00:00`);const end=new Date(`${selected}T00:00:00`);setDays(Math.max(1,Math.round((end.getTime()-start.getTime())/86400000)+1));}}}/></label>}
-                  {service === "rental" && rentalBookingArea === "outstation" && date && arrivalDate && <p className="hint">Number of Days: {days}</p>}
+                  {service === "rental" && rentalBookingArea === "outstation" && tripType === "round-trip" && <label>Arrival Date<input type="date" value={arrivalDate} min={date || localDateString()} onChange={(e) => {const selected=e.target.value;setArrivalDate(selected);if(date&&selected){const start=new Date(`${date}T00:00:00`);const end=new Date(`${selected}T00:00:00`);setDays(Math.max(1,Math.round((end.getTime()-start.getTime())/86400000)+1));}}}/></label>}
+                  {service === "rental" && rentalBookingArea === "outstation" && tripType === "round-trip" && date && arrivalDate && <p className="hint">Number of Days: {days}</p>}
                 </div>
               )}
             </div>
@@ -2540,7 +2538,7 @@ export default function Home() {
               </div>
             )}
 
-          {service === "rental" && rentalBookingArea === "outstation" && schedule === "now" && (
+          {service === "rental" && rentalBookingArea === "outstation" && tripType === "round-trip" && schedule === "now" && (
             <label className="wide-field">Number of Days<input type="number" min="1" max="30" value={days || ""} onChange={(e) => setDays(e.target.value === "" ? 0 : Math.min(30, Number(e.target.value)))} onBlur={() => setDays(Math.max(1, Math.min(30, Number(days) || 1)))}/></label>
           )}
           {!seatShareMode && pickupPoint && dropPoint && distance !== null && !routeLoading && (
