@@ -1855,7 +1855,15 @@ export default function Home() {
         <a className="brand header-brand" href="#" aria-label="YREL home">
           <img className="brand-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
         </a>
-        <button className="header-notification-button" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "notifications" ? null : "notifications"); }} aria-label="Notifications" title="Notifications"><Bell size={22} /></button>
+        <button className="header-notification-button" onClick={() => {
+          if (session && customer) {
+            setProfileNameDraft(customer.full_name);
+            setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, ""));
+            setProfileEditMode(false);
+            setNotice("");
+            setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "profile" ? null : "profile");
+          } else { setNotice(""); setAuthOpen(true); }
+        }} aria-label="Profile" title="Profile"><UserRound size={22} /></button>
       </header>
 
       {pinMapTarget && (
@@ -2676,21 +2684,10 @@ export default function Home() {
       )}
 
       <nav className={`yrel-bottom-nav${instantSearchBooking ? " search-mode" : ""}${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`} aria-label="Main navigation">
-        <button aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); setMenuOpen(false); setMenuSection("list"); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /></button>
-        <button aria-label="Profile" title="Profile" onClick={() => {
-          if (session && customer) {
-            setProfileNameDraft(customer.full_name);
-            setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, ""));
-            setProfileEditMode(false);
-            setNotice("");
-            setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "profile" ? null : "profile");
-          } else {
-            setNotice("");
-            setAuthOpen(true);
-          }
-        }}><UserRound size={22} /></button>
-        <button aria-label="My Bookings" title="My Bookings" onClick={() => { if (!session) setAuthOpen(true); else { setMenuOpen(false); setMenuSection("list"); setBookingFilter("active"); setBottomPanel(bottomPanel === "bookings" ? null : "bookings"); } }}><ClipboardList size={22} /></button>
-        <button className="support-nav-button" aria-label="Support" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "support" ? null : "support"); }}><Headphones size={21} /><span>Support</span></button>
+        <button aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); setMenuOpen(false); setMenuSection("list"); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /><span>Home</span></button>
+        <button aria-label="My Bookings" title="My Bookings" onClick={() => { if (!session) setAuthOpen(true); else { setMenuOpen(false); setMenuSection("list"); setBookingFilter("active"); setBottomPanel(bottomPanel === "bookings" ? null : "bookings"); } }}><ClipboardList size={22} /><span>My Bookings</span></button>
+        <button className="support-nav-button" aria-label="Support" title="Support" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "support" ? null : "support"); }}><Headphones size={21} /><span>Support</span></button>
+        <button aria-label="Notifications" title="Notifications" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "notifications" ? null : "notifications"); }}><Bell size={22} /><span>Notifications</span></button>
       </nav>
 
       {bottomPanel && (
