@@ -3498,3 +3498,16 @@ html, body, .site-shell {
   outline: none !important;
   box-shadow: 0 0 0 4px rgba(255, 123, 22, .12) !important;
 }
+
+
+/* Approved customer Help & Support screen */
+.support-screen-content { display: grid; gap: 10px; }
+.support-screen-content > p { margin: 0 0 8px; color: var(--muted); line-height: 1.65; }
+.support-screen-content h3 { margin: 8px 0 -7px; color: #42105d; font: 800 16px 'Manrope', sans-serif; }
+.support-screen-content p { color: var(--muted); line-height: 1.6; }
+.support-contact-actions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; margin-top: 14px; }
+.support-contact-actions a { display: flex; min-height: 48px; align-items: center; justify-content: center; gap: 7px; padding: 9px; border: 1px solid #f1c7a8; border-radius: 14px; background: linear-gradient(120deg,#fff4e9,#fff); color: #7b205e; font-size: 12px; font-weight: 800; }
+.support-contact-actions a:first-child { color: #c64c1d; }
+.support-contact-actions a:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(83,43,20,.08); }
+.support-hours-note { margin-top: 5px !important; text-align: center; font-size: 12px; font-weight: 700; }
+@media (max-width: 520px) { .support-contact-actions { grid-template-columns: 1fr; } }
