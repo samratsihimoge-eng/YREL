@@ -1266,7 +1266,7 @@ export default function Home() {
       const response = await fetch("/api/auth/passcode-login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits, passcode: accountPassword, accountType: "customer" }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Login failed.");
-      const { error } = await supabase.auth.setSession({ access_token: result.session.access_token, refresh_token: result.session.refresh_token });
+      // Preserve the verified login number for first-time profile creation after the auth state changes.\n      localStorage.setItem(PHONE_STORAGE_KEY, digits);\n      const { error } = await supabase.auth.setSession({ access_token: result.session.access_token, refresh_token: result.session.refresh_token });
       if (error) throw error;
       setAuthOpen(false); setAccountPassword(""); setNotice("Login successful.");
     } catch (error) { setNotice(error instanceof Error ? error.message : "Login failed."); }
