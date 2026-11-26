@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     if (!/^[6-9]\d{9}$/.test(mobile)) {
       return NextResponse.json({ error: "Enter a valid 10-digit Indian mobile number." }, { status: 400 });
     }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
     }
     if (password.length < 8) {
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await admin.auth.admin.createUser({
       phone,
       phone_confirm: false,
-      ...(email ? { email, email_confirm: true } : {}),
+      email, email_confirm: true,
       password,
       user_metadata: {
         full_name: fullName,
