@@ -21,7 +21,13 @@ type WalletTransaction = { id: string; transaction_type: string; amount: number;
 export default function PartnerPage() {
   const [session, setSession] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
-  const [phone, setPhone] = useState("+91");
+  const [phone, setPhone] = useState("");
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [registrationUserId, setRegistrationUserId] = useState("");
+  const [registrationPending, setRegistrationPending] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpReqId, setOtpReqId] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -79,6 +85,56 @@ export default function PartnerPage() {
     if (digits.length === 12 && digits.startsWith("91")) return digits.slice(2);
     return "";
   }
+  async function registerPartnerAccount() {
+    const mobile = normalizedPhone(phone);
+    if (!fullName.trim() || fullName.trim().length < 2) { setError("Enter your full name."); return; }
+    if (!mobile) { setError("Enter a valid 10-digit Indian mobile number."); return; }
+    if (email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) { setError("Enter a valid email address."); return; }
+    if (password.length < 8) { setError("Password must contain at least 8 characters."); return; }
+    if (password !== confirmPassword) { setError("Passwords do not match."); return; }
+    setBusy(true); setError("");
+    try {
+      const response = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fullName: fullName.trim(), phone: mobile, email, password, accountType: "partner" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not create partner account.");
+      setRegistrationUserId(result.userId); setRegistrationPending(true);
+      setError("Account created. Verify your mobile number to continue.");
+    } catch (e) { setError(e instanceof Error ? e.message : "Could not create account."); }
+    finally { setBusy(false); }
+  }
+
+  async function sendPartnerVerificationLink() {
+    if (!registrationUserId) return;
+    setBusy(true); setError("");
+    try {
+      const response = await fetch("/api/auth/phone-verification/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: registrationUserId, phone: normalizedPhone(phone), accountType: "partner" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not send verification link.");
+      setError("Verification link sent by SMS. Open the link, then log in with your mobile number and password.");
+    } catch (e) { setError(e instanceof Error ? e.message : "Could not send verification link."); }
+    finally { setBusy(false); }
+  }
+
+  async function loginPartner() {
+    const mobile = normalizedPhone(phone);
+    if (!mobile || !password) { setError("Enter your mobile number and password."); return; }
+    setBusy(true); setError("");
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ phone: `+91${mobile}`, password });
+      if (authError) throw authError;
+      if (!data.user?.phone_confirmed_at) {
+        await supabase.auth.signOut();
+        throw new Error("Verify your mobile number using the SMS link before login.");
+      }
+      if (data.user.user_metadata?.account_type !== "partner") {
+        await supabase.auth.signOut();
+        throw new Error("This account is not registered as a YREL Partner account.");
+      }
+      setPassword(""); setError("");
+    } catch (e) { setError(e instanceof Error ? e.message : "Login failed."); }
+    finally { setBusy(false); }
+  }
+
   async function authenticatePartner() {
     const mobile = normalizedPhone(phone);
     if (!mobile) { setError("Enter a valid 10-digit Indian mobile number."); return; }
@@ -159,7 +215,21 @@ export default function PartnerPage() {
   useEffect(()=>{if(!profile?.is_online)return;const channel=supabase.channel("yrel-driver-open-bookings").on("postgres_changes",{event:"*",schema:"public",table:"bookings"},()=>{void loadPartner();}).subscribe();return()=>{void supabase.removeChannel(channel);};},[profile?.is_online,loadPartner]);
   async function acceptNearbyBooking(b:Booking){if(!profile?.is_online||!driverLocation){setError("Go online and enable GPS before accepting.");return;}setBusy(true);setError("");const {data,error:e}=await supabase.from("bookings").update({assigned_driver_id:session.user.id,assigned_at:new Date().toISOString(),status:"accepted"}).eq("id",b.id).is("assigned_driver_id",null).in("status",["requested","searching"]).select("id").maybeSingle();if(e)setError(e.message);else if(!data)setError("This booking was just accepted by another driver.");else{setNearbyBookings(rows=>rows.filter(row=>row.id!==b.id));await loadPartner();}setBusy(false);}
   if (!authReady) return <main className="partner-auth"><p>Loading YREL Partner…</p></main>;
-  if (!session) return <main className="partner-auth"><section className="partner-card"><div className="partner-logo">Y</div><span className="partner-eyebrow">YREL DRIVER & PARTNER APP</span><h1>Partner Login</h1><p>Sign in or register securely using a 6-digit WhatsApp OTP on your mobile number.</p><label>Mobile number</label><input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 9876543210" inputMode="tel" autoComplete="tel"/>{!otpSent ? <button className="partner-primary" disabled={busy} onClick={() => void authenticatePartner()}>{busy ? "Sending OTP…" : "Send WhatsApp OTP"}</button> : <><label>6-digit WhatsApp OTP</label><input value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Enter 6-digit OTP" inputMode="numeric" autoComplete="one-time-code"/><button className="partner-primary" disabled={busy || otp.length !== 6} onClick={() => void verifyPartnerOtp()}>{busy ? "Verifying…" : "Verify OTP & Continue"}</button><button className="partner-link" disabled={busy} onClick={() => void resendPartnerOtp()}>Resend OTP</button></>}{error && <p className="partner-error">{error}</p>}<a href="/">Back to Customer App</a></section></main>;
+  if (!session) return <main className="partner-auth"><section className="partner-card"><div className="partner-logo">Y</div><span className="partner-eyebrow">YREL DRIVER & PARTNER APP</span>
+    {registrationPending ? <>
+      <h1>Verify Mobile Number</h1><p>Your Partner account has been created. Verify that this mobile number belongs to you to continue.</p>
+      <button className="partner-primary" disabled={busy} onClick={() => void sendPartnerVerificationLink()}>{busy ? "Please wait…" : "Send Verification Link by SMS"}</button>
+      <p className="partner-hint">Open the SMS link. You will then return here to log in.</p>
+    </> : <>
+      <div className="partner-choice"><button className={authMode === "login" ? "active" : ""} onClick={() => { setAuthMode("login"); setError(""); }}>Login</button><button className={authMode === "register" ? "active" : ""} onClick={() => { setAuthMode("register"); setError(""); }}>Create Account</button></div>
+      <h1>{authMode === "login" ? "Partner Login" : "Create Partner Account"}</h1>
+      {authMode === "register" && <><label>Full name</label><input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" autoComplete="name"/><label>Email ID (optional)</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" autoComplete="email"/></>}
+      <label>Mobile number</label><input value={phone} onChange={e => setPhone(e.target.value.replace(/[^0-9+]/g, "").slice(0, 13))} placeholder="10-digit mobile number" inputMode="tel" autoComplete="tel"/>
+      <label>Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password" autoComplete={authMode === "login" ? "current-password" : "new-password"}/>
+      {authMode === "register" && <><label>Confirm password</label><input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" autoComplete="new-password"/></>}
+      <button className="partner-primary" disabled={busy} onClick={() => void (authMode === "register" ? registerPartnerAccount() : loginPartner())}>{busy ? "Please wait…" : authMode === "register" ? "Create Account" : "Login"}</button>
+    </>}
+    {error && <p className="partner-error">{error}</p>}<a href="/">Back to Customer App</a></section></main>;
 
   if (!profile) return <main className="partner-auth"><section className="partner-card partner-form"><div className="partner-logo">Y</div><span className="partner-eyebrow">PARTNER REGISTRATION</span><h1>Complete your profile</h1><p>Your account will be reviewed by YREL Admin before you can accept trips.</p><label>Partner type</label><div className="partner-choice"><button className={driverType === "cab_driver" ? "active" : ""} onClick={() => setDriverType("cab_driver")}>🚕 Cab Driver</button><button className={driverType === "spare_driver" ? "active" : ""} onClick={() => setDriverType("spare_driver")}>🧑‍✈️ Spare Driver</button></div><label>Full name</label><input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name"/>{driverType === "cab_driver" && <><label>Vehicle type</label><select value={vehicleType} onChange={e => setVehicleType(e.target.value)}><option>Hatchback</option><option>Sedan</option><option>SUV</option></select><label>Vehicle registration number</label><input value={vehicleNumber} onChange={e => setVehicleNumber(e.target.value)} placeholder="KA 01 AB 1234"/></>}{driverType === "spare_driver" && <><label>Gear type</label><select value={gearType} onChange={e => setGearType(e.target.value)}><option>Manual</option><option>Automatic</option></select></>}<label>Driving licence number</label><input value={licenseNumber} onChange={e => setLicenseNumber(e.target.value)} placeholder="Driving licence number"/><button className="partner-primary" disabled={busy} onClick={() => void registerProfile()}>{busy ? "Submitting…" : "Submit for approval"}</button>{error && <p className="partner-error">{error}</p>}<button className="partner-link" onClick={() => void supabase.auth.signOut()}>Sign out</button></section></main>;
 
