@@ -1866,6 +1866,8 @@ export default function Home() {
         }} aria-label="Profile" title="Profile"><UserRound size={22} /></button>
       </header>
 
+      {!authOpen && !splashVisible && <section className="yrel-home-hero" aria-label="YREL welcome"><div><h1>Hello, {customer?.full_name || "Customer"} 👋</h1><p>Book your ride with YREL</p></div></section>}
+
       {pinMapTarget && (
         <div className="pin-map-backdrop" onClick={() => setPinMapTarget(null)}>
           <section className="pin-map-panel" onClick={(e) => e.stopPropagation()}>
