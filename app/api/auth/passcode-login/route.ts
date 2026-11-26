@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase.auth.signInWithPassword({ phone, password });
     if (error || !data.user || !data.session) return NextResponse.json({ error: "Incorrect mobile number or passcode." }, { status: 401 });
     if (data.user.user_metadata?.account_type !== accountType) return NextResponse.json({ error: "This account is not registered for this YREL app." }, { status: 403 });
-    if (!data.user.phone_confirmed_at) return NextResponse.json({ error: "Please verify your mobile number using the SMS link before login." }, { status: 403 });
     return NextResponse.json({ session: data.session });
   } catch (error) {
     console.error("YREL passcode login error", error instanceof Error ? error.message : "Unknown error");
