@@ -436,7 +436,7 @@ export default function Home() {
       pickup: "Pickup location",
       drop: "Destination",
       book: "Book now",
-      login: "Continue with WhatsApp OTP",
+      login: "Login",
       history: "Your bookings",
     },
     kn: {
@@ -444,7 +444,7 @@ export default function Home() {
       pickup: "ಪಿಕಪ್ ಸ್ಥಳ",
       drop: "ತಲುಪುವ ಸ್ಥಳ",
       book: "ಈಗ ಬುಕ್ ಮಾಡಿ",
-      login: "WhatsApp OTP ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ",
+      login: "ಲಾಗಿನ್",
       history: "ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳು",
     },
     hi: {
@@ -452,7 +452,7 @@ export default function Home() {
       pickup: "पिकअप स्थान",
       drop: "गंतव्य",
       book: "अभी बुक करें",
-      login: "Google से जारी रखें",
+      login: "लॉगिन",
       history: "आपकी बुकिंग",
     },
   }[language];
