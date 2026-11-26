@@ -19,16 +19,18 @@ export async function POST(request: NextRequest) {
     }
 
     const authKey = process.env.MSG91_AUTH_KEY;
+    const widgetToken = process.env.MSG91_WIDGET_TOKEN;
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!authKey || !supabaseUrl || !serviceKey) {
+    if (!authKey || !widgetToken || !supabaseUrl || !serviceKey) {
       return NextResponse.json({ error: "Authentication service is not configured." }, { status: 500 });
     }
 
     const widgetHeaders = { "content-type": "application/json", accept: "application/json", authkey: authKey };
     const verifyResponse = await fetch("https://api.msg91.com/api/v5/widget/verifyOtp", {
-      method: "POST", headers: widgetHeaders,
-      body: JSON.stringify({ widgetId: WIDGET_ID, reqId, otp: String(otp) }),
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ widgetId: WIDGET_ID, reqId, otp: String(otp), tokenAuth: widgetToken }),
       cache: "no-store", signal: AbortSignal.timeout(12000)
     });
     const verifyResult = await verifyResponse.json().catch(() => ({}));
