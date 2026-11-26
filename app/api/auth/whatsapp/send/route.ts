@@ -28,8 +28,9 @@ export async function POST(request: NextRequest) {
     const result = await response.json().catch(() => ({}));
     const reqId = result?.message || result?.reqId || result?.requestId;
     if (!response.ok || result?.type !== "success" || typeof reqId !== "string") {
-      console.error("MSG91 sendOtp failed", { status: response.status, type: result?.type });
-      return NextResponse.json({ error: "Could not send WhatsApp OTP. Please try again." }, { status: 502 });
+      const providerMessage = typeof result?.message === "string" ? result.message.slice(0, 180) : "";
+      console.error("MSG91 sendOtp failed", { status: response.status, type: result?.type, providerMessage });
+      return NextResponse.json({ error: providerMessage || "MSG91 rejected the OTP request. Check the widget configuration." }, { status: 502 });
     }
     return NextResponse.json({ reqId });
   } catch (error) {
