@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+export const preferredRegion = "bom1";
 
 const WIDGET_ID = "366b746f4e41323031343938";
 
