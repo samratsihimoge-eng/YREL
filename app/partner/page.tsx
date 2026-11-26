@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Bell, CarFront, ClipboardList, Clock3, LogOut, MapPin, Phone, ShieldCheck, UserRound, Wallet, RefreshCw, CheckCircle2, Power, Navigation, LocateFixed, RadioTower } from "lucide-react";
+import { Bell, CarFront, ClipboardList, Clock3, LogOut, MapPin, Phone, ShieldCheck, UserRound, Wallet, RefreshCw, CheckCircle2, Power, Navigation, LocateFixed, RadioTower, TrendingUp, Gift, Headphones, Settings2 } from "lucide-react";
 import "./partner.css";
 
 type DriverProfile = {
@@ -272,10 +272,10 @@ export default function PartnerPage() {
       </div> : null}
       <nav className="partner-screen-nav" aria-label="Partner app screens">
         {[
-          ["home","Home","⌂"],["earnings","Earnings","₹"],["wallet","Wallet","▣"],["rewards","Rewards","★"],
-          ["trips","My Trips","▤"],["trip-management","Trip Management","↗"],["account","Account","●"],["vehicle","Vehicle Details","🚗"],
-          ["documents","Documents","▧"],["notifications","Notifications","♧"],["support","Help & Support","? "],["settings","Settings","⚙"]
-        ].map(([key,label,icon])=><button type="button" key={key} className={tab===key?"active":""} onClick={()=>setTab(key as typeof tab)}><span>{icon}</span><b>{label}</b></button>)}
+          {key:"home",label:"Home",Icon:Navigation},{key:"earnings",label:"Earnings",Icon:TrendingUp},{key:"wallet",label:"Wallet",Icon:Wallet},{key:"rewards",label:"Rewards",Icon:Gift},
+          {key:"trips",label:"My Trips",Icon:ClipboardList},{key:"trip-management",label:"Trip Management",Icon:RadioTower},{key:"account",label:"Account",Icon:UserRound},{key:"vehicle",label:"Vehicle Details",Icon:CarFront},
+          {key:"documents",label:"Documents",Icon:ShieldCheck},{key:"notifications",label:"Notifications",Icon:Bell},{key:"support",label:"Help & Support",Icon:Headphones},{key:"settings",label:"Settings",Icon:Settings2}
+        ].map(({key,label,Icon})=><button type="button" key={key} className={tab===key?"active":""} onClick={()=>setTab(key as typeof tab)}><span><Icon size={21}/></span><b>{label}</b></button>)}
       </nav>
       {tab === "earnings" && <section className="partner-panel partner-screen-panel"><div className="partner-panel-head"><div><h2>My Earnings</h2><p>Completed trip fare summary · estimates, not payout statements</p></div><button onClick={()=>void loadPartner()}><RefreshCw size={17}/></button></div><div className="partner-earnings-grid"><article><small>Today</small><b>₹{bookings.filter(b=>b.status==="completed"&&new Date(b.created_at).toDateString()===new Date().toDateString()).reduce((sum,b)=>sum+Number(b.estimated_fare||0),0).toLocaleString("en-IN")}</b><span>Completed trip estimates</span></article><article><small>This Month</small><b>₹{bookings.filter(b=>b.status==="completed"&&new Date(b.created_at).getMonth()===new Date().getMonth()&&new Date(b.created_at).getFullYear()===new Date().getFullYear()).reduce((sum,b)=>sum+Number(b.estimated_fare||0),0).toLocaleString("en-IN")}</b><span>Completed trip estimates</span></article></div><div className="partner-screen-note">Final partner earnings and settlements are confirmed by YREL Admin.</div></section>}
       {tab === "rewards" && <section className="partner-panel partner-screen-panel"><h2>Rewards & Milestones</h2><p>Track your completed trips and partner milestones.</p><div className="partner-reward-card"><span>Completed Trips</span><b>{history.filter(b=>b.status==="completed").length}</b><small>Trips completed on YREL</small></div><div className="partner-screen-note">YREL reward milestones will appear here when the programme is activated. No reward amount is promised until it is confirmed by YREL.</div></section>}
