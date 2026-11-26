@@ -26,11 +26,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Authentication service is not configured." }, { status: 500 });
     }
 
-    const widgetHeaders = { authkey: authKey, "content-type": "application/json", accept: "application/json" };
-    const accessTokenHeaders = { authkey: authKey, "content-type": "application/json", accept: "application/json" };
+    const widgetHeaders = { "content-type": "application/json", accept: "application/json" };
+    const accessTokenHeaders = { "content-type": "application/json", accept: "application/json" };
     const verifyResponse = await fetch("https://api.msg91.com/api/v5/widget/verifyOtp", {
       method: "POST", headers: widgetHeaders,
-      body: JSON.stringify({ widgetId: WIDGET_ID, reqId, otp: String(otp) }),
+      body: JSON.stringify({ widgetId: WIDGET_ID, reqId, otp: String(otp), tokenAuth: widgetToken }),
       cache: "no-store", signal: AbortSignal.timeout(12000)
     });
     const verifyResult = await verifyResponse.json().catch(() => ({}));
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     const tokenResponse = await fetch("https://api.msg91.com/api/v5/widget/verifyAccessToken", {
       method: "POST", headers: accessTokenHeaders,
-      body: JSON.stringify({ "access-token": accessToken }),
+      body: JSON.stringify({ authkey: authKey, "access-token": accessToken }),
       cache: "no-store", signal: AbortSignal.timeout(12000)
     });
     const tokenResult = await tokenResponse.json().catch(() => ({}));
