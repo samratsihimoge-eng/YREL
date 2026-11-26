@@ -1265,13 +1265,11 @@ export default function Home() {
     if (!/^[6-9]\d{9}$/.test(digits) || !/^\d{4}$/.test(accountPassword)) { setNotice("Enter your 10-digit mobile number and 4-digit passcode."); return; }
     setBusy(true); setNotice("");
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ phone: `+91${digits}`, password: accountPassword });
+      const response = await fetch("/api/auth/passcode-login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits, passcode: accountPassword, accountType: "customer" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Login failed.");
+      const { error } = await supabase.auth.setSession({ access_token: result.session.access_token, refresh_token: result.session.refresh_token });
       if (error) throw error;
-      if (data.user?.user_metadata?.account_type !== "customer") { await supabase.auth.signOut(); throw new Error("This account is not registered as a YREL Customer account."); }
-      if (!data.user?.phone_confirmed_at) {
-        await supabase.auth.signOut();
-        throw new Error("Please verify your mobile number using the SMS link before login.");
-      }
       setAuthOpen(false); setAccountPassword(""); setNotice("Login successful.");
     } catch (error) { setNotice(error instanceof Error ? error.message : "Login failed."); }
     finally { setBusy(false); }
