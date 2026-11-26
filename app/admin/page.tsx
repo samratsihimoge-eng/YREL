@@ -99,10 +99,8 @@ export default function AdminPage() {
 
   async function createDirectBooking() {
     if (!customers.length) { setMessage("Create a customer profile before entering a direct booking."); return; }
-    const customerList = customers.map((c,i)=>`${i+1}. ${c.full_name} · ${c.phone || "No phone"}`).join("
-");
-    const pick = window.prompt("Select customer number:
-"+customerList);
+    const customerList = customers.map((c,i)=>`${i+1}. ${c.full_name} · ${c.phone || "No phone"}`).join("\n");
+    const pick = window.prompt("Select customer number:\n"+customerList);
     if (pick === null) return;
     const customer = customers[Number(pick)-1];
     if (!customer) { setMessage("Invalid customer number."); return; }
