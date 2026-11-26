@@ -617,7 +617,7 @@ export default function Home() {
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("verified") === "1") {
-      setAuthMode("login");
+      setAuthStep("login");
       setRegistrationPending(false);
       setAuthOpen(true);
       setNotice("Mobile number verified. Please log in.");
