@@ -3474,3 +3474,27 @@ html, body, .site-shell {
 .site-shell:has(> .yrel-splash-screen) > .yrel-splash-screen {
   z-index:99999 !important;
 }
+
+/* Customer auth form: keep standalone inputs full width (not the compact location input). */
+.yrel-login-form > .wide-field > input.phone-number-input {
+  display: block !important;
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 62px !important;
+  min-height: 62px !important;
+  box-sizing: border-box !important;
+  padding: 16px 18px !important;
+  border: 1.5px solid #dfc5b1 !important;
+  border-radius: 18px !important;
+  background: #fffdfb !important;
+  color: #493327 !important;
+  font-size: 18px !important;
+  line-height: 1.3 !important;
+}
+.yrel-login-form > .wide-field > input.phone-number-input:focus {
+  border-color: #e8874b !important;
+  outline: none !important;
+  box-shadow: 0 0 0 4px rgba(255, 123, 22, .12) !important;
+}
