@@ -8,7 +8,7 @@ import "./partner.css";
 type DriverProfile = {
   user_id: string; driver_type: "cab_driver" | "spare_driver"; approval_status: string;
   full_name: string | null; phone: string | null; vehicle_type: string | null;
-  vehicle_number: string | null; gear_type: string | null; license_number: string | null; is_online: boolean; current_lat: number | null; current_lng: number | null; location_updated_at: string | null; is_online: boolean; current_lat: number | null; current_lng: number | null; location_updated_at: string | null;
+  vehicle_number: string | null; gear_type: string | null; license_number: string | null; is_online: boolean; current_lat: number | null; current_lng: number | null; location_updated_at: string | null;
 };
 type Booking = {
   id: string; booking_code: string; service_type: string; vehicle_type: string | null;
