@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createHmac } from "crypto";
 
 export const runtime = "nodejs";
 export const preferredRegion = "bom1";
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
       phone,
       phone_confirm: false,
       email, email_confirm: true,
-      password,
+      password: createHmac("sha256", serviceKey).update(phone + ":" + password).digest("hex"),
       user_metadata: {
         full_name: fullName,
         account_type: accountType,
