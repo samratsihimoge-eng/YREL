@@ -111,8 +111,8 @@ export default function PartnerPage() {
       const response = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fullName: fullName.trim(), phone: mobile, email: email.trim(), password, accountType: "partner" }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not create partner account.");
-      setRegistrationUserId(result.userId); setRegistrationPending(true);
-      setError("Account created. Verify your mobile number to continue.");
+      setRegistrationUserId(result.userId); setRegistrationPending(false); setAuthStep("login"); setPassword("");
+      setError("Account created. You can now log in with your 4-digit passcode.");
     } catch (e) { setError(e instanceof Error ? e.message : "Could not create account."); }
     finally { setBusy(false); }
   }
