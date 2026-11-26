@@ -370,7 +370,10 @@ export default function Home() {
   const [splashVisible, setSplashVisible] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
-  const [phone, setPhone] = useState("");\n  const [customerOtp, setCustomerOtp] = useState("");\n  const [customerOtpReqId, setCustomerOtpReqId] = useState("");\n  const [customerOtpSent, setCustomerOtpSent] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [customerOtp, setCustomerOtp] = useState("");
+  const [customerOtpReqId, setCustomerOtpReqId] = useState("");
+  const [customerOtpSent, setCustomerOtpSent] = useState(false);
   const [fullName, setFullName] = useState("");
   const [authOpen, setAuthOpen] = useState(false);
   const [profileSetupOpen, setProfileSetupOpen] = useState(false);
