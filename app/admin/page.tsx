@@ -99,8 +99,10 @@ export default function AdminPage() {
 
   async function createDirectBooking() {
     if (!customers.length) { setMessage("Create a customer profile before entering a direct booking."); return; }
-    const customerList = customers.map((c,i)=>`${i+1}. ${c.full_name} · ${c.phone || "No phone"}`).join("\n");
-    const pick = window.prompt("Select customer number:\n"+customerList);
+    const customerList = customers.map((c,i)=>`${i+1}. ${c.full_name} · ${c.phone || "No phone"}`).join("
+");
+    const pick = window.prompt("Select customer number:
+"+customerList);
     if (pick === null) return;
     const customer = customers[Number(pick)-1];
     if (!customer) { setMessage("Invalid customer number."); return; }
@@ -236,7 +238,8 @@ export default function AdminPage() {
     active: bookings.filter(b => !["completed", "cancelled"].includes(b.status)).length,
     today: bookings.filter(b => new Date(b.created_at).toDateString() === new Date().toDateString()).length,
     revenue: bookings.filter(b => b.status === "completed").reduce((sum, b) => sum + Number(b.estimated_fare || 0), 0),
-    pendingDrivers: drivers.filter(d => d.approval_status === "pending").length,\n    onlineDrivers: drivers.filter(d => d.is_online && d.approval_status === "approved" && !d.is_blocked).length
+    pendingDrivers: drivers.filter(d => d.approval_status === "pending").length,
+    onlineDrivers: drivers.filter(d => d.is_online && d.approval_status === "approved" && !d.is_blocked).length
   }), [bookings, drivers]);
 
   function exportBookings() {
@@ -244,7 +247,8 @@ export default function AdminPage() {
       const c = customerById.get(b.user_id);
       return [b.booking_code, c?.full_name || "", c?.phone || "", b.service_type, b.vehicle_type || "", b.pickup, b.dropoff || "", b.scheduled_at || b.created_at, String(b.estimated_fare), b.status];
     })];
-    const csv = rows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = rows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(",")).join("
+");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const link = document.createElement("a"); link.href = url; link.download = "yrel-bookings.csv"; link.click(); URL.revokeObjectURL(url);
   }
@@ -304,7 +308,8 @@ export default function AdminPage() {
         {section === "overview" && <>
           <div className="admin-welcome"><div><h2>Good to see you, Admin.</h2><p>Here’s what’s happening across your YREL bookings today.</p></div><button className="admin-outline" onClick={() => void loadData()}><RefreshCw size={16}/> Refresh data</button></div>
           <div className="admin-stat-grid">
-            <Stat icon={ClipboardList} label="Total bookings" value={stats.total} note="All recorded requests"/>\n            <Stat icon={RadioTower} label="Drivers online" value={stats.onlineDrivers} note="Live partner availability"/>
+            <Stat icon={ClipboardList} label="Total bookings" value={stats.total} note="All recorded requests"/>
+            <Stat icon={RadioTower} label="Drivers online" value={stats.onlineDrivers} note="Live partner availability"/>
             <Stat icon={Activity} label="Active bookings" value={stats.active} note="Not completed or cancelled"/>
             <Stat icon={Clock3} label="Bookings today" value={stats.today} note="Created today"/>
             <Stat icon={ArrowUpRight} label="Completed fare total" value={`₹${stats.revenue.toLocaleString("en-IN")}`} note="Based on completed bookings"/>
