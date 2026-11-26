@@ -43,14 +43,14 @@ export async function POST(request: NextRequest) {
     const phone = `+91${mobile}`;
     const { data, error } = await admin.auth.admin.createUser({
       phone,
-      phone_confirm: false,
+      phone_confirm: true,
       email, email_confirm: true,
       password: createHmac("sha256", serviceKey).update(phone + ":" + password).digest("hex"),
       user_metadata: {
         full_name: fullName,
         account_type: accountType,
         phone,
-        phone_verified: false
+        phone_verified: false, phone_verification_deferred: true
       }
     });
 
@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
       userId: data.user.id,
       phone,
       accountType,
-      verificationRequired: true,
-      message: "Account created. Verify your mobile number to continue."
+      verificationRequired: false,
+      message: "Account created. You can sign in with your passcode."
     }, { status: 201 });
   } catch (error) {
     console.error("YREL registration error", error instanceof Error ? error.message : "Unknown error");
