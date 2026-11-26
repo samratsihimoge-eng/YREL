@@ -2017,6 +2017,11 @@ export default function Home() {
             </div>
           )}
 
+          {service === "rental" && <div className="choice-row rental-trip-choice" aria-label="Rental trip type">
+            <button type="button" className={tripType === "one-way" ? "choice active" : "choice"} onClick={() => setTripType("one-way")}>One Way</button>
+            <button type="button" className={tripType === "round-trip" ? "choice active" : "choice"} onClick={() => setTripType("round-trip")}>Round Trip</button>
+          </div>}
+
           <div className="location-grid">
             <div className="field-wrap">
               
@@ -2142,8 +2147,10 @@ export default function Home() {
               </div>
               {schedule === "later" && (
                 <div className="option-fields date-fields">
-                  <label>Pickup date<input type="date" value={date} min={localDateString()} onChange={(e) => setDate(e.target.value)} /></label>
-                  <label>Pickup time<input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></label>
+                  <label>Departure Date<input type="date" value={date} min={localDateString()} onChange={(e) => setDate(e.target.value)} /></label>
+                  <label>Pickup Time<input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></label>
+                  {service === "rental" && rentalBookingArea === "outstation" && <label>Arrival Date<input type="date" value={arrivalDate} min={date || localDateString()} onChange={(e) => {const selected=e.target.value;setArrivalDate(selected);if(date&&selected){const start=new Date(`${date}T00:00:00`);const end=new Date(`${selected}T00:00:00`);setDays(Math.max(1,Math.round((end.getTime()-start.getTime())/86400000)+1));}}}/></label>}
+                  {service === "rental" && rentalBookingArea === "outstation" && date && arrivalDate && <p className="hint">Number of Days: {days}</p>}
                 </div>
               )}
             </div>
@@ -2419,6 +2426,13 @@ export default function Home() {
             </div>
           )}
 
+          {service === "rental" && pickupPoint && dropPoint && distance !== null && !routeLoading && <>
+            <div className="field-label">Select Vehicle</div>
+            <div className="vehicle-grid rental-vehicle-grid">
+              {(["Hatchback","Sedan","MPV","SUV"] as const).map((v) => <button type="button" key={v} className={ride === v ? "vehicle-option selected" : "vehicle-option"} onClick={() => setRide(v)}><VehicleIcon vehicle={v}/><span>{v}</span>{ride === v && <Check className="vehicle-check" size={15}/>}</button>)}
+            </div>
+          </>}
+
           {service === "rental" && rentalBookingArea === "city" && (
             <>
               <div className="field-label">
@@ -2526,18 +2540,8 @@ export default function Home() {
               </div>
             )}
 
-          {service === "rental" && rentalBookingArea === "outstation" && (
-            <label className="wide-field">
-              Number of days
-              <input
-                type="number"
-                min="1"
-                max="30"
-                value={days || ""}
-                onChange={(e) => setDays(e.target.value === "" ? 0 : Math.min(30, Number(e.target.value)))}
-                onBlur={() => setDays(Math.max(1, Math.min(30, Number(days) || 1)))}
-              />
-            </label>
+          {service === "rental" && rentalBookingArea === "outstation" && schedule === "now" && (
+            <label className="wide-field">Number of Days<input type="number" min="1" max="30" value={days || ""} onChange={(e) => setDays(e.target.value === "" ? 0 : Math.min(30, Number(e.target.value)))} onBlur={() => setDays(Math.max(1, Math.min(30, Number(days) || 1)))}/></label>
           )}
           {!seatShareMode && pickupPoint && dropPoint && distance !== null && !routeLoading && (
             <>
