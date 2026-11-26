@@ -123,7 +123,7 @@ export default function PartnerPage() {
       const response = await fetch("/api/auth/phone-verification/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: registrationUserId, phone: normalizedPhone(phone), accountType: "partner" }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not send verification link.");
-      setError("Verification link sent by SMS. Open the link, then log in with your mobile number and password.");
+      setError("Verification link sent by SMS. Open the link, then log in with your mobile number and 4-digit passcode.");
     } catch (e) { setError(e instanceof Error ? e.message : "Could not send verification link."); }
     finally { setBusy(false); }
   }
