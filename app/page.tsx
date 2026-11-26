@@ -1669,6 +1669,10 @@ export default function Home() {
           ? "AC/Non-AC is a preference only; same fare. Subject to availability."
           : null,
       toll_parking: "Actual charges, if applicable, are extra.",
+      pickup_lat: pickupPoint?.lat ?? null,
+      pickup_lng: pickupPoint?.lon ?? null,
+      drop_lat: dropPoint?.lat ?? null,
+      drop_lng: dropPoint?.lon ?? null,
     };
 
     setBusy(true);
