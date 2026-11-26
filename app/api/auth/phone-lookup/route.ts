@@ -17,13 +17,21 @@ export async function POST(request: NextRequest) {
     if (!url || !key) return NextResponse.json({ error: "Account service is not configured." }, { status: 500 });
     const admin = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
     const phone = "+91" + digits;
-    const table = accountType === "customer" ? "customers" : "driver_profiles";
-    const column = accountType === "customer" ? "id" : "user_id";
-    const { data: profile, error: profileError } = await admin.from(table).select(column).eq("phone", phone).limit(1);
-    if (profileError) throw profileError;
+    let registered = false;
+    const perPage = 1000;
+    for (let page = 1; page <= 10; page++) {
+      const { data: users, error: usersError } = await admin.auth.admin.listUsers({ page, perPage });
+      if (usersError) throw usersError;
+      const match = users.users.find(user =>
+        user.phone === phone && user.user_metadata?.account_type === accountType
+      );
+      if (match) { registered = true; break; }
+      if (users.users.length < perPage) break;
+    }
     const { data: pending, error: tokenError } = await admin.from("phone_verification_tokens").select("id").eq("phone", phone).eq("account_type", accountType).is("used_at", null).gt("expires_at", new Date().toISOString()).limit(1);
     if (tokenError) throw tokenError;
-    return NextResponse.json({ registered: Boolean(profile?.length || pending?.length) });
+    registered = registered || Boolean(pending?.length);
+    return NextResponse.json({ registered });
   } catch (error) {
     console.error("YREL phone lookup error", error instanceof Error ? error.message : "Unknown error");
     return NextResponse.json({ error: "Could not check this number right now. Please try again." }, { status: 500 });
