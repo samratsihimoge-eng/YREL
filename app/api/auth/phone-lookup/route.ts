@@ -1,0 +1,31 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+export const runtime = "nodejs";
+export const preferredRegion = "bom1";
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const digits = String(body.phone || "").replace(/\D/g, "");
+    const accountType = String(body.accountType || "");
+    if (!/^[6-9]\d{9}$/.test(digits) || !["customer", "partner"].includes(accountType)) {
+      return NextResponse.json({ error: "Enter a valid mobile number." }, { status: 400 });
+    }
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) return NextResponse.json({ error: "Account service is not configured." }, { status: 500 });
+    const admin = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+    const phone = "+91" + digits;
+    const table = accountType === "customer" ? "customers" : "driver_profiles";
+    const column = accountType === "customer" ? "id" : "user_id";
+    const { data: profile, error: profileError } = await admin.from(table).select(column).eq("phone", phone).limit(1);
+    if (profileError) throw profileError;
+    const { data: pending, error: tokenError } = await admin.from("phone_verification_tokens").select("id").eq("phone", phone).eq("account_type", accountType).is("used_at", null).gt("expires_at", new Date().toISOString()).limit(1);
+    if (tokenError) throw tokenError;
+    return NextResponse.json({ registered: Boolean(profile?.length || pending?.length) });
+  } catch (error) {
+    console.error("YREL phone lookup error", error instanceof Error ? error.message : "Unknown error");
+    return NextResponse.json({ error: "Could not check this number right now. Please try again." }, { status: 500 });
+  }
+}
