@@ -50,6 +50,9 @@ type Customer = {
   full_name: string;
   phone: string | null;
   phone_verified: boolean;
+  gender: "male" | "female" | "prefer_not_to_say" | null;
+  date_of_birth: string | null;
+  email: string | null;
 };
 
 type SeatShareTrip = {
@@ -379,6 +382,9 @@ export default function Home() {
   const [customerOtpReqId, setCustomerOtpReqId] = useState("");
   const [customerOtpSent, setCustomerOtpSent] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [profileGender, setProfileGender] = useState<"male" | "female" | "prefer_not_to_say" | "">("");
+  const [profileDob, setProfileDob] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
   const [authOpen, setAuthOpen] = useState(false);
   const [profileSetupOpen, setProfileSetupOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -580,7 +586,7 @@ export default function Home() {
 
     const { data, error } = await supabase
       .from("customers")
-      .select("id, customer_code, full_name, phone, phone_verified")
+      .select("id, customer_code, full_name, phone, phone_verified, gender, date_of_birth, email")
       .eq("id", userId)
       .maybeSingle();
 
@@ -1304,10 +1310,22 @@ export default function Home() {
       setNotice("Please enter your full name.");
       return;
     }
+    if (!profileGender) {
+      setNotice("Please select your gender.");
+      return;
+    }
+    if (!profileDob || new Date(profileDob) >= new Date(new Date().toDateString())) {
+      setNotice("Please enter a valid date of birth.");
+      return;
+    }
+    if (profileEmail && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(profileEmail.trim())) {
+      setNotice("Please enter a valid email address or leave it blank.");
+      return;
+    }
 
     if (!session?.user) {
       setNotice(
-        "WhatsApp login session not found. Please verify your mobile number again."
+        "Your login session was not found. Please verify your mobile number again."
       );
       return;
     }
@@ -1329,9 +1347,12 @@ export default function Home() {
         full_name: name,
         phone: `+91${digits}`,
         phone_verified: true,
+        gender: profileGender,
+        date_of_birth: profileDob,
+        email: profileEmail.trim() || null,
       })
       .select(
-        "id, customer_code, full_name, phone, phone_verified"
+        "id, customer_code, full_name, phone, phone_verified, gender, date_of_birth, email"
       )
       .single();
 
@@ -2759,7 +2780,7 @@ export default function Home() {
       )}
 
       {profileSetupOpen && session && (
-        <div className="modal-backdrop">
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="customer-profile-title">
           <div
             className="auth-modal"
             onClick={(e) => e.stopPropagation()}
@@ -2768,11 +2789,11 @@ export default function Home() {
               <UserRound />
             </div>
 
-            <span className="eyebrow">NEW YREL CUSTOMER</span>
-            <h2>Complete your profile</h2>
+            <span className="eyebrow">WELCOME TO YREL</span>
+            <h2 id="customer-profile-title">Complete your profile</h2>
 
             <p>
-              Welcome! Enter your name to create your YREL Customer ID.
+              Your dashboard is ready. Complete these details once to start booking.
             </p>
 
             <label className="wide-field">
@@ -2785,6 +2806,26 @@ export default function Home() {
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Enter your full name"
               />
+            </label>
+
+            <label className="wide-field">
+              Gender <span aria-hidden="true">*</span>
+              <select className="email-input" value={profileGender} onChange={(e) => setProfileGender(e.target.value as typeof profileGender)}>
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="prefer_not_to_say">Prefer not to say</option>
+              </select>
+            </label>
+
+            <label className="wide-field">
+              Date of birth <span aria-hidden="true">*</span>
+              <input className="email-input" type="date" value={profileDob} max={new Date().toISOString().slice(0,10)} onChange={(e) => setProfileDob(e.target.value)} />
+            </label>
+
+            <label className="wide-field">
+              Email address (optional)
+              <input className="email-input" type="email" autoComplete="email" value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} placeholder="Enter your email (optional)" />
             </label>
 
             <label className="wide-field">
@@ -2805,7 +2846,7 @@ export default function Home() {
             </label>
 
             <p className="hint">
-              Your mobile number has been verified using the YREL secure verification link.
+              Your mobile number has been verified by SMS OTP.
             </p>
 
             <button
@@ -2814,19 +2855,13 @@ export default function Home() {
               disabled={busy || profileLoading}
             >
               {busy && <Loader2 className="spin" />}
-              <span>Create Customer Account</span>
+              <span>Create Profile</span>
               <ArrowRight size={18} />
             </button>
 
             {notice && <div className="notice">{notice}</div>}
 
-            <button
-              className="pill"
-              onClick={signOut}
-              disabled={busy}
-            >
-              Cancel and sign out
-            </button>
+            <p className="hint">Name, gender and date of birth are required. Email is optional. Booking is enabled after your profile is saved.</p>
           </div>
         </div>
       )}
