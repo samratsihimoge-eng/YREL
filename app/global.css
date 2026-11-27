@@ -3828,3 +3828,33 @@ html,body{background:#fff8f1!important;color:#351044!important}
   .bottom-panel-backdrop{padding:10px 10px calc(92px + env(safe-area-inset-bottom))!important}
   .bottom-info-panel{width:100%!important;max-height:calc(100dvh - 174px)!important;border-radius:24px!important}
 }
+
+
+/* YREL customer app — shared transparent taxi/city artwork.
+   Kept on the customer shell so every in-app view uses one consistent background. */
+.site-shell {
+  background-color: #fff8f0 !important;
+  background-image:
+    linear-gradient(rgba(255, 249, 242, .24), rgba(255, 249, 242, .24)),
+    url("/images/yrel-customer-background.svg") !important;
+  background-position: center top !important;
+  background-size: 100vw 100vh !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+.yrel-splash-screen,
+.yrel-login-screen {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+@media (max-width: 760px) {
+  .site-shell {
+    background-position: center top !important;
+    background-size: 100vw 100dvh !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-shell { background-attachment: scroll !important; }
+}
