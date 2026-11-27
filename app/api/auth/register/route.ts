@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 export const preferredRegion = "bom1";
 
 export async function POST(request: NextRequest) {
+  let createdUserId: string | null = null;
   try {
     const body = await request.json();
     const fullName = String(body.fullName || "").trim();
@@ -59,6 +60,21 @@ export async function POST(request: NextRequest) {
         ? "This mobile number or email is already registered. Please log in."
         : "Could not create your account. Please try again.";
       return NextResponse.json({ error: message }, { status: 409 });
+    }
+    createdUserId = data.user.id;
+
+    const { error: indexError } = await admin.from("account_phone_index").insert({
+      user_id: data.user.id,
+      phone,
+      account_type: accountType
+    });
+    if (indexError) {
+      await admin.auth.admin.deleteUser(data.user.id);
+      createdUserId = null;
+      if (indexError.code === "23505") {
+        return NextResponse.json({ error: "This mobile number is already registered. Please log in." }, { status: 409 });
+      }
+      throw indexError;
     }
 
     return NextResponse.json({
