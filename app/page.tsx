@@ -1281,14 +1281,28 @@ export default function Home() {
       if (!response.ok) throw new Error(result.error || "Could not send SMS OTP.");
       setCustomerOtpReqId(result.requestId); setCustomerOtp(""); setCustomerOtpSent(true);
       localStorage.setItem(PHONE_STORAGE_KEY, digits);
-      setNotice("6-digit OTP sent by SMS. Please check your messages.");
+      setNotice("OTP sent to your WhatsApp. Enter it below, or choose Send SMS OTP.");
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not send SMS OTP."); }
+    finally { setBusy(false); }
+  }
+
+  async function sendCustomerSmsFallback() {
+    if (!customerOtpReqId) { setNotice("Please request a WhatsApp OTP first."); return; }
+    setBusy(true); setNotice("");
+    try {
+      const response = await fetch("/api/auth/sms-otp/retry", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ requestId: customerOtpReqId }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not send SMS OTP.");
+      setCustomerOtpReqId(result.requestId || customerOtpReqId);
+      setCustomerOtp("");
+      setNotice("SMS OTP sent. Please check your messages.");
     } catch (error) { setNotice(error instanceof Error ? error.message : "Could not send SMS OTP."); }
     finally { setBusy(false); }
   }
 
   async function verifyCustomerOtp() {
     const digits = phone.replace(/\D/g, "");
-    if (!customerOtpReqId || !/^\d{6}$/.test(customerOtp)) { setNotice("Enter the 6-digit SMS OTP."); return; }
+    if (!customerOtpReqId || !/^\d{6}$/.test(customerOtp)) { setNotice("Enter the 6-digit OTP sent to WhatsApp or SMS."); return; }
     setBusy(true); setNotice("");
     try {
       const response = await fetch("/api/auth/sms-otp/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits, requestId: customerOtpReqId, otp: customerOtp }) });
@@ -2707,19 +2721,19 @@ export default function Home() {
               </label>
               {!customerOtpSent ? (
                 <button className="book-button full" onClick={checkCustomerPhone} disabled={busy}>
-                  {busy && <Loader2 className="spin" />}<span>Send SMS OTP</span><ArrowRight size={18} />
+                  {busy && <Loader2 className="spin" />}<span>Send OTP</span><ArrowRight size={18} />
                 </button>
               ) : (
                 <>
                   <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 18 }}>
-                    <span className="yrel-mobile-prompt">Enter 6-digit SMS OTP</span>
+                    <span className="yrel-mobile-prompt">Enter 6-digit OTP</span>
                     <input className="email-input" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={customerOtp} onChange={e => setCustomerOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="6-digit OTP" />
                   </label>
                   <button className="book-button full" onClick={verifyCustomerOtp} disabled={busy || customerOtp.length !== 6}>
                     {busy && <Loader2 className="spin" />}<span>Verify & Continue</span><ArrowRight size={18} />
                   </button>
                   <button className="yrel-secondary-action" type="button" onClick={() => { setCustomerOtpSent(false); setCustomerOtpReqId(""); setCustomerOtp(""); setNotice(""); setPhone(""); localStorage.removeItem(PHONE_STORAGE_KEY); }}>Change mobile number</button>
-                  <button className="pill" type="button" onClick={sendCustomerOtp} disabled={busy}>Resend OTP</button>
+                  <button className="yrel-secondary-action" type="button" onClick={sendCustomerSmsFallback} disabled={busy}>Send SMS OTP instead</button><button className="pill" type="button" onClick={sendCustomerOtp} disabled={busy}>Resend WhatsApp OTP</button>
                 </>
               )}
               <div className="auth-divider"><span>OR</span></div>
