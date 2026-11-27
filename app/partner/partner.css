@@ -127,3 +127,30 @@
 
 .partner-logo-image{object-fit:contain!important;padding:3px!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important}
 .partner-logo-image.small{width:56px!important;height:56px!important}
+
+
+/* FINAL VISUAL POLISH — partner app: a distinct city-night / navigation console identity. */
+.partner-app{background:radial-gradient(ellipse at 88% 0%,rgba(255,147,56,.10),transparent 28%),linear-gradient(160deg,#edf2f9 0%,#e8eef7 100%)!important;color:#17263c!important}
+.partner-header{background:linear-gradient(105deg,#14243a 0%,#203b5a 72%,#294d70 100%)!important;color:#fff!important;border-bottom:1px solid rgba(255,255,255,.10)!important;box-shadow:0 8px 26px rgba(18,35,57,.18)!important}
+.partner-header b,.partner-header small{color:#fff!important}
+.partner-header button{color:#fff!important}
+.partner-welcome{background:linear-gradient(115deg,#172b45 0%,#274b70 65%,#e76a32 100%)!important;color:#fff!important;border-radius:0 0 28px 28px!important;box-shadow:0 12px 28px rgba(23,43,69,.16)!important}
+.partner-welcome h1,.partner-welcome p,.partner-welcome span{color:#fff!important}
+.partner-presence,.partner-map-panel,.partner-panel,.partner-screen-panel,.partner-nearby,.partner-stats article{background:rgba(255,255,255,.96)!important;border:1px solid #dce4ef!important;box-shadow:0 10px 26px rgba(28,49,76,.08)!important;color:#1b2c43!important}
+.partner-panel h2,.partner-panel h3,.partner-map-panel h2{color:#1a2c45!important}
+.partner-panel p,.partner-panel small,.partner-map-panel p{color:#6d7d91!important}
+.partner-screen-nav{background:rgba(20,36,58,.97)!important;border-color:#334c69!important;box-shadow:0 -8px 28px rgba(16,31,51,.20)!important;backdrop-filter:blur(16px)!important}
+.partner-screen-nav button{color:#c4d1e1!important}
+.partner-screen-nav button.active{color:#ffad59!important}
+.partner-screen-nav button.active span{background:rgba(255,145,58,.16)!important;color:#ffad59!important}
+.partner-primary,.partner-actions button,.presence-on{background:linear-gradient(110deg,#ff9a32,#e95b2c)!important;color:#fff!important;box-shadow:0 8px 18px rgba(226,91,44,.20)!important}
+.partner-auth{background:radial-gradient(circle at 15% 12%,rgba(255,255,255,.95),transparent 32%),linear-gradient(145deg,#e9eff8 0%,#dfe8f4 58%,#f8e8dc 100%)!important}
+.partner-card{background:rgba(255,255,255,.97)!important;border:1px solid #dce4ef!important;box-shadow:0 24px 60px rgba(20,39,63,.15)!important}
+.partner-trip,.partner-earnings-grid article,.partner-wallet-balance,.partner-reward-card{border-color:#dce4ef!important}
+.partner-trip{background:linear-gradient(145deg,#fff,#f5f8fc)!important}
+.partner-wallet-balance{background:linear-gradient(115deg,#172b45,#31577b)!important;color:#fff!important}
+.partner-wallet-balance span,.partner-wallet-balance strong,.partner-wallet-balance small{color:#fff!important}
+.partner-status{background:#eaf1fa!important;color:#284e75!important}
+.partner-empty{background:#f5f8fc!important;border-color:#dce4ef!important;color:#62748a!important}
+.partner-footer{color:#718198!important}
+@media(max-width:640px){.partner-welcome{border-radius:0 0 22px 22px!important}.partner-screen-nav{border-radius:20px 20px 0 0!important}}
