@@ -328,19 +328,10 @@ export default function Home() {
   const airportRoute =
     isAirportBookingPlace(pickupPoint) || isAirportBookingPlace(dropPoint);
 
-  // Seat Sharing is only for intercity/outstation journeys, plus
-  // Bengaluru city-to-Bengaluru-airport journeys. A normal Bengaluru
-  // locality-to-locality route (e.g. pickup to Hebbal) must never show it.
-  const bengaluruAirportRoute = Boolean(
-    airportRoute &&
-      isBengaluruUrbanPlace(pickupPoint) &&
-      isBengaluruUrbanPlace(dropPoint)
-  );
-
+  // Approved Seat Sharing routes: intercity/outstation and any
+  // city-to-airport or airport-to-city journey. City-local trips stay excluded.
   const seatShareEligible = Boolean(
-    pickupPoint &&
-      dropPoint &&
-      (autoCabArea === "outstation" || bengaluruAirportRoute)
+    pickupPoint && dropPoint && (autoCabArea === "outstation" || airportRoute)
   );
 
   const bookingArea: Area | null =
@@ -1003,35 +994,20 @@ export default function Home() {
   }, [pickupPoint, dropPoint, area, service]);
 
   const fare = useMemo(() => {
-    const travelDate =
-      date && time ? new Date(`${date}T${time}`) : new Date();
-
-    const hour = travelDate.getHours();
-    const autoNight = hour >= 22 || hour < 5;
-    const cabNight = hour >= 23 || hour < 5;
-
     if (service === "cab" && bookingArea === "city") {
       if (ride === "Auto") {
-        const base = distance
+        return distance
           ? Math.max(36, 36 + Math.max(0, distance - 2) * 18)
           : 0;
-
-        return base ? (autoNight ? base * 1.5 : base) : 0;
       }
 
       const rate = CITY_CAB[ride];
-
+      // AC and Non-AC are preferences only; the approved fare is identical.
       const base =
         rate && distance
-          ? Math.max(
-              rate.min,
-              rate.min +
-                Math.max(0, distance - 4) *
-                  (ac === "AC" ? rate.ac : rate.nonAc)
-            )
+          ? Math.max(rate.min, rate.min + Math.max(0, distance - 4) * rate.ac)
           : 0;
-
-      return base ? base + (cabNight ? 50 : 0) : 0;
+      return base;
     }
 
     if (service === "cab" && bookingArea === "outstation") {
