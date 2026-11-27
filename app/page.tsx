@@ -2510,10 +2510,8 @@ export default function Home() {
 
       <section className="yrel-dashboard-shortcuts" aria-label="Quick actions">
         <div className="yrel-dashboard-quick-grid">
-          <button type="button" onClick={()=>{setBookingFilter("active");setBottomPanel("bookings");}}><span>▤</span><b>My Bookings</b></button>
-          <button type="button" onClick={()=>{setBookingFilter("completed");setBottomPanel("bookings");}}><span>₹</span><b>My Payments</b></button>
           <button type="button" onClick={()=>{setMenuOpen(true);setMenuSection("saved");}}><span>⌖</span><b>Saved Locations</b></button>
-          <button type="button" onClick={()=>setBottomPanel("support")}><span>☏</span><b>Help & Support</b></button>
+          <a className="emergency-contact-shortcut" href="tel:112" aria-label="Call emergency services"><span>🆘</span><b>Emergency Contact</b></a>
         </div>
       </section>
 
@@ -2597,7 +2595,7 @@ export default function Home() {
             <div className="app-panel-heading">
               <span className="app-panel-mark">{bottomPanel === "support" ? <Headphones size={19} /> : bottomPanel === "bookings" ? <ClipboardList size={19} /> : bottomPanel === "profile" ? <UserRound size={19} /> : <Bell size={19} />}</span>
               <h2>{bottomPanel === "support" ? "Support" : bottomPanel === "bookings" ? "My Bookings" : bottomPanel === "profile" ? "Customer Profile" : "Notifications"}</h2>
-              {bottomPanel === "notifications" && <button className="app-panel-close" onClick={() => setBottomPanel(null)} aria-label="Close notifications"><X size={20} /></button>}
+              <button className="app-panel-close" onClick={() => { setBottomPanel(null); setProfileEditMode(false); }} aria-label="Close panel"><X size={20} /></button>
             </div>
             {bottomPanel === "support" ? (
               <div className="app-menu-detail support-actions">
