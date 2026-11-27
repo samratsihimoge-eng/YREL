@@ -1593,7 +1593,7 @@ export default function Home() {
           ? bookingArea === "city"
             ? "driver_city"
             : "driver_outstation"
-          : area === "city"
+           : rentalBookingArea === "city"
             ? "rental_city"
             : "rental_outstation";
 
@@ -2380,7 +2380,7 @@ export default function Home() {
             </>
           )}
           {service === "driver" &&
-            area === "outstation" &&
+            bookingArea === "outstation" &&
             tripType === "round-trip" &&
             schedule === "later" && (
               <div className="option-fields date-fields">
@@ -2449,7 +2449,7 @@ export default function Home() {
                 )}
 
               {service === "driver" &&
-                area === "outstation" && (
+                bookingArea === "outstation" && (
                   <p className="hint fare-disclaimer">
                     One day (up to 12 hours): ₹1,300. Two or more days:
                     ₹1,499 per day. For 2+ days, food is to be provided
