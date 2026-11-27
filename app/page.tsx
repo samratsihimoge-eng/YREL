@@ -613,17 +613,29 @@ export default function Home() {
         loadSeatShareBookings(userId),
       ]);
     } else {
-      setCustomer(null);
-      setProfileSetupOpen(true);
-      localStorage.removeItem(PHONE_STORAGE_KEY);
-      setPhone("");
-      setAccountPassword("");
-      setCustomerOtp("");
-      setCustomerOtpSent(false);
-      setBookings([]);
-      setSeatBookings([]);
+      const user = (await supabase.auth.getUser()).data.user;
+      const metadata = user?.user_metadata || {};
+      const email = user?.email || null;
+      const displayName = String(metadata.full_name || metadata.name || email?.split("@")[0] || "YREL Customer");
+      const authPhone = String(user?.phone || metadata.phone || "");
+      const { data: created, error: createError } = await supabase.from("customers").upsert({
+        id: userId, full_name: displayName, phone: authPhone || null,
+        phone_verified: Boolean(user?.phone_confirmed_at || metadata.phone_verified), email,
+      }, { onConflict: "id" }).select("id, customer_code, full_name, phone, phone_verified, gender, date_of_birth, email").single();
+      if (createError || !created) {
+        setNotice(`Could not create your Customer ID: ${createError?.message || "Please refresh and try again."}`);
+        setCustomer(null); setProfileSetupOpen(false);
+      } else {
+        setCustomer(created as Customer);
+        setFullName(created.full_name || "");
+        setProfileGender(""); setProfileDob(""); setProfileEmail(created.email || "");
+        setPhone(authPhone.replace(/^\\+91/, "").replace(/\\D/g, "").slice(-10));
+        setProfileSetupOpen(true);
+        setNotice(`Welcome to YREL. Your Customer ID is ${created.customer_code}.`);
+      }
+      setAccountPassword(""); setCustomerOtp(""); setCustomerOtpSent(false);
+      setBookings([]); setSeatBookings([]);
     }
-
     setProfileLoading(false);
   }
 
@@ -1304,92 +1316,26 @@ export default function Home() {
   }
 
   async function createCustomerProfile() {
+    if (!session?.user || !customer) { setNotice("Your Customer ID is still loading. Please wait a moment."); return; }
     const name = fullName.trim();
-
-    const digits = (
-      phone ||
-      localStorage.getItem(PHONE_STORAGE_KEY) ||
-      ""
-    ).replace(/\D/g, "");
-
-    if (!name || name.length < 2) {
-      setNotice("Please enter your full name.");
-      return;
-    }
-    if (!profileGender) {
-      setNotice("Please select your gender.");
-      return;
-    }
-    if (!profileDob || new Date(profileDob) >= new Date(new Date().toDateString())) {
-      setNotice("Please enter a valid date of birth.");
-      return;
-    }
-    if (profileEmail && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(profileEmail.trim())) {
-      setNotice("Please enter a valid email address or leave it blank.");
-      return;
-    }
-
-    if (!session?.user) {
-      setNotice(
-        "Your login session was not found. Please verify your mobile number again."
-      );
-      return;
-    }
-
-    if (!/^[6-9]\d{9}$/.test(digits)) {
-      setNotice(
-        "Please enter a valid 10-digit Indian mobile number."
-      );
-      return;
-    }
-
-    setBusy(true);
-    setNotice("");
-
-    const { data, error } = await supabase
-      .from("customers")
-      .upsert({
-        id: session.user.id,
-        full_name: name,
-        phone: `+91${digits}`,
-        phone_verified: true,
-        gender: profileGender,
-        date_of_birth: profileDob,
-        email: profileEmail.trim() || null,
-      }, { onConflict: "id" })
-      .select(
-        "id, customer_code, full_name, phone, phone_verified, gender, date_of_birth, email"
-      )
-      .single();
-
+    const digits = phone.replace(/\\D/g, "").slice(-10);
+    if (name && name.length < 2) { setNotice("Enter at least 2 characters for your name, or skip for now."); return; }
+    if (profileEmail && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(profileEmail.trim())) { setNotice("Enter a valid email address or leave it blank."); return; }
+    if (digits && !/^[6-9]\\d{9}$/.test(digits)) { setNotice("Enter a valid 10-digit Indian mobile number, or leave it blank."); return; }
+    setBusy(true); setNotice("");
+    const updates: Record<string, unknown> = { full_name: name || customer.full_name || "YREL Customer", email: profileEmail.trim() || session.user.email || null };
+    if (digits) { updates.phone = `+91${digits}`; updates.phone_verified = customer.phone === `+91${digits}` ? customer.phone_verified : false; }
+    const { data, error } = await supabase.from("customers").update(updates).eq("id", session.user.id)
+      .select("id, customer_code, full_name, phone, phone_verified, gender, date_of_birth, email").single();
     setBusy(false);
+    if (error) { setNotice(`Profile update failed: ${error.message}`); return; }
+    setCustomer(data as Customer); setProfileSetupOpen(false); setNotice("Your profile details have been saved.");
+    await Promise.all([loadBookings(session.user.id), loadSeatShareBookings(session.user.id)]);
+  }
 
-    if (error) {
-      if (error.code === "23505") {
-        setNotice(
-          "A customer profile already exists for this mobile number. Please refresh the page."
-        );
-      } else {
-        setNotice(`Profile save failed: ${error.message}`);
-      }
-
-      return;
-    }
-
-    setCustomer(data as Customer);
+  function skipCustomerProfile() {
     setProfileSetupOpen(false);
-    setAuthOpen(false);
-    localStorage.removeItem(PHONE_STORAGE_KEY);
-    setFullName("");
-
-    setNotice(
-      `Welcome ${data.full_name}! Your Customer ID: ${data.customer_code}`
-    );
-
-    await Promise.all([
-      loadBookings(session.user.id),
-      loadSeatShareBookings(session.user.id),
-    ]);
+    setNotice(customer?.customer_code ? `You can add your details anytime. Customer ID: ${customer.customer_code}` : "You can complete your profile anytime.");
   }
 
   async function saveCustomerProfile() {
@@ -2772,12 +2718,12 @@ export default function Home() {
                   <button className="book-button full" onClick={verifyCustomerOtp} disabled={busy || customerOtp.length !== 6}>
                     {busy && <Loader2 className="spin" />}<span>Verify & Continue</span><ArrowRight size={18} />
                   </button>
-                  <button className="pill" type="button" onClick={() => { setCustomerOtpSent(false); setCustomerOtpReqId(""); setCustomerOtp(""); setNotice(""); setPhone(""); localStorage.removeItem(PHONE_STORAGE_KEY); }}>Change mobile number</button>
+                  <button className="yrel-secondary-action" type="button" onClick={() => { setCustomerOtpSent(false); setCustomerOtpReqId(""); setCustomerOtp(""); setNotice(""); setPhone(""); localStorage.removeItem(PHONE_STORAGE_KEY); }}>Change mobile number</button>
                   <button className="pill" type="button" onClick={sendCustomerOtp} disabled={busy}>Resend OTP</button>
                 </>
               )}
               <div className="auth-divider"><span>OR</span></div>
-              <button className="pill" type="button" onClick={loginWithGoogle} disabled={busy}>Continue with Google</button>
+              <button className="yrel-google-action" type="button" onClick={loginWithGoogle} disabled={busy}><span className="yrel-google-mark">G</span><span>Continue with Google</span><ArrowRight size={18} /></button>
               {notice && <div className="notice">{notice}</div>}
             </div>
           </div>
@@ -2785,89 +2731,35 @@ export default function Home() {
         </div>
       )}
 
-      {profileSetupOpen && session && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="customer-profile-title">
-          <div
-            className="auth-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-symbol">
-              <UserRound />
-            </div>
-
-            <span className="eyebrow">WELCOME TO YREL</span>
-            <h2 id="customer-profile-title">Complete your profile</h2>
-
-            <p>
-              Your dashboard is ready. Complete these details once to start booking.
-            </p>
-
-            <label className="wide-field">
-              Full name
-              <input
-                className="email-input"
-                type="text"
-                autoComplete="name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Enter your full name"
-              />
+      {profileSetupOpen && session && customer && (
+        <div className="modal-backdrop yrel-profile-backdrop" role="dialog" aria-modal="true" aria-labelledby="customer-profile-title">
+          <div className="auth-modal yrel-profile-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="yrel-modal-close" type="button" aria-label="Skip profile setup" onClick={skipCustomerProfile}>×</button>
+            <div className="modal-symbol"><UserRound /></div><span className="eyebrow">WELCOME TO YREL</span>
+            <h2 id="customer-profile-title">Your account is ready</h2>
+            <div className="yrel-customer-id"><span>YOUR CUSTOMER ID</span><strong>{customer.customer_code || "Creating..."}</strong></div>
+            <p>Your dashboard is ready. Add details for your convenience. Every field is optional.</p>
+            <label className="wide-field">Full name
+              <input className="email-input" type="text" autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full name (optional)" />
             </label>
-
-            <label className="wide-field">
-              Gender <span aria-hidden="true">*</span>
+            <label className="wide-field">Mobile number (optional)
+              <div className="location-input yrel-profile-phone"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={(e) => setPhone(e.target.value.replace(/\\D/g, "").slice(0, 10))} placeholder="Enter mobile number" /></div>
+            </label>
+            <label className="wide-field">Gender (optional)
               <select className="email-input" value={profileGender} onChange={(e) => setProfileGender(e.target.value as typeof profileGender)}>
-                <option value="">Select gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="prefer_not_to_say">Prefer not to say</option>
+                <option value="">Select later</option><option value="male">Male</option><option value="female">Female</option><option value="prefer_not_to_say">Prefer not to say</option>
               </select>
             </label>
-
-            <label className="wide-field">
-              Date of birth <span aria-hidden="true">*</span>
-              <input className="email-input" type="date" value={profileDob} max={new Date().toISOString().slice(0,10)} onChange={(e) => setProfileDob(e.target.value)} />
+            <label className="wide-field">Date of birth (optional)
+              <input className="email-input" type="date" max={new Date().toISOString().slice(0,10)} value={profileDob} onChange={(e) => setProfileDob(e.target.value)} />
             </label>
-
-            <label className="wide-field">
-              Email address (optional)
-              <input className="email-input" type="email" autoComplete="email" value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} placeholder="Enter your email (optional)" />
+            <label className="wide-field">Email address (optional)
+              <input className="email-input" type="email" autoComplete="email" value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} placeholder="Enter your email" />
             </label>
-
-            <label className="wide-field">
-              Mobile number
-              <div className="location-input">
-                <span>+91</span>
-                <input
-                  className="phone-number-input"
-                  type="tel"
-                  inputMode="numeric"
-                  autoComplete="tel-national"
-                  maxLength={10}
-                  value={phone}
-                  readOnly
-                  placeholder="Verified mobile number"
-                />
-              </div>
-            </label>
-
-            <p className="hint">
-              Your mobile number has been verified by SMS OTP.
-            </p>
-
-            <button
-              className="book-button full"
-              onClick={createCustomerProfile}
-              disabled={busy || profileLoading}
-            >
-              {busy && <Loader2 className="spin" />}
-              <span>Create Profile</span>
-              <ArrowRight size={18} />
-            </button>
-
+            <button className="book-button full yrel-primary-action" onClick={createCustomerProfile} disabled={busy || profileLoading}>{busy && <Loader2 className="spin" />}<span>Save details</span><ArrowRight size={18} /></button>
+            <button className="yrel-secondary-action" type="button" onClick={skipCustomerProfile} disabled={busy}>Skip for now — go to dashboard</button>
             {notice && <div className="notice">{notice}</div>}
-
-            <p className="hint">Name, gender and date of birth are required. Email is optional. Booking is enabled after your profile is saved.</p>
+            <p className="hint">You can update your profile anytime. Your Customer ID is already active.</p>
           </div>
         </div>
       )}
