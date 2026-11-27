@@ -335,7 +335,9 @@ export default function Home() {
   );
 
   const bookingArea: Area | null =
-    service === "cab" || service === "rental" ? autoCabArea : area;
+    service === "cab" || service === "rental" || service === "driver"
+      ? autoCabArea
+      : area;
   const rentalBookingArea = detectBookingArea(pickupPoint, dropPoint);
 
   const words = {
@@ -1017,13 +1019,13 @@ export default function Home() {
         : 0;
     }
 
-    if (service === "driver" && area === "city") {
+    if (service === "driver" && bookingArea === "city") {
       return tripType === "round-trip"
         ? 299 + Math.max(0, hours - 2) * 60 * 2.5
         : 399 + Math.max(0, hours - 2) * 60 * 2.5;
     }
 
-        if (service === "driver" && area === "outstation") {
+        if (service === "driver" && bookingArea === "outstation") {
       if (tripType === "one-way") {
         return distance !== null
           ? 1000 + Math.max(0, distance - 250) * 2
@@ -1549,7 +1551,7 @@ export default function Home() {
   service === "cab" ||
   (service === "rental" && rentalBookingArea === "outstation") ||
   (service === "driver" &&
-    area === "outstation" &&
+    bookingArea === "outstation" &&
     tripType === "one-way");
 
     if (
@@ -1588,7 +1590,7 @@ export default function Home() {
           ? "cab_city"
           : "cab_outstation"
         : service === "driver"
-          ? area === "city"
+          ? bookingArea === "city"
             ? "driver_city"
             : "driver_outstation"
           : area === "city"
@@ -1605,9 +1607,9 @@ export default function Home() {
       distance_km: distance,
       eta_minutes: eta,
       hours:
-        service === "driver" && area === "city" ? hours : null,
+        service === "driver" && bookingArea === "city" ? hours : null,
       days:
-        (service === "driver" && area === "outstation") || (service === "rental" && rentalBookingArea === "outstation") ? days : null,
+        (service === "driver" && bookingArea === "outstation") || (service === "rental" && rentalBookingArea === "outstation") ? days : null,
       rental_package:
         service === "rental" && rentalBookingArea === "city"
           ? `${RENTAL_CITY_PACKAGES[packageIndex].hours} hours / ${RENTAL_CITY_PACKAGES[packageIndex].km} km`
@@ -1862,12 +1864,7 @@ export default function Home() {
         </div>
 
         <div className="booking-card">
-          {service === "driver" && (
-            <div className="choice-row">
-              <button className={area === "city" ? "choice active" : "choice"} onClick={() => { setArea("city"); setDistance(null); }}>City</button>
-              <button className={area === "outstation" ? "choice active" : "choice"} onClick={() => { setArea("outstation"); setDistance(null); }}>Outstation</button>
-            </div>
-          )}
+
 
           {service === "driver" && (
             <div className="choice-row secondary-choice">
@@ -2007,10 +2004,10 @@ export default function Home() {
             </div>
           </div>
 
-          {service === "cab" && !seatShareMode && pickupPoint && dropPoint && bookingArea && (
+          {(service === "cab" || service === "driver") && !seatShareMode && pickupPoint && dropPoint && bookingArea && (
             <div className="auto-area-note" role="status">
               <span className="auto-area-dot" />
-              <strong>{bookingArea === "city" ? "City ride detected" : "Outstation ride detected"}</strong>
+              <strong>{bookingArea === "city" ? "City service detected" : "Outstation service detected"}</strong>
               <span>Based on your selected pickup and destination</span>
             </div>
           )}
@@ -2367,7 +2364,7 @@ export default function Home() {
                 </label>
               </div>
 
-              {area === "city" && tripType === "round-trip" && (
+              {bookingArea === "city" && tripType === "round-trip" && (
                 <label className="wide-field">
                   Required hours (minimum 2)
                   <input
