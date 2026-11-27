@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { detectBookingArea, isAirportBookingPlace, isBengaluruUrbanPlace } from "@/lib/customer-booking-rules";
+import { detectBookingArea, isAirportBookingPlace } from "@/lib/customer-booking-rules";
 import {
   ArrowRight, ArrowDownUp, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
   UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users,
