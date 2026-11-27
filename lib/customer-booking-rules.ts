@@ -62,7 +62,6 @@ export function detectBookingArea(
 
   const pickupCity = canonicalCity(pickup.city);
   const dropCity = canonicalCity(drop.city);
-  if (pickupCity && dropCity) return pickupCity === dropCity ? "city" : "outstation";
 
   const toRadians = (value: number) => (value * Math.PI) / 180;
   const dLat = toRadians(drop.lat - pickup.lat);
@@ -74,7 +73,12 @@ export function detectBookingArea(
     Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
   const straightKm = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  // When Photon has no settlement metadata, do not classify a 30+ km
-  // inter-town journey as a city ride. This fallback is deliberately local.
+  // A long cross-city route must not become a City ride merely because
+  // Photon assigns both endpoints to the same broad municipal label.
+  if (pickupCity && dropCity && pickupCity !== dropCity) return "outstation";
+  if (pickupCity && dropCity) return straightKm <= 20 ? "city" : "outstation";
+
+  // When Photon has incomplete settlement metadata, keep the local fallback
+  // tighter so a 30+ km inter-town journey is not priced as a City ride.
   return straightKm <= 15 ? "city" : "outstation";
 }
