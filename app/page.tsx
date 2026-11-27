@@ -367,7 +367,7 @@ export default function Home() {
 
   const [session, setSession] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
-  const [splashVisible, setSplashVisible] = useState(false);
+  const [splashVisible, setSplashVisible] = useState(true);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [phone, setPhone] = useState("");
