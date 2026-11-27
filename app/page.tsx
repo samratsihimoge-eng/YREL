@@ -996,11 +996,17 @@ export default function Home() {
   }, [pickupPoint, dropPoint, area, service]);
 
   const fare = useMemo(() => {
+    const travelDate = date && time ? new Date(`${date}T${time}`) : new Date();
+    const hour = travelDate.getHours();
+    const autoNight = hour >= 22 || hour < 5;
+    const cabNight = hour >= 23 || hour < 5;
+
     if (service === "cab" && bookingArea === "city") {
       if (ride === "Auto") {
-        return distance
+        const base = distance
           ? Math.max(36, 36 + Math.max(0, distance - 2) * 18)
           : 0;
+        return base ? (autoNight ? base * 1.5 : base) : 0;
       }
 
       const rate = CITY_CAB[ride];
@@ -1009,7 +1015,7 @@ export default function Home() {
         rate && distance
           ? Math.max(rate.min, rate.min + Math.max(0, distance - 4) * rate.ac)
           : 0;
-      return base;
+      return base ? base + (cabNight ? 50 : 0) : 0;
     }
 
     if (service === "cab" && bookingArea === "outstation") {
@@ -1849,14 +1855,11 @@ export default function Home() {
       <section className="booking-section" id="services">
 
         <div className="service-tabs" aria-label="YREL services">
-          <button type="button" className={seatShareMode ? "service-tab active" : "service-tab"} onClick={() => { changeService("cab"); setSeatShareMode(true); setNotice(""); }}>
-            <span className="service-emoji" aria-hidden="true">👥</span><span>Seat Sharing</span>
-          </button>
-          <button type="button" className={!seatShareMode && service === "cab" ? "service-tab active" : "service-tab"} onClick={() => changeService("cab")}>
-            <span className="service-emoji" aria-hidden="true">🚕</span><span>Cab Booking</span>
+          <button type="button" className={service === "cab" ? "service-tab active" : "service-tab"} onClick={() => changeService("cab")}>
+            <span className="service-emoji" aria-hidden="true">🚕</span><span>Book a Cab</span>
           </button>
           <button type="button" className={service === "driver" ? "service-tab active" : "service-tab"} onClick={() => changeService("driver")}>
-            <span className="service-emoji" aria-hidden="true">🧑‍✈️</span><span>Driver Booking</span>
+            <span className="service-emoji" aria-hidden="true">🧑‍✈️</span><span>Book a Driver</span>
           </button>
           <button type="button" className={service === "rental" ? "service-tab active" : "service-tab"} onClick={() => changeService("rental")}>
             <span className="service-emoji" aria-hidden="true">🚙</span><span>Cab Rentals</span>
@@ -2049,6 +2052,22 @@ export default function Home() {
               <div className="field-label">Choose vehicle</div>
 
               <div className="vehicle-grid">
+                {seatShareEligible && (
+                  <button
+                    type="button"
+                    className="vehicle-option seat-share-vehicle-option"
+                    onClick={() => {
+                      setSeatShareMode(true);
+                      setSeatTrips([]);
+                      setSelectedSeatTrip(null);
+                      setSeatSearchDone(false);
+                      setNotice("");
+                    }}
+                  >
+                    <Users size={27} />
+                    <span>Seat Sharing</span>
+                  </button>
+                )}
                 {vehicleOptions.map((v) => (
                   <button
                     key={v}
