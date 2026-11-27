@@ -10,6 +10,26 @@ import {
   Home as HomeIcon, ClipboardList, Bell, Headphones, BookOpen, FileText, Ban, ArrowLeft, Phone, MessageCircle, Mail, Languages, BadgeCheck
 } from "lucide-react";
 
+
+function CustomerAvatar({ gender, compact = false }: { gender: "male" | "female" | "prefer_not_to_say"; compact?: boolean }) {
+  const female = gender === "female";
+  const male = gender === "male";
+  const skinId = female ? "skin-female" : male ? "skin-male" : "skin-neutral";
+  const clothId = female ? "cloth-female" : male ? "cloth-male" : "cloth-neutral";
+  return <span className={`customer-avatar-art ${compact ? "customer-avatar-compact" : ""} ${female ? "avatar-female" : male ? "avatar-male" : "avatar-neutral"}`} role="img" aria-label={female ? "Female profile avatar" : male ? "Male profile avatar" : "Default profile avatar"}>
+    <svg viewBox="0 0 96 96" aria-hidden="true"><defs>
+      <linearGradient id={skinId} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#f7c9a5"/><stop offset="1" stopColor="#d9916e"/></linearGradient>
+      <linearGradient id={clothId} x1="0" y1="0" x2="1" y2="1"><stop stopColor={female ? "#9d3975" : "#315b68"}/><stop offset="1" stopColor={female ? "#e28b9e" : "#79a4a2"}/></linearGradient>
+    </defs><circle cx="48" cy="48" r="48" fill={female ? "#f8dce4" : male ? "#d9e9e7" : "#eee2ed"}/>
+    <path d="M13 96c2-20 16-31 35-31s33 11 35 31" fill={`url(#${clothId})`}/>
+    <path d={female ? "M23 48c-5-25 7-39 26-39 20 0 29 15 24 41l-4 19H29z" : "M26 42c0-20 10-31 22-31 16 0 24 12 22 31l-5-7c-12 4-22 4-34-1z"} fill={female ? "#3c2634" : "#403432"}/>
+    <ellipse cx="48" cy="43" rx="20" ry="24" fill={`url(#${skinId})`}/>
+    <path d="M39 43h2m14 0h2" stroke="#47302e" strokeWidth="3" strokeLinecap="round"/><path d="M42 54q6 5 12 0" fill="none" stroke="#9c554e" strokeWidth="2.5" strokeLinecap="round"/>
+    {female && <path d="M28 39q-8 10-5 29M68 37q10 10 5 31" fill="none" stroke="#3c2634" strokeWidth="6" strokeLinecap="round"/>}
+    {male && <path d="M35 57q13 9 26 0" fill="none" stroke="#664039" strokeWidth="4" strokeLinecap="round"/>}
+    </svg></span>;
+}
+
 type Service = "cab" | "driver" | "rental";
 type Area = "city" | "outstation";
 type Ride =
@@ -51,6 +71,7 @@ type Customer = {
   full_name: string;
   phone: string | null;
   phone_verified: boolean;
+  gender: "male" | "female" | "prefer_not_to_say" | null;
 };
 
 type SeatShareTrip = {
@@ -304,6 +325,7 @@ export default function Home() {
   const [profileEditMode, setProfileEditMode] = useState(false);
   const [profileNameDraft, setProfileNameDraft] = useState("");
   const [profilePhoneDraft, setProfilePhoneDraft] = useState("");
+  const [profileGenderDraft, setProfileGenderDraft] = useState<"male" | "female" | "prefer_not_to_say">("prefer_not_to_say");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingFilter, setBookingFilter] = useState<"all" | "active" | "completed" | "cancelled">("all");
   const [trackingBookingId, setTrackingBookingId] = useState<string | null>(null);
@@ -492,7 +514,7 @@ export default function Home() {
 
     const { data, error } = await supabase
       .from("customers")
-      .select("id, customer_code, full_name, phone, phone_verified")
+      .select("id, customer_code, full_name, phone, phone_verified, gender")
       .eq("id", userId)
       .maybeSingle();
 
@@ -1320,10 +1342,11 @@ export default function Home() {
       .update({
         full_name: name,
         phone: `+91${digits}`,
+        gender: profileGenderDraft,
         phone_verified: customer.phone === `+91${digits}` ? customer.phone_verified : false,
       })
       .eq("id", session.user.id)
-      .select("id, customer_code, full_name, phone, phone_verified")
+      .select("id, customer_code, full_name, phone, phone_verified, gender")
       .single();
     setBusy(false);
 
@@ -1762,11 +1785,12 @@ export default function Home() {
           if (session && customer) {
             setProfileNameDraft(customer.full_name);
             setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, ""));
+            setProfileGenderDraft(customer.gender || "prefer_not_to_say");
             setProfileEditMode(false);
             setNotice("");
             setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "profile" ? null : "profile");
           } else { setNotice(""); setAuthOpen(true); }
-        }} aria-label="Profile" title="Profile"><UserRound size={22} /></button>
+        }} aria-label="Profile" title="Profile"><CustomerAvatar gender={customer?.gender || "prefer_not_to_say"} compact /></button>
       </header>
 
       {!authOpen && !splashVisible && <section className="yrel-home-hero" aria-label="YREL welcome"><div><h1>Hello, {customer?.full_name || "Customer"} 👋</h1><p>Book your ride with YREL</p></div></section>}
@@ -2619,12 +2643,31 @@ export default function Home() {
             ) : bottomPanel === "profile" ? (
               <div className="app-menu-detail compact-profile-panel">
                 {customer && session ? <>
-                  <div className="compact-profile-row"><small><BadgeCheck size={15} /> Customer ID</small><b>{customer.customer_code}</b></div>
-                  <div className="compact-profile-row"><small><UserRound size={15} /> Full name</small>{profileEditMode ? <input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Full name" /> : <b>{customer.full_name}</b>}</div>
-                  <div className="compact-profile-row"><small><Phone size={15} /> Mobile number</small>{profileEditMode ? <div className="location-input profile-phone-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" /></div> : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}</div>
-                  <div className="compact-profile-row"><small><Mail size={15} /> Email ID</small><b className="profile-email">{session.user.email || "Not available"}</b></div>
-                  <p className="compact-profile-hint">Your Google account email is shown here. To change it, update your Google account.</p>
-                  {profileEditMode ? <button className="book-button full compact-profile-action" onClick={saveCustomerProfile} disabled={busy}>{busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} /></button> : <button className="book-button full compact-profile-action" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, "")); setProfileEditMode(true); setNotice(""); }}>Edit profile</button>}
+                  <div className="profile-summary-card">
+                    <CustomerAvatar gender={profileEditMode ? profileGenderDraft : (customer.gender || "prefer_not_to_say")} />
+                    <div><span>YREL CUSTOMER</span><strong>{customer.full_name}</strong><small>{customer.customer_code}</small></div>
+                  </div>
+                  {profileEditMode ? (
+                    <div className="profile-edit-form">
+                      <label className="profile-field"><span>Full name</span><input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Enter your full name" autoComplete="name" /></label>
+                      <label className="profile-field"><span>Mobile number</span><div className="location-input profile-phone-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" /></div></label>
+                      <fieldset className="profile-gender-field"><legend>Gender</legend><div className="profile-gender-options">
+                        <button type="button" className={profileGenderDraft === "male" ? "selected" : ""} onClick={() => setProfileGenderDraft("male")}><span>♂</span> Male</button>
+                        <button type="button" className={profileGenderDraft === "female" ? "selected" : ""} onClick={() => setProfileGenderDraft("female")}><span>♀</span> Female</button>
+                        <button type="button" className={profileGenderDraft === "prefer_not_to_say" ? "selected" : ""} onClick={() => setProfileGenderDraft("prefer_not_to_say")}><span>—</span> Prefer not to say</button>
+                      </div></fieldset>
+                      <div className="profile-readonly-email"><Mail size={17}/><div><span>Email address</span><b>{session.user.email || "Not available"}</b><small>Managed through your Google account.</small></div></div>
+                      <button className="book-button full compact-profile-action" onClick={saveCustomerProfile} disabled={busy}>{busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} /></button>
+                      <button className="profile-cancel-edit" type="button" onClick={() => { setProfileEditMode(false); setProfileGenderDraft(customer.gender || "prefer_not_to_say"); }}>Cancel</button>
+                    </div>
+                  ) : (
+                    <div className="profile-view-details">
+                      <div><span>Mobile number</span><b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b></div>
+                      <div><span>Email address</span><b className="profile-email">{session.user.email || "Not available"}</b></div>
+                      <div><span>Gender</span><b>{customer.gender === "male" ? "Male" : customer.gender === "female" ? "Female" : "Not specified"}</b></div>
+                      <button className="book-button full compact-profile-action" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, "")); setProfileGenderDraft(customer.gender || "prefer_not_to_say"); setProfileEditMode(true); setNotice(""); }}>Edit profile</button>
+                    </div>
+                  )}
                   <button className="profile-signout-button compact-profile-action" onClick={signOut}><LogOut size={17} /> Sign out</button>
                   {notice && <div className="notice">{notice}</div>}
                 </> : <p>Please log in to view your profile.</p>}
