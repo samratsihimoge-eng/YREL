@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { detectBookingArea, isAirportBookingPlace, isBengaluruUrbanPlace } from "@/lib/customer-booking-rules";
 import {
   ArrowRight, ArrowDownUp, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
   UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users,
@@ -129,95 +130,11 @@ const normalizeCity = (value?: string) =>
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .replace(/\s+/g, " ");
 
-const getAutoCabArea = (
-  pickup: Place | null,
-  drop: Place | null
-): Area | null => {
-  if (!pickup || !drop) return null;
-
-  const pickupState = normalizeCity(pickup.state);
-  const dropState = normalizeCity(drop.state);
-
-  // Different known states are always outstation.
-  if (pickupState && dropState && pickupState !== dropState) {
-    return "outstation";
-  }
-
-  const canonicalCity = (value?: string) => {
-    const city = normalizeCity(value);
-    if (
-      city === "bengaluru" ||
-      city === "bangalore" ||
-      city === "bengaluru urban" ||
-      city === "bangalore urban"
-    ) {
-      return "bengaluru";
-    }
-    return city;
-  };
-
-  const pickupCity = canonicalCity(pickup.city);
-  const dropCity = canonicalCity(drop.city);
-
-  const toRadians = (value: number) => (value * Math.PI) / 180;
-  const lat1 = toRadians(pickup.lat);
-  const lat2 = toRadians(drop.lat);
-  const deltaLat = toRadians(drop.lat - pickup.lat);
-  const deltaLon = toRadians(drop.lon - pickup.lon);
-  const haversine =
-    Math.sin(deltaLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) *
-      Math.sin(deltaLon / 2) ** 2;
-  const straightKm =
-    6371 * 2 *
-    Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
-
-  // Treat two points inside Bengaluru urban coordinates as City Local,
-  // even if Photon returns different locality/city labels (e.g. Hebbal).
-  if (isBengaluruUrban(pickup) && isBengaluruUrban(drop)) {
-    return "city";
-  }
-
-  // Keep the explicit city-name rule as a fallback for long Bengaluru routes.
-  if (pickupCity === "bengaluru" && dropCity === "bengaluru") {
-    return "city";
-  }
-
-  // Different known cities are outstation regardless of distance.
-  if (pickupCity && dropCity && pickupCity !== dropCity) {
-    return "outstation";
-  }
-
-  // Other same-city routes (and routes with incomplete city metadata)
-  // use the agreed 35 km local threshold.
-  return straightKm <= 35 ? "city" : "outstation";
-};
-
 const isIndia = (lat: number, lon: number) =>
   lat >= 6 && lat <= 38.5 && lon >= 68 && lon <= 97.5;
 
 // A coordinate-based Bengaluru urban check prevents Photon from treating
 // localities such as Hebbal, KR Puram and Electronic City as separate cities.
-const isBengaluruUrban = (place: Place | null) =>
-  Boolean(
-    place &&
-      place.lat >= 12.70 &&
-      place.lat <= 13.30 &&
-      place.lon >= 77.25 &&
-      place.lon <= 77.95
-  );
-
-const isAirportPlace = (place: Place | null) => {
-  if (!place) return false;
-
-  const value = `${place.name} ${place.label}`.toLowerCase();
-
-  return (
-    value.includes("airport") ||
-    value.includes(" ವಿಮಾನ ನಿಲ್ದಾಣ")
-  );
-};
-
 const localDateString = () => {
   const d = new Date();
   const year = d.getFullYear();
@@ -407,17 +324,17 @@ export default function Home() {
   const [savedLocations, setSavedLocations] = useState<Place[]>([]);
   const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
 
-  const autoCabArea = getAutoCabArea(pickupPoint, dropPoint);
+  const autoCabArea = detectBookingArea(pickupPoint, dropPoint);
   const airportRoute =
-    isAirportPlace(pickupPoint) || isAirportPlace(dropPoint);
+    isAirportBookingPlace(pickupPoint) || isAirportBookingPlace(dropPoint);
 
   // Seat Sharing is only for intercity/outstation journeys, plus
   // Bengaluru city-to-Bengaluru-airport journeys. A normal Bengaluru
   // locality-to-locality route (e.g. pickup to Hebbal) must never show it.
   const bengaluruAirportRoute = Boolean(
     airportRoute &&
-      isBengaluruUrban(pickupPoint) &&
-      isBengaluruUrban(dropPoint)
+      isBengaluruUrbanPlace(pickupPoint) &&
+      isBengaluruUrbanPlace(dropPoint)
   );
 
   const seatShareEligible = Boolean(
@@ -428,7 +345,7 @@ export default function Home() {
 
   const bookingArea: Area | null =
     service === "cab" || service === "rental" ? autoCabArea : area;
-  const rentalBookingArea = getAutoCabArea(pickupPoint, dropPoint);
+  const rentalBookingArea = detectBookingArea(pickupPoint, dropPoint);
 
   const words = {
     en: {
@@ -727,11 +644,10 @@ export default function Home() {
 
   useEffect(() => {
     if (!seatShareEligible) {
-      setSeatShareMode(false);
       setSeatTrips([]);
       setSelectedSeatTrip(null);
       setSeatSearchDone(false);
-          }
+    }
   }, [seatShareEligible]);
       
 
@@ -1954,35 +1870,18 @@ export default function Home() {
       )}
       <section className="booking-section" id="services">
 
-        <div className="service-tabs">
-          <button
-            className={
-              service === "cab" ? "service-tab active" : "service-tab"
-            }
-            onClick={() => changeService("cab")}
-          >
-            <span className="service-emoji" aria-hidden="true">🚕</span>
-            <span>Book a Cab</span>
+        <div className="service-tabs" aria-label="YREL services">
+          <button type="button" className={seatShareMode ? "service-tab active" : "service-tab"} onClick={() => { changeService("cab"); setSeatShareMode(true); setNotice(""); }}>
+            <span className="service-emoji" aria-hidden="true">👥</span><span>Seat Sharing</span>
           </button>
-
-          <button
-            className={
-              service === "driver" ? "service-tab active" : "service-tab"
-            }
-            onClick={() => changeService("driver")}
-          >
-            <span className="service-emoji" aria-hidden="true">🧑‍✈️</span>
-            <span>Book a Driver</span>
+          <button type="button" className={!seatShareMode && service === "cab" ? "service-tab active" : "service-tab"} onClick={() => changeService("cab")}>
+            <span className="service-emoji" aria-hidden="true">🚕</span><span>Cab Booking</span>
           </button>
-
-          <button
-            className={
-              service === "rental" ? "service-tab active" : "service-tab"
-            }
-            onClick={() => changeService("rental")}
-          >
-            <span className="service-emoji" aria-hidden="true">🚙</span>
-            <span>Cab Rentals</span>
+          <button type="button" className={service === "driver" ? "service-tab active" : "service-tab"} onClick={() => changeService("driver")}>
+            <span className="service-emoji" aria-hidden="true">🧑‍✈️</span><span>Driver Booking</span>
+          </button>
+          <button type="button" className={service === "rental" ? "service-tab active" : "service-tab"} onClick={() => changeService("rental")}>
+            <span className="service-emoji" aria-hidden="true">🚙</span><span>Cab Rentals</span>
           </button>
         </div>
 
@@ -2132,6 +2031,21 @@ export default function Home() {
             </div>
           </div>
 
+          {service === "cab" && !seatShareMode && pickupPoint && dropPoint && bookingArea && (
+            <div className="auto-area-note" role="status">
+              <span className="auto-area-dot" />
+              <strong>{bookingArea === "city" ? "City ride detected" : "Outstation ride detected"}</strong>
+              <span>Based on your selected pickup and destination</span>
+            </div>
+          )}
+
+          {seatShareMode && (
+            <div className={seatShareEligible ? "seat-share-route-status eligible" : "seat-share-route-status"}>
+              <Users size={17} />
+              <span>{!pickupPoint || !dropPoint ? "Choose pickup and destination to check Seat Sharing eligibility." : seatShareEligible ? "This route is eligible for Seat Sharing." : "Seat Sharing is available only for eligible outstation and airport routes."}</span>
+            </div>
+          )}
+
           {!seatShareMode && (
             <div className="booking-mode-block">
               <div className="booking-switch-row">
@@ -2157,34 +2071,11 @@ export default function Home() {
             </div>
           )}
 
-          {service === "cab" && pickupPoint && dropPoint && distance !== null && !routeLoading && (
+          {service === "cab" && !seatShareMode && pickupPoint && dropPoint && distance !== null && !routeLoading && (
             <>
               <div className="field-label">Choose vehicle</div>
 
               <div className="vehicle-grid">
-                {seatShareEligible && (
-                  <button
-                    className={
-                      seatShareMode
-                        ? "vehicle-option selected"
-                        : "vehicle-option"
-                    }
-                    onClick={() => {
-                      setSeatShareMode(true);
-                      setSeatTrips([]);
-                      setSelectedSeatTrip(null);
-                      setSeatSearchDone(false);
-                      setNotice("");
-                    }}
-                  >
-                    <Users size={22} />
-                    <span>Seat Sharing</span>
-                    {seatShareMode && (
-                      <Check className="vehicle-check" size={15} />
-                    )}
-                  </button>
-                )}
-
                 {vehicleOptions.map((v) => (
                   <button
                     key={v}
