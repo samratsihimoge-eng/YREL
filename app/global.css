@@ -3910,3 +3910,100 @@ html,body{background:#fff8f1!important;color:#351044!important}
  .bottom-info-panel-profile .app-menu-detail.compact-profile-panel{padding:14px 14px calc(26px + env(safe-area-inset-bottom))!important}
  .bottom-info-panel-profile .compact-profile-row{min-height:76px!important}
 }
+
+
+/* Refined customer profile: warm editorial panel art with readable contrast. */
+.bottom-info-panel-profile,
+.app-menu-panel{
+  background-color:#fffaf5!important;
+  background-image:linear-gradient(180deg,rgba(255,250,245,.91),rgba(255,247,239,.94)),url("/images/yrel-profile-menu-bg.svg")!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+  background-repeat:no-repeat!important;
+}
+.bottom-info-panel-profile .compact-profile-panel{
+  display:flex!important;flex-direction:column!important;gap:15px!important;
+  padding:16px 18px calc(26px + env(safe-area-inset-bottom))!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  background:transparent!important;
+}
+.profile-summary-card{
+  display:flex!important;align-items:center!important;gap:15px!important;
+  padding:17px!important;border-radius:22px!important;
+  background:linear-gradient(120deg,rgba(255,255,255,.94),rgba(255,239,226,.88))!important;
+  border:1px solid rgba(191,137,108,.25)!important;
+  box-shadow:0 10px 24px rgba(93,55,47,.08)!important;
+}
+.profile-summary-card>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.profile-summary-card>div>span{font-size:10px;letter-spacing:.15em;font-weight:800;color:#9b6a52}
+.profile-summary-card strong{font-size:19px;color:#4c2943;overflow-wrap:anywhere}
+.profile-summary-card small{font-size:12px;color:#806b65}
+.customer-avatar-art{
+  display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
+  width:72px;height:72px;border-radius:50%;overflow:hidden;
+  border:3px solid rgba(255,255,255,.95);
+  box-shadow:0 5px 16px rgba(70,42,52,.16);
+  background:#f5e5e1;
+}
+.customer-avatar-art svg{display:block;width:100%;height:100%}
+.customer-avatar-compact{width:42px;height:42px;border:1px solid rgba(255,255,255,.8);box-shadow:none}
+.header-notification-button:has(.customer-avatar-compact){
+  display:grid!important;place-items:center!important;padding:0!important;
+  width:48px!important;height:48px!important;border-radius:50%!important;
+  background:rgba(255,255,255,.65)!important;border:1px solid rgba(151,92,83,.18)!important;
+  box-shadow:0 5px 14px rgba(83,45,48,.10)!important;
+}
+.profile-edit-form{display:flex!important;flex-direction:column!important;gap:15px!important}
+.profile-field{display:flex!important;flex-direction:column!important;gap:7px!important}
+.profile-field>span,.profile-gender-field legend,.profile-readonly-email span,
+.profile-view-details span{
+  font-size:12px!important;font-weight:750!important;letter-spacing:.025em!important;color:#765248!important;
+}
+.profile-edit-form .email-input,
+.profile-edit-form .profile-phone-input{
+  width:100%!important;min-height:54px!important;height:54px!important;
+  box-sizing:border-box!important;border-radius:14px!important;
+  border:1px solid rgba(177,126,99,.38)!important;
+  background:rgba(255,255,255,.94)!important;box-shadow:0 3px 12px rgba(83,48,37,.045)!important;
+  color:#422b38!important;font-size:16px!important;padding:0 15px!important;
+}
+.profile-edit-form .profile-phone-input{display:flex!important;align-items:center!important;gap:12px!important;padding:0 14px!important}
+.profile-edit-form .profile-phone-input>span{font-weight:750;color:#a45b38;white-space:nowrap}
+.profile-edit-form .profile-phone-input input{height:48px!important;min-width:0!important;flex:1!important;border:0!important;background:transparent!important;outline:0!important;box-shadow:none!important;padding:0!important}
+.profile-gender-field{border:0!important;padding:0!important;margin:0!important;min-width:0!important}
+.profile-gender-field legend{padding:0 0 8px!important}
+.profile-gender-options{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+.profile-gender-options button{
+  min-height:48px!important;border:1px solid rgba(177,126,99,.34)!important;
+  border-radius:14px!important;background:rgba(255,255,255,.9)!important;
+  color:#684a48!important;font-size:14px!important;font-weight:700!important;
+}
+.profile-gender-options button span{font-size:19px;margin-right:5px}
+.profile-gender-options button.selected{
+  border-color:#a54c68!important;background:linear-gradient(135deg,#f8e5e8,#f9eee4)!important;
+  color:#762f58!important;box-shadow:0 0 0 2px rgba(165,76,104,.10)!important;
+}
+.profile-gender-options button:last-child{grid-column:1/-1}
+.profile-readonly-email{
+  display:flex!important;align-items:flex-start!important;gap:11px!important;
+  padding:13px!important;border-radius:14px!important;
+  background:rgba(255,255,255,.68)!important;border:1px solid rgba(177,126,99,.22)!important;
+  color:#875b56!important;
+}
+.profile-readonly-email>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.profile-readonly-email b{font-size:13px;color:#4c2943;overflow-wrap:anywhere}
+.profile-readonly-email small{font-size:11px;color:#8a7770}
+.profile-view-details{display:flex!important;flex-direction:column!important;gap:0!important}
+.profile-view-details>div{display:flex;flex-direction:column;gap:6px;padding:14px 2px;border-bottom:1px solid rgba(145,97,78,.15)}
+.profile-view-details b{font-size:14px;color:#4c2943;overflow-wrap:anywhere}
+.profile-cancel-edit{min-height:42px;border:0;background:transparent;color:#825b58;font-weight:700}
+.bottom-info-panel-profile .compact-profile-action{width:100%!important;min-height:52px!important}
+.bottom-info-panel-profile .profile-signout-button{margin-top:2px!important}
+@media(max-width:600px){
+ .bottom-info-panel-profile{max-height:calc(100dvh - 148px - env(safe-area-inset-bottom))!important}
+ .bottom-info-panel-profile .compact-profile-panel{padding:13px 14px calc(24px + env(safe-area-inset-bottom))!important}
+ .profile-summary-card{padding:14px!important}
+ .customer-avatar-art{width:64px;height:64px}
+ .customer-avatar-compact{width:40px;height:40px}
+ .profile-gender-options button{font-size:13px!important}
+}
