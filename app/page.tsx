@@ -370,7 +370,7 @@ export default function Home() {
 
   const [session, setSession] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
-  const [splashVisible, setSplashVisible] = useState(false);
+  const [splashVisible, setSplashVisible] = useState(true);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [phone, setPhone] = useState("");
@@ -598,8 +598,14 @@ export default function Home() {
     }
 
     if (data) {
-      setCustomer(data as Customer);
-      setProfileSetupOpen(false);
+      const existing = data as Customer;
+      setCustomer(existing);
+      setFullName(existing.full_name || "");
+      setProfileGender(existing.gender || "");
+      setProfileDob(existing.date_of_birth || "");
+      setProfileEmail(existing.email || "");
+      const profileComplete = Boolean(existing.full_name?.trim() && existing.gender && existing.date_of_birth);
+      setProfileSetupOpen(!profileComplete);
       localStorage.removeItem(PHONE_STORAGE_KEY);
 
       await Promise.all([
@@ -1342,7 +1348,7 @@ export default function Home() {
 
     const { data, error } = await supabase
       .from("customers")
-      .insert({
+      .upsert({
         id: session.user.id,
         full_name: name,
         phone: `+91${digits}`,
@@ -1350,7 +1356,7 @@ export default function Home() {
         gender: profileGender,
         date_of_birth: profileDob,
         email: profileEmail.trim() || null,
-      })
+      }, { onConflict: "id" })
       .select(
         "id, customer_code, full_name, phone, phone_verified, gender, date_of_birth, email"
       )
