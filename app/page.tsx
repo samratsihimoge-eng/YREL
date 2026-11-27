@@ -2797,7 +2797,7 @@ export default function Home() {
               {notice && <div className="notice">{notice}</div>}
             </div>
           </div>
-          <RoadAnimation />
+          <div className="yrel-login-scene" aria-hidden="true"><img src="/images/yrel-login-scene.svg" alt="" /></div>
         </div>
       )}
 
