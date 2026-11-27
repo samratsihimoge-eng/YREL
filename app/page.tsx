@@ -1209,16 +1209,11 @@ export default function Home() {
 
   async function checkCustomerPhone() {
     const digits = phone.replace(/\D/g, "");
-    if (!/^[6-9]\d{9}$/.test(digits)) { setNotice("Please enter a valid 10-digit Indian mobile number."); return; }
-    setBusy(true); setNotice("");
-    try {
-      const response = await fetch("/api/auth/phone-lookup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits, accountType: "customer" }) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Could not check mobile number.");
-      setAuthStep(result.registered ? "login" : "register");
-      setNotice(result.registered ? "Welcome back. Enter your 4-digit passcode." : "This number is not registered. Create your YREL account.");
-    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not check mobile number."); }
-    finally { setBusy(false); }
+    if (!/^[6-9]\d{9}$/.test(digits)) {
+      setNotice("Please enter a valid 10-digit Indian mobile number.");
+      return;
+    }
+    setNotice("SMS OTP login is being configured. Please try again later.");
   }
 
   async function registerCustomerAccount() {
@@ -2741,19 +2736,10 @@ export default function Home() {
             <div className="yrel-login-brandline"><h1><span>Your city.</span><span>Your fun.</span><span className="yrel-slogan-highlight">Just YREL it.</span></h1><p>Instant Booking <span>•</span> Pan India Service</p></div>
             <div className="yrel-login-form">
               <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span><div className="location-input"><span>+91</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setAuthStep("phone"); setAccountPassword(""); }} placeholder="Enter mobile number" /></div></label>
-                {authStep === "phone" && <button className="book-button full" onClick={checkCustomerPhone} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Next</span><ArrowRight size={18} /></button>}
-                {authStep === "login" && <>
-                  <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">4-digit Passcode</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="password" inputMode="numeric" maxLength={4} autoComplete="current-password" value={accountPassword} onChange={e => setAccountPassword(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="Enter 4-digit passcode" /></label>
-                  <button className="book-button full" onClick={loginCustomer} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Login</span><ArrowRight size={18} /></button>
-                </>}
-                {authStep === "register" && <>
-                  <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">Full name</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Enter your full name" autoComplete="name" /></label>
-                  <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">Email ID</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="email" autoComplete="email" value={accountEmail} onChange={e => setAccountEmail(e.target.value)} placeholder="Enter email address" /></label>
-                  <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">Create 4-digit Passcode</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="password" inputMode="numeric" maxLength={4} autoComplete="new-password" value={accountPassword} onChange={e => setAccountPassword(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="Create 4-digit passcode" /></label>
-                  <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">Confirm Passcode</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="password" inputMode="numeric" maxLength={4} autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="Re-enter 4-digit passcode" /></label>
-                  <button className="book-button full" onClick={registerCustomerAccount} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Create Account</span><ArrowRight size={18} /></button>
-                </>}
-                {authStep !== "phone" && <button className="pill" onClick={() => { setAuthStep("phone"); setAccountPassword(""); setConfirmPassword(""); setNotice(""); }}>Change mobile number</button>}
+                <button className="book-button full" onClick={checkCustomerPhone} disabled={busy}>
+                  <span>SMS OTP login</span><ArrowRight size={18} />
+                </button>
+                <p className="hint">SMS OTP authentication is being configured. Account registration and login will be available once SMS verification is ready.</p>
               {notice && <div className="notice">{notice}</div>}
             </div>
           </div>
