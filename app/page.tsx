@@ -375,8 +375,6 @@ export default function Home() {
   const [accountEmail, setAccountEmail] = useState("");
   const [accountPassword, setAccountPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [registrationUserId, setRegistrationUserId] = useState("");
-  const [registrationPending, setRegistrationPending] = useState(false);
   const [customerOtp, setCustomerOtp] = useState("");
   const [customerOtpReqId, setCustomerOtpReqId] = useState("");
   const [customerOtpSent, setCustomerOtpSent] = useState(false);
@@ -1242,21 +1240,9 @@ export default function Home() {
       const response = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fullName: fullName.trim(), phone: digits, email: accountEmail, password: accountPassword, accountType: "customer" }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not create account.");
-      setRegistrationUserId(result.userId); setRegistrationPending(true);
-      setNotice("Account created. Verify your mobile number to continue.");
+      setAuthStep("phone");
+      setNotice("Account created. SMS OTP sign-in is temporarily unavailable while authentication is being configured.");
     } catch (error) { setNotice(error instanceof Error ? error.message : "Could not create account."); }
-    finally { setBusy(false); }
-  }
-
-  async function sendCustomerVerificationLink() {
-    if (!registrationUserId) return;
-    setBusy(true); setNotice("");
-    try {
-      const response = await fetch("/api/auth/phone-verification/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: registrationUserId, phone, accountType: "customer" }) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Could not send verification link.");
-      setNotice("Verification link sent by SMS. Open the link to continue to login.");
-    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not send verification link."); }
     finally { setBusy(false); }
   }
 
@@ -2758,11 +2744,7 @@ export default function Home() {
           <div className="yrel-login-content">
             <div className="yrel-login-brandline"><h1><span>Your city.</span><span>Your fun.</span><span className="yrel-slogan-highlight">Just YREL it.</span></h1><p>Instant Booking <span>•</span> Pan India Service</p></div>
             <div className="yrel-login-form">
-              {registrationPending ? <>
-                <h2>Verify Mobile Number</h2><p>Your account has been created. Verify that this mobile number belongs to you to continue.</p>
-                <button className="book-button full" onClick={sendCustomerVerificationLink} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Send Verification Link by SMS</span><ArrowRight size={18} /></button>
-                <p className="hint">After opening the SMS link, return here and log in with your mobile number and 4-digit passcode.</p>
-              </> : <>
+              <>
                 <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span><div className="location-input"><span>+91</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setAuthStep("phone"); setAccountPassword(""); }} placeholder="Enter mobile number" /></div></label>
                 {authStep === "phone" && <button className="book-button full" onClick={checkCustomerPhone} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Next</span><ArrowRight size={18} /></button>}
                 {authStep === "login" && <>
