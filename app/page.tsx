@@ -2744,8 +2744,7 @@ export default function Home() {
           <div className="yrel-login-content">
             <div className="yrel-login-brandline"><h1><span>Your city.</span><span>Your fun.</span><span className="yrel-slogan-highlight">Just YREL it.</span></h1><p>Instant Booking <span>•</span> Pan India Service</p></div>
             <div className="yrel-login-form">
-              <>
-                <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span><div className="location-input"><span>+91</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setAuthStep("phone"); setAccountPassword(""); }} placeholder="Enter mobile number" /></div></label>
+              <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span><div className="location-input"><span>+91</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setAuthStep("phone"); setAccountPassword(""); }} placeholder="Enter mobile number" /></div></label>
                 {authStep === "phone" && <button className="book-button full" onClick={checkCustomerPhone} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Next</span><ArrowRight size={18} /></button>}
                 {authStep === "login" && <>
                   <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">4-digit Passcode</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="password" inputMode="numeric" maxLength={4} autoComplete="current-password" value={accountPassword} onChange={e => setAccountPassword(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="Enter 4-digit passcode" /></label>
@@ -2759,7 +2758,6 @@ export default function Home() {
                   <button className="book-button full" onClick={registerCustomerAccount} disabled={busy}>{busy && <Loader2 className="spin" />}<span>Create Account</span><ArrowRight size={18} /></button>
                 </>}
                 {authStep !== "phone" && <button className="pill" onClick={() => { setAuthStep("phone"); setAccountPassword(""); setConfirmPassword(""); setNotice(""); }}>Change mobile number</button>}
-              </>}
               {notice && <div className="notice">{notice}</div>}
             </div>
           </div>
