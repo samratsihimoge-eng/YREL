@@ -1208,12 +1208,7 @@ export default function Home() {
   }
 
   async function checkCustomerPhone() {
-    const digits = phone.replace(/\D/g, "");
-    if (!/^[6-9]\d{9}$/.test(digits)) {
-      setNotice("Please enter a valid 10-digit Indian mobile number.");
-      return;
-    }
-    setNotice("SMS OTP login is being configured. Please try again later.");
+    await sendCustomerOtp();
   }
 
   async function registerCustomerAccount() {
@@ -1254,48 +1249,46 @@ export default function Home() {
 
   async function sendCustomerOtp() {
     const digits = phone.replace(/\D/g, "");
-    if (!/^[6-9]\d{9}$/.test(digits)) {
-      setNotice("Please enter a valid 10-digit Indian mobile number.");
-      return;
-    }
+    if (!/^[6-9]\d{9}$/.test(digits)) { setNotice("Please enter a valid 10-digit Indian mobile number."); return; }
     setBusy(true); setNotice("");
     try {
-      const response = await fetch("/api/auth/whatsapp/send", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: digits })
-      });
+      const response = await fetch("/api/auth/sms-otp/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits }) });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Could not send WhatsApp OTP.");
-      setCustomerOtpReqId(result.reqId);
-      setCustomerOtpSent(true);
+      if (!response.ok) throw new Error(result.error || "Could not send SMS OTP.");
+      setCustomerOtpReqId(result.requestId); setCustomerOtp(""); setCustomerOtpSent(true);
       localStorage.setItem(PHONE_STORAGE_KEY, digits);
-      setNotice("6-digit WhatsApp OTP sent. Please check WhatsApp.");
-    } catch (error) {
-      setNotice(error instanceof Error ? error.message : "Could not send WhatsApp OTP.");
-    } finally { setBusy(false); }
+      setNotice("6-digit OTP sent by SMS. Please check your messages.");
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not send SMS OTP."); }
+    finally { setBusy(false); }
   }
 
   async function verifyCustomerOtp() {
     const digits = phone.replace(/\D/g, "");
-    if (!customerOtpReqId || !/^\d{6}$/.test(customerOtp)) {
-      setNotice("Enter the 6-digit WhatsApp OTP.");
-      return;
-    }
+    if (!customerOtpReqId || !/^\d{6}$/.test(customerOtp)) { setNotice("Enter the 6-digit SMS OTP."); return; }
     setBusy(true); setNotice("");
     try {
-      const response = await fetch("/api/auth/whatsapp/verify", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: digits, reqId: customerOtpReqId, otp: customerOtp, accountType: "customer" })
-      });
+      const response = await fetch("/api/auth/sms-otp/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits, requestId: customerOtpReqId, otp: customerOtp }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "OTP verification failed.");
-      const { error } = await supabase.auth.verifyOtp({ token_hash: result.tokenHash, type: "magiclink" });
+      const { error } = await supabase.auth.setSession({ access_token: result.session.access_token, refresh_token: result.session.refresh_token });
       if (error) throw error;
-      setCustomerOtpSent(false); setCustomerOtp(""); setCustomerOtpReqId("");
-      setNotice("Mobile number verified. Complete your customer profile.");
+      setCustomerOtpSent(false); setCustomerOtp(""); setCustomerOtpReqId(""); setAuthOpen(false);
+      setNotice("Mobile number verified successfully.");
+    } catch (error) { setNotice(error instanceof Error ? error.message : "OTP verification failed."); }
+    finally { setBusy(false); }
+  }
+
+  async function loginWithGoogle() {
+    setBusy(true); setNotice("");
+    try {
+      sessionStorage.setItem("yrel_oauth_in_progress", "1");
+      const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
+      if (error) throw error;
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : "OTP verification failed.");
-    } finally { setBusy(false); }
+      sessionStorage.removeItem("yrel_oauth_in_progress");
+      setNotice(error instanceof Error ? error.message : "Google login could not start.");
+      setBusy(false);
+    }
   }
 
   async function createCustomerProfile() {
@@ -2735,11 +2728,29 @@ export default function Home() {
           <div className="yrel-login-content">
             <div className="yrel-login-brandline"><h1><span>Your city.</span><span>Your fun.</span><span className="yrel-slogan-highlight">Just YREL it.</span></h1><p>Instant Booking <span>•</span> Pan India Service</p></div>
             <div className="yrel-login-form">
-              <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}><span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span><div className="location-input"><span>+91</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setAuthStep("phone"); setAccountPassword(""); }} placeholder="Enter mobile number" /></div></label>
+              <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}>
+                <span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span>
+                <div className="location-input"><span>+91</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} readOnly={customerOtpSent} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setCustomerOtpSent(false); setCustomerOtpReqId(""); setCustomerOtp(""); }} placeholder="Enter mobile number" /></div>
+              </label>
+              {!customerOtpSent ? (
                 <button className="book-button full" onClick={checkCustomerPhone} disabled={busy}>
-                  <span>SMS OTP login</span><ArrowRight size={18} />
+                  {busy && <Loader2 className="spin" />}<span>Send SMS OTP</span><ArrowRight size={18} />
                 </button>
-                <p className="hint">SMS OTP authentication is being configured. Account registration and login will be available once SMS verification is ready.</p>
+              ) : (
+                <>
+                  <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 18 }}>
+                    <span className="yrel-mobile-prompt">Enter 6-digit SMS OTP</span>
+                    <input className="email-input" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={customerOtp} onChange={e => setCustomerOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="6-digit OTP" />
+                  </label>
+                  <button className="book-button full" onClick={verifyCustomerOtp} disabled={busy || customerOtp.length !== 6}>
+                    {busy && <Loader2 className="spin" />}<span>Verify & Continue</span><ArrowRight size={18} />
+                  </button>
+                  <button className="pill" type="button" onClick={() => { setCustomerOtpSent(false); setCustomerOtpReqId(""); setCustomerOtp(""); setNotice(""); setPhone(""); localStorage.removeItem(PHONE_STORAGE_KEY); }}>Change mobile number</button>
+                  <button className="pill" type="button" onClick={sendCustomerOtp} disabled={busy}>Resend OTP</button>
+                </>
+              )}
+              <div className="auth-divider"><span>OR</span></div>
+              <button className="pill" type="button" onClick={loginWithGoogle} disabled={busy}>Continue with Google</button>
               {notice && <div className="notice">{notice}</div>}
             </div>
           </div>
