@@ -50,7 +50,8 @@ export const isAirportBookingPlace = (place: BookingPlace | null) => {
  */
 export function detectBookingArea(
   pickup: BookingPlace | null,
-  drop: BookingPlace | null
+  drop: BookingPlace | null,
+  roadDistanceKm?: number | null
 ): BookingArea | null {
   if (!pickup || !drop) return null;
 
@@ -76,9 +77,12 @@ export function detectBookingArea(
   // A long cross-city route must not become a City ride merely because
   // Photon assigns both endpoints to the same broad municipal label.
   if (pickupCity && dropCity && pickupCity !== dropCity) return "outstation";
+  if (typeof roadDistanceKm === "number" && Number.isFinite(roadDistanceKm)) {
+    return roadDistanceKm <= 25 ? "city" : "outstation";
+  }
   if (pickupCity && dropCity) return straightKm <= 20 ? "city" : "outstation";
 
   // When Photon has incomplete settlement metadata, keep the local fallback
-  // tighter so a 30+ km inter-town journey is not priced as a City ride.
+  // tighter so inter-town journeys are not priced as City rides.
   return straightKm <= 15 ? "city" : "outstation";
 }
