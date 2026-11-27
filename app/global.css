@@ -3667,3 +3667,52 @@ html,body{background:#fff8f1!important;color:#351044!important}
 @media(max-width:640px){.site-shell{background-attachment:scroll!important;background-position:center top!important}}
 @media(prefers-reduced-motion:no-preference){.yrel-splash-screen img{animation:yrelSplashLogoFloat 3.8s ease-in-out infinite}}
 @keyframes yrelSplashLogoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+
+/* YREL customer-app final mobile layout corrections — preserve approved peach/cream palette. */
+.yrel-home-hero{
+  background-color:#8b5b49!important;
+  background-image:linear-gradient(90deg,rgba(55,30,26,.34),rgba(55,30,26,.10)),url('/images/yrel-unified-customer-background.svg')!important;
+  background-position:center 44%!important;background-size:cover!important;background-repeat:no-repeat!important;
+  min-height:168px!important;
+}
+.topbar.yrel-fixed-header .header-brand{
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
+  overflow:hidden!important;
+}
+.topbar.yrel-fixed-header .brand-logo{
+  flex:0 1 128px!important;width:128px!important;max-width:128px!important;min-width:0!important;
+  height:70px!important;object-fit:contain!important;
+}
+.topbar.yrel-fixed-header .header-brand:after{
+  flex:1 1 auto!important;min-width:0!important;max-width:175px!important;
+  white-space:normal!important;overflow-wrap:normal!important;
+  font-size:clamp(9px,1.75vw,13px)!important;line-height:1.2!important;
+  padding-left:8px!important;
+}
+.site-shell{
+  padding-bottom:calc(150px + env(safe-area-inset-bottom))!important;
+}
+.yrel-bottom-nav{
+  display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+  position:fixed!important;left:0!important;right:0!important;bottom:0!important;
+  z-index:121!important;min-height:78px!important;
+  padding-bottom:max(8px,env(safe-area-inset-bottom))!important;
+  background:rgba(255,252,248,.97)!important;
+  border:1px solid #f3d6c3!important;border-radius:26px 26px 0 0!important;
+  box-shadow:0 -8px 28px rgba(92,44,23,.12)!important;
+}
+.yrel-bottom-nav button{color:#62483d!important;background:transparent!important}
+.yrel-bottom-nav button span{color:#62483d!important}
+.yrel-bottom-nav button:nth-child(1) svg{color:#b84c2d!important}
+.yrel-bottom-nav button:nth-child(2) svg{color:#7751a4!important}
+.yrel-bottom-nav button:nth-child(3) svg{color:#237c91!important}
+.yrel-bottom-nav button:nth-child(4) svg{color:#b17a27!important}
+@media(max-width:640px){
+ .topbar.yrel-fixed-header{grid-template-columns:36px minmax(0,1fr) 36px!important;gap:5px!important;padding:6px 10px!important;height:82px!important}
+ .topbar.yrel-fixed-header .brand-logo{flex-basis:104px!important;width:104px!important;max-width:104px!important;height:58px!important}
+ .topbar.yrel-fixed-header .header-brand:after{max-width:145px!important;font-size:9px!important;padding-left:6px!important}
+ .site-shell{padding-top:72px!important;padding-bottom:calc(150px + env(safe-area-inset-bottom))!important}
+ .yrel-home-hero{min-height:150px!important;padding:20px 17px!important}
+}
