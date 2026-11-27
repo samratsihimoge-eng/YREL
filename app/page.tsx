@@ -1048,7 +1048,9 @@ export default function Home() {
     if (service === "rental" && rentalBookingArea === "outstation") {
       const rate = OUTSTATION[ride];
       const totalKm = distance ? distance * (tripType === "round-trip" ? 2 : 1) : 0;
-      const billableKm = tripType === "round-trip" ? Math.max(totalKm, days * 300) : totalKm;
+      // Outstation rentals have a 300 km/day billing minimum for both trip
+      // directions; round trips count the return distance before the minimum.
+      const billableKm = Math.max(totalKm, days * 300);
       const perKmRate = tripType === "round-trip" ? rate?.round : rate?.one;
       return rate && perKmRate ? billableKm * perKmRate + rate.bata * days : 0;
     }
