@@ -166,3 +166,109 @@ html,body{background:#f3f6fc!important;color:var(--yrel-ink)!important}
 .yrel-policy-num{background:#e8edff!important;color:#5147c8!important}
 .yrel-login-screen{background:radial-gradient(circle at 10% 12%,rgba(255,255,255,.16),transparent 30%),radial-gradient(circle at 90% 80%,rgba(56,199,232,.22),transparent 28%),linear-gradient(145deg,#101d48 0%,#302a78 52%,#276fbd 100%)!important}
 @media(max-width:640px){.yrel-home-hero{min-height:230px!important;border-radius:0 0 24px 24px!important;background-position:58% center!important;padding:22px 18px!important}.site-shell{background:linear-gradient(180deg,#f4f7ff 0%,#edf3fc 100%)!important}}
+
+
+/* YREL CUSTOMER LIGHT EDITION — pearl, soft sage and plum; no blue, orange or dark page backgrounds. */
+:root{
+  --yrel-ink:#382d38;--yrel-muted:#827985;--yrel-plum:#76536f;
+  --yrel-plum-deep:#503b50;--yrel-sage:#aab9a5;--yrel-surface:#ffffff;
+  --yrel-soft:#f5f5f2;--yrel-line:#e7e3e5;
+}
+html,body{background:#f7f7f5!important;color:var(--yrel-ink)!important}
+body{background:radial-gradient(ellipse at 12% 5%,rgba(255,255,255,.98),transparent 38%),linear-gradient(180deg,#fbfbfa 0%,#f1f2ef 100%)!important}
+.site-shell{background:radial-gradient(ellipse at 90% 12%,rgba(170,185,165,.15),transparent 28%),linear-gradient(180deg,#fbfbfa 0%,#f2f3f0 100%)!important}
+.yrel-home-hero{
+  position:relative!important;isolation:isolate!important;min-height:clamp(210px,32vw,330px)!important;
+  align-items:flex-end!important;padding:clamp(22px,4vw,40px)!important;
+  border-radius:0 0 28px 28px!important;
+  background:linear-gradient(110deg,rgba(54,43,56,.84),rgba(86,68,84,.24)),url('/images/yrel-city-hero.svg') center 54%/cover no-repeat!important;
+  box-shadow:0 14px 34px rgba(58,46,57,.10)!important;
+}
+.yrel-home-hero:before{content:""!important;position:absolute!important;inset:0!important;z-index:-1!important;background:linear-gradient(90deg,rgba(54,43,56,.46),rgba(54,43,56,.04))!important;clip-path:none!important}
+.yrel-home-hero:after{content:none!important;display:none!important}
+.yrel-home-hero h1{color:#fff!important;text-shadow:0 2px 12px rgba(38,30,39,.22)!important}
+.yrel-home-hero p{color:#f8f5f7!important;text-shadow:0 1px 8px rgba(38,30,39,.20)!important}
+.topbar.yrel-fixed-header,.yrel-bottom-nav{
+  background:rgba(255,255,255,.90)!important;border-color:#e8e4e7!important;
+  -webkit-backdrop-filter:blur(18px)!important;backdrop-filter:blur(18px)!important;
+  box-shadow:0 5px 18px rgba(54,43,56,.045)!important
+}
+.booking-card,.app-menu-panel,.auth-modal,.pin-map-panel,.advance-confirmation-panel{
+  background:linear-gradient(145deg,#fff 0%,#f9f9f7 100%)!important;
+  border:1px solid #e7e3e5!important;box-shadow:0 12px 32px rgba(54,43,56,.065)!important
+}
+.service-tabs button,.choice-row button,.rental-trip-choice .choice,.vehicle-option,.package-option,
+.booking-section .service-tab,.booking-section .choice,.booking-section .pill{
+  border-color:#e4dfe3!important;background:linear-gradient(145deg,#fff,#f7f7f5)!important;
+  color:#5d515d!important;box-shadow:0 4px 12px rgba(54,43,56,.045)!important
+}
+.service-tabs button.active,.choice-row button.active,.rental-trip-choice .choice.active,
+.booking-section .service-tab.active,.booking-section .choice.active,.booking-section .pill.active,
+.booking-section .vehicle-option.selected,.booking-section .package-option.selected{
+  background:linear-gradient(115deg,#76536f,#59465b)!important;color:#fff!important;
+  border-color:transparent!important;box-shadow:0 8px 18px rgba(83,62,82,.16)!important
+}
+.service-tabs button.active *,.choice-row button.active *,.booking-section .service-tab.active *,
+.booking-section .choice.active *,.booking-section .pill.active *,.booking-section .vehicle-option.selected *,
+.booking-section .package-option.selected *{color:#fff!important}
+.book-button,.book-button.full,.advance-confirmation-gotit,.pin-map-confirm{
+  background:linear-gradient(110deg,#76536f,#59465b)!important;color:#fff!important;border:0!important;
+  box-shadow:0 8px 18px rgba(83,62,82,.16)!important
+}
+.yrel-seat-share-banner{background:linear-gradient(110deg,#554653,#806b7e)!important;border-color:#806b7e!important;box-shadow:0 10px 24px rgba(83,62,82,.13)!important}
+.yrel-seat-share-banner small{color:#f6f1f5!important}
+.yrel-dashboard-quick-grid button,.history-item,.compact-profile-row{
+  background:linear-gradient(145deg,#fff,#f7f7f5)!important;border-color:#e7e3e5!important;
+  color:#514653!important;box-shadow:0 7px 18px rgba(54,43,56,.05)!important
+}
+.yrel-dashboard-quick-grid button span,.history-icon{background:linear-gradient(135deg,#806b7e,#59465b)!important;color:#fff!important}
+.history-main b,.history-right b,.compact-profile-row b{color:#59465b!important}
+.history-action-track,.support-whatsapp{background:linear-gradient(110deg,#76536f,#59465b)!important;color:#fff!important}
+.history-action-cancel,.profile-signout-button{background:#f2eef1!important;color:#725a70!important;border-color:#e5dce3!important}
+.history-filters button.active{background:#76536f!important;color:#fff!important}
+.compact-profile-row small{color:#826d7e!important}
+.driver-tracking-panel{background:linear-gradient(120deg,#f4f5f1,#fff)!important;border-color:#e5e4df!important;color:#514653!important}
+.driver-tracking-panel a,.support-chat{color:#76536f!important}
+.support-chat{background:#fff!important;border-color:#e7e3e5!important}
+.instant-search-screen{
+  background:radial-gradient(circle at 50% 35%,rgba(170,185,165,.25),transparent 34%),linear-gradient(145deg,#f8f8f6 0%,#e9eae6 100%)!important;
+  color:#453b46!important
+}
+.instant-search-screen h2,.instant-search-screen p,.instant-search-screen small{color:#453b46!important}
+.instant-search-progress-track{stroke:#d9d7d8!important}
+.instant-search-progress-value{stroke:#76536f!important}
+.instant-search-cancel{background:#59465b!important;color:#fff!important}
+.yrel-login-screen{
+  background:radial-gradient(circle at 14% 16%,rgba(255,255,255,.98),transparent 34%),
+    radial-gradient(circle at 86% 82%,rgba(170,185,165,.20),transparent 28%),
+    linear-gradient(145deg,#fafaf8 0%,#eff0ed 100%)!important;
+  color:#453b46!important
+}
+.yrel-login-brandline h1 span{color:#493e49!important}
+.yrel-login-brandline p{color:#807681!important}
+.yrel-login-brandline .yrel-slogan-highlight{color:#76536f!important}
+.yrel-login-form{background:rgba(255,255,255,.86)!important;border:1px solid #e8e4e7!important;border-radius:24px!important;box-shadow:0 14px 34px rgba(54,43,56,.07)!important}
+.yrel-login-form input,.yrel-login-form .phone-number-input{
+  background:#fff!important;border-color:#e4dfe3!important;color:#453b46!important
+}
+.yrel-login-form input:focus,.yrel-login-form .phone-number-input:focus{border-color:#927b90!important;box-shadow:0 0 0 4px rgba(118,83,111,.10)!important}
+.yrel-login-form .yrel-mobile-prompt{color:#655765!important}
+.yrel-road-animation{filter:saturate(.42) contrast(1.04)!important}
+.yrel-road-animation .road-surface{background:linear-gradient(180deg,#d9d9d5,#b9b8b4)!important}
+.yrel-road-animation .road-markings{background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(67,57,67,.52) 22px 40px,transparent 40px 62px)!important}
+.yrel-road-animation svg{filter:drop-shadow(0 4px 7px rgba(54,43,56,.13))!important}
+.yrel-fixed-header .header-menu-button svg,.yrel-bottom-nav button svg{color:#76536f!important}
+.yrel-bottom-nav button span{color:#655765!important}
+.yrel-login-footer{color:#807681!important}
+@media(max-width:640px){
+  .yrel-home-hero{min-height:218px!important;border-radius:0 0 22px 22px!important;background-position:58% center!important;padding:22px 18px!important}
+  .site-shell{background:linear-gradient(180deg,#fbfbfa 0%,#f1f2ef 100%)!important}
+}
+@media(prefers-reduced-motion:no-preference){
+  .yrel-home-hero{animation:yrelHeroBreath 12s ease-in-out infinite alternate!important}
+  .yrel-road-animation .road-auto-illustration,.yrel-road-animation .road-cab-illustration{animation:yrelVehicleDrift 5.5s ease-in-out infinite!important}
+  .yrel-road-animation .driver-wave-hand{animation:yrelDriverWave 2.4s ease-in-out infinite!important;transform-origin:7px 28px}
+}
+@keyframes yrelHeroBreath{from{background-position:50% 52%}to{background-position:54% 58%}}
+@keyframes yrelVehicleDrift{0%,100%{transform:translateX(-3px)}50%{transform:translateX(5px)}}
+@keyframes yrelDriverWave{0%,100%{transform:rotate(0)}50%{transform:rotate(-12deg)}}
