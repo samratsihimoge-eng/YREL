@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1950" fill="none">
+<defs>
+ <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFB04B"/><stop offset=".55" stop-color="#F47A12"/><stop offset="1" stop-color="#E95B16"/></linearGradient>
+ <linearGradient id="pale" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFE2C2" stop-opacity=".9"/><stop offset="1" stop-color="#F7B77B" stop-opacity=".38"/></linearGradient>
+ <linearGradient id="car" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".65" stop-color="#F5F0E9"/><stop offset="1" stop-color="#D8D0C7"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#B9D8E5"/><stop offset="1" stop-color="#435D6B"/></linearGradient>
+ <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#D9B59B" stop-opacity=".7"/><stop offset="1" stop-color="#B9876A" stop-opacity=".22"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="18"/></filter>
+</defs>
+<!-- flowing brand ribbons -->
+<path d="M-130 0H640C480 150 315 215 125 285-20 338-100 420-150 520Z" fill="url(#orange)" opacity=".86"/>
+<path d="M-130 0H500C365 130 225 188 65 255-25 294-90 350-145 420" stroke="#FFD4A8" stroke-width="34" opacity=".8"/>
+<path d="M-100 1780C80 1650 240 1650 400 1725s320 115 620-100v325H-100Z" fill="url(#orange)" opacity=".88"/>
+<path d="M-90 1810c180-130 330-125 495-55s310 95 610-100" stroke="#FFE1C5" stroke-width="34" opacity=".82"/>
+<!-- aircraft and trail -->
+<path d="M555 270c95-20 166-60 250-122" stroke="#EAA46D" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+<g transform="translate(735 145) rotate(-14)" fill="#E9A36F" opacity=".72">
+ <path d="M-100 8 85-24 105-15 25 13 62 42 48 48-2 24-53 42-68 38-37 17-98 20Z"/>
+ <path d="m-7 7 15-48 12-3-1 49Z"/>
+</g>
+<!-- skyline -->
+<g fill="#EABF9D" opacity=".38">
+ <path d="M0 1410h45v-185h52v185h25v-130h60v130h35v-230h65v230h28v-155h54v155h34v-195h74v195h35v-120h58v120h27v-215h70v215h28v-150h56v150h40v-185h66v185h45v140H0Z"/>
+ <path d="M45 1190h45v-75h45v75h-90zm180-35h35v-90h35v90zm225 25h38v-110h38v110zm190-20h35v-80h35v80z"/>
+</g>
+<g stroke="#F9E4D2" stroke-width="7" opacity=".5">
+ <path d="M65 1280v95m28-95v95m103-90v90m90-170v170m34-170v170m118-150v150m45-150v150m112-125v125m36-125v125m110-155v155m40-155v155"/>
+</g>
+<!-- location pin -->
+<path d="M760 1040c-98 0-176 78-176 176 0 132 176 330 176 330s176-198 176-330c0-98-78-176-176-176Z" fill="url(#pale)" opacity=".68"/>
+<circle cx="760" cy="1215" r="62" stroke="#F4A96C" stroke-width="28" opacity=".68"/>
+<!-- sweeping road -->
+<path d="M-100 1585c230-130 370-145 515-80 165 74 280 72 585-100" stroke="url(#road)" stroke-width="150" opacity=".7"/>
+<path d="M-100 1585c230-130 370-145 515-80 165 74 280 72 585-100" stroke="#FFF4E9" stroke-width="7" stroke-dasharray="34 38" opacity=".9"/>
+<path d="M-100 1660c230-130 370-145 515-80 165 74 280 72 585-100" stroke="#E6B38E" stroke-width="3" opacity=".45"/>
+<!-- taxi ground shadow -->
+<ellipse cx="250" cy="1572" rx="245" ry="38" fill="#9B694B" opacity=".2" filter="url(#shadow)"/>
+<!-- taxi body -->
+<g transform="translate(12 1310)">
+ <path d="M52 176 80 93c12-35 40-57 82-62l175-2c47 0 82 20 109 59l49 88 31 15v69H18v-57Z" fill="url(#car)" stroke="#7A6B60" stroke-width="8" stroke-linejoin="round"/>
+ <path d="m105 100 42-51c9-11 21-16 39-16h66v92H83Z" fill="url(#glass)" stroke="#6D777B" stroke-width="7"/>
+ <path d="M263 33h68c34 0 58 15 78 44l27 48H263Z" fill="url(#glass)" stroke="#6D777B" stroke-width="7"/>
+ <path d="M270 39v82" stroke="#E8E0D8" stroke-width="6"/>
+ <path d="M20 188h475l-16 56H18Z" fill="#F18B19"/>
+ <path d="M44 185h72v22H44z" fill="#F7C15B"/>
+ <path d="M445 166h44v27h-44z" fill="#F6E8D9"/>
+ <path d="M84 244h393" stroke="#B5A69A" stroke-width="8"/>
+ <circle cx="120" cy="245" r="43" fill="#29333A"/><circle cx="120" cy="245" r="20" fill="#D6DCE0"/>
+ <circle cx="408" cy="245" r="43" fill="#29333A"/><circle cx="408" cy="245" r="20" fill="#D6DCE0"/>
+ <path d="M165 0h105l18 30H151Z" fill="#F4A900" stroke="#9B6716" stroke-width="5"/>
+ <text x="213" y="24" text-anchor="middle" font-family="Arial,sans-serif" font-size="23" font-weight="900" fill="#34271F">TAXI</text>
+ <path d="M32 170h-20v24h24m445-18h25v25h-28" stroke="#FFF" stroke-width="8" stroke-linecap="round"/>
+ <path d="M70 153h24" stroke="#F8E9D8" stroke-width="6"/>
+</g>
+</svg>
