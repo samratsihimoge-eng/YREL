@@ -275,6 +275,7 @@ export default function Home() {
   >(null);
 
   const [distance, setDistance] = useState<number | null>(null);
+  const [routeCoordinates, setRouteCoordinates] = useState<[number, number][]>([]);
   const [eta, setEta] = useState<number | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -979,6 +980,7 @@ export default function Home() {
     if (!pickupPoint || !dropPoint) {
       setDistance(null);
       setEta(null);
+      setRouteCoordinates([]);
       return;
     }
 
@@ -987,7 +989,7 @@ export default function Home() {
     setRouteLoading(true);
 
     fetch(
-      `https://router.project-osrm.org/route/v1/driving/${pickupPoint.lon},${pickupPoint.lat};${dropPoint.lon},${dropPoint.lat}?overview=false`
+      `https://router.project-osrm.org/route/v1/driving/${pickupPoint.lon},${pickupPoint.lat};${dropPoint.lon},${dropPoint.lat}?overview=full&geometries=geojson`
     )
       .then((r) => r.json())
       .then((json) => {
@@ -998,15 +1000,19 @@ export default function Home() {
         if (route && route.distance > 0) {
           setDistance(route.distance / 1000);
           setEta(Math.round(route.duration / 60));
+          const coordinates = route.geometry?.coordinates;
+          setRouteCoordinates(Array.isArray(coordinates) ? coordinates as [number, number][] : []);
         } else {
           setDistance(null);
           setEta(null);
+          setRouteCoordinates([]);
         }
       })
       .catch(() => {
         if (!cancelled) {
           setDistance(null);
           setEta(null);
+          setRouteCoordinates([]);
         }
       })
       .finally(() => {
@@ -1017,6 +1023,25 @@ export default function Home() {
       cancelled = true;
     };
   }, [pickupPoint, dropPoint, area, service]);
+
+  const routeMapDrawing = useMemo(() => {
+    if (routeCoordinates.length < 2) return { points: "", start: [0, 0] as [number, number], end: [0, 0] as [number, number] };
+    const longitudes = routeCoordinates.map(([lon]) => lon);
+    const latitudes = routeCoordinates.map(([, lat]) => lat);
+    const minLon = Math.min(...longitudes), maxLon = Math.max(...longitudes);
+    const minLat = Math.min(...latitudes), maxLat = Math.max(...latitudes);
+    const lonSpan = Math.max(maxLon - minLon, 0.00001);
+    const latSpan = Math.max(maxLat - minLat, 0.00001);
+    const projected = routeCoordinates.map(([lon, lat]) => [
+      42 + ((lon - minLon) / lonSpan) * 556,
+      28 + ((maxLat - lat) / latSpan) * 184,
+    ] as [number, number]);
+    return {
+      points: projected.map(([x, y]) => x.toFixed(1) + "," + y.toFixed(1)).join(" "),
+      start: projected[0],
+      end: projected[projected.length - 1],
+    };
+  }, [routeCoordinates]);
 
   const fare = useMemo(() => {
     const travelDate = date && time ? new Date(`${date}T${time}`) : new Date();
@@ -2033,6 +2058,51 @@ export default function Home() {
                 )}
             </div>
           </div>
+
+          {pickupPoint && dropPoint && (
+            <section className="yrel-route-preview" aria-label="Read-only route map preview">
+              <div className="yrel-route-preview-heading">
+                <div><span>YOUR ROUTE</span><strong>Route overview</strong></div>
+                {distance !== null && !routeLoading && <small>{distance.toFixed(1)} km · {eta ?? "—"} min</small>}
+              </div>
+              {routeLoading ? (
+                <div className="yrel-route-map-loading"><span className="yrel-route-loading-pulse" /> Preparing your route map…</div>
+              ) : routeMapDrawing.points ? (
+                <svg className="yrel-route-map-art" viewBox="0 0 640 250" role="img" aria-label="Map showing the selected pickup-to-destination route">
+                  <defs>
+                    <pattern id="yrel-map-grid" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M34 0H0V34" fill="none" stroke="#e8d9ca" strokeWidth="1"/></pattern>
+                    <linearGradient id="yrel-route-stroke" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#7b3157"/><stop offset="1" stopColor="#e66a28"/></linearGradient>
+                  </defs>
+                  <rect width="640" height="250" rx="18" fill="#fbf4ea"/>
+                  <rect width="640" height="250" rx="18" fill="url(#yrel-map-grid)"/>
+                  <g fill="none" stroke="#e3cdb9" strokeWidth="8" strokeLinecap="round" opacity=".72">
+                    <path d="M-15 55 C120 90 130 10 250 50 S420 120 655 62"/>
+                    <path d="M-10 190 C100 140 180 240 310 175 S490 125 650 205"/>
+                    <path d="M110 -10 C150 65 100 110 190 265"/>
+                    <path d="M460 -15 C410 60 520 130 470 265"/>
+                  </g>
+                  <g fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" opacity=".95">
+                    <path d="M-15 55 C120 90 130 10 250 50 S420 120 655 62"/>
+                    <path d="M-10 190 C100 140 180 240 310 175 S490 125 650 205"/>
+                    <path d="M110 -10 C150 65 100 110 190 265"/>
+                    <path d="M460 -15 C410 60 520 130 470 265"/>
+                  </g>
+                  <polyline points={routeMapDrawing.points} fill="none" stroke="#fff" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round"/>
+                  <polyline points={routeMapDrawing.points} fill="none" stroke="url(#yrel-route-stroke)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx={routeMapDrawing.start[0]} cy={routeMapDrawing.start[1]} r="13" fill="#fff" stroke="#8c3158" strokeWidth="6"/>
+                  <circle cx={routeMapDrawing.end[0]} cy={routeMapDrawing.end[1]} r="13" fill="#fff" stroke="#e66a28" strokeWidth="6"/>
+                  <g fontFamily="Arial,sans-serif" fontSize="12" fontWeight="700" fill="#573b3c">
+                    <rect x="14" y="12" width="142" height="25" rx="12" fill="#fffdf9" opacity=".94"/><text x="26" y="29">PICKUP</text>
+                    <rect x="484" y="213" width="142" height="25" rx="12" fill="#fffdf9" opacity=".94"/><text x="496" y="230">DESTINATION</text>
+                  </g>
+                </svg>
+              ) : (
+                <div className="yrel-route-map-loading">Route map preview is unavailable right now. Your selected locations are saved.</div>
+              )}
+              <div className="yrel-route-preview-locations"><span><i className="pickup-dot" />{pickupPoint.label}</span><span><i className="drop-dot" />{dropPoint.label}</span></div>
+              <p className="yrel-route-preview-note">Preview only · This map does not control or change your booking.</p>
+            </section>
+          )}
 
           {(service === "cab" || service === "driver") && !seatShareMode && pickupPoint && dropPoint && bookingArea && (
             <div className="auto-area-note" role="status">
