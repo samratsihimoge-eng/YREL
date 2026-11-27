@@ -13,9 +13,8 @@ export async function POST(request: NextRequest) {
     }
 
     const apiKey = process.env.STARTMESSAGING_API_KEY;
-    const templateId = process.env.STARTMESSAGING_SMS_TEMPLATE_ID;
-    if (!apiKey || !templateId) {
-      return NextResponse.json({ error: "SMS service is not configured. Add the StartMessaging API key and SMS template ID in Vercel." }, { status: 503 });
+    if (!apiKey) {
+      return NextResponse.json({ error: "SMS service is not configured. Add the StartMessaging API key in Vercel." }, { status: 503 });
     }
 
     const otp = String(randomInt(0, 1_000_000)).padStart(6, "0");
@@ -24,8 +23,7 @@ export async function POST(request: NextRequest) {
       headers: { "Content-Type": "application/json", "X-API-Key": apiKey },
       body: JSON.stringify({
         phoneNumber: `+91${digits}`,
-        templateId,
-        variables: { otp, appName: "YREL" }
+        variables: { otp }
       }),
       cache: "no-store"
     });
