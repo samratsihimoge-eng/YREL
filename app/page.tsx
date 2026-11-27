@@ -603,9 +603,11 @@ export default function Home() {
     } else {
       setCustomer(null);
       setProfileSetupOpen(true);
-      const pendingPhone =
-        localStorage.getItem(PHONE_STORAGE_KEY) || "";
-      setPhone(pendingPhone);
+      localStorage.removeItem(PHONE_STORAGE_KEY);
+      setPhone("");
+      setAccountPassword("");
+      setCustomerOtp("");
+      setCustomerOtpSent(false);
       setBookings([]);
       setSeatBookings([]);
     }
@@ -1232,7 +1234,10 @@ export default function Home() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not create account.");
       setAuthStep("phone");
-      setNotice("Account created. SMS OTP sign-in is temporarily unavailable while authentication is being configured.");
+      setPhone("");
+      setAccountPassword("");
+      setConfirmPassword("");
+      setNotice("");
     } catch (error) { setNotice(error instanceof Error ? error.message : "Could not create account."); }
     finally { setBusy(false); }
   }
