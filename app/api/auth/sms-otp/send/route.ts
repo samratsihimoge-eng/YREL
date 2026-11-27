@@ -13,7 +13,12 @@ export async function POST(request: NextRequest) {
     }
 
     const apiKey = process.env.STARTMESSAGING_API_KEY;
-    const templateId = process.env.STARTMESSAGING_SMS_TEMPLATE_ID;
+    const configuredTemplateId = process.env.STARTMESSAGING_SMS_TEMPLATE_ID?.trim();
+    // StartMessaging accepts templateId only as a UUID. Ignore malformed optional values
+    // so an incorrect Vercel setting does not block every OTP send request.
+    const templateId = configuredTemplateId && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(configuredTemplateId)
+      ? configuredTemplateId
+      : undefined;
     if (!apiKey) {
       return NextResponse.json({ error: "SmartMessaging SMS is not configured. Add STARTMESSAGING_API_KEY in Vercel." }, { status: 503 });
     }
