@@ -3716,3 +3716,15 @@ html,body{background:#fff8f1!important;color:#351044!important}
  .site-shell{padding-top:72px!important;padding-bottom:calc(150px + env(safe-area-inset-bottom))!important}
  .yrel-home-hero{min-height:150px!important;padding:20px 17px!important}
 }
+
+
+/* Full-screen first-load splash and no animated road inside customer login. */
+.yrel-splash-screen{
+  position:fixed!important;inset:0!important;z-index:99999!important;
+  background-color:#fffaf5!important;
+  background-image:linear-gradient(rgba(255,250,245,.62),rgba(255,250,245,.70)),url('/images/yrel-unified-customer-background.svg')!important;
+  background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important;
+}
+.yrel-login-screen .yrel-road-animation,
+.yrel-login-screen > .yrel-road-animation,
+.yrel-login-content .yrel-road-animation{display:none!important;visibility:hidden!important}
