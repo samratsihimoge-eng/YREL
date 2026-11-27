@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomInt } from "crypto";
 
 export const runtime = "nodejs";
 export const preferredRegion = "bom1";
@@ -11,28 +12,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Enter a valid 10-digit Indian mobile number." }, { status: 400 });
     }
 
-    const authkey = process.env.MSG91_AUTH_KEY;
-    const widgetId = process.env.MSG91_WIDGET_ID;
-    if (!authkey || !widgetId) {
-      return NextResponse.json({ error: "MSG91 is not connected yet. Add MSG91_AUTH_KEY and MSG91_WIDGET_ID in Vercel after creating your OTP Widget." }, { status: 503 });
+    const apiKey = process.env.STARTMESSAGING_API_KEY;
+    const templateId = process.env.STARTMESSAGING_SMS_TEMPLATE_ID;
+    if (!apiKey) {
+      return NextResponse.json({ error: "SmartMessaging SMS is not configured. Add STARTMESSAGING_API_KEY in Vercel." }, { status: 503 });
     }
 
-    const upstream = await fetch("https://api.msg91.com/api/v5/widget/sendOtp", {
+    const otp = String(randomInt(0, 1_000_000)).padStart(6, "0");
+    const upstream = await fetch("https://api.startmessaging.com/otp/send", {
       method: "POST",
-      headers: { "Content-Type": "application/json", authkey },
-      body: JSON.stringify({ widgetId, identifier: `91${digits}` }),
+      headers: { "Content-Type": "application/json", "X-API-Key": apiKey },
+      body: JSON.stringify({
+        phoneNumber: `+91${digits}`,
+        ...(templateId ? { templateId } : {}),
+        variables: { otp, appName: "YREL" }
+      }),
       cache: "no-store"
     });
     const result = await upstream.json().catch(() => ({}));
-    const reqId = result.message || result.data?.reqId || result.reqId;
-    if (!upstream.ok || result.type !== "success" || !reqId) {
-      console.error("MSG91 WhatsApp OTP send failed", upstream.status, result?.message || result?.error || "provider error");
-      return NextResponse.json({ error: result?.message || "MSG91 could not send WhatsApp OTP. Check the widget's WhatsApp primary channel and account status." }, { status: 502 });
+
+    // StartMessaging Verify API expects the top-level requestId.
+    // data.otpRequestId is a separate message identifier.
+    const requestId = typeof result.requestId === "string" ? result.requestId : "";
+    if (!upstream.ok || result.success !== true || !requestId) {
+      console.error("SmartMessaging OTP send failed", {
+        status: upstream.status,
+        success: result?.success,
+        message: result?.message || result?.error || "Provider returned no requestId"
+      });
+      return NextResponse.json({ error: result?.message || "Could not send SMS OTP. Please check your SmartMessaging account and SMS template." }, { status: 502 });
     }
 
-    return NextResponse.json({ requestId: reqId, message: "WhatsApp OTP sent." });
+    return NextResponse.json({ requestId, message: "SMS OTP sent." });
   } catch (error) {
-    console.error("YREL MSG91 OTP send error", error instanceof Error ? error.message : "Unknown error");
-    return NextResponse.json({ error: "Unable to send WhatsApp OTP right now. Please try again." }, { status: 500 });
+    console.error("YREL SmartMessaging OTP send error", error instanceof Error ? error.message : "Unknown error");
+    return NextResponse.json({ error: "Unable to send SMS OTP right now. Please try again." }, { status: 500 });
   }
 }
