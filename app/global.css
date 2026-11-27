@@ -3641,10 +3641,8 @@ html,body{background:#fff8f1!important;color:#351044!important}
 .advance-confirmation-gotit{background:linear-gradient(110deg,#ff9800,#ef4826)!important;color:white!important}
 
 
-/* YREL unified customer backdrop — shared by splash, dashboard, booking, login and end states.
-   Keep all existing component colours, sizes, controls and interactions unchanged. */
-html,body{min-height:100%;background:#fffaf5}
-body{background-image:url('/images/yrel-unified-customer-background.svg');background-position:center top;background-size:cover;background-repeat:no-repeat;background-attachment:fixed}
+/* YREL unified customer backdrop — scoped to the customer app only.
+   Admin and Partner workspaces retain their own independent visual systems. */
 .site-shell{
   min-height:100svh!important;
   background-color:rgba(255,250,245,.72)!important;
@@ -3666,11 +3664,6 @@ body{background-image:url('/images/yrel-unified-customer-background.svg');backgr
   background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important;
 }
 .yrel-app-footer{background:rgba(255,250,245,.94)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important}
-@media(max-width:640px){
- body{background-attachment:scroll}
- .site-shell{background-attachment:scroll!important;background-position:center top!important}
-}
-@media(prefers-reduced-motion:no-preference){
- .yrel-splash-screen img{animation:yrelSplashLogoFloat 3.8s ease-in-out infinite}
-}
+@media(max-width:640px){.site-shell{background-attachment:scroll!important;background-position:center top!important}}
+@media(prefers-reduced-motion:no-preference){.yrel-splash-screen img{animation:yrelSplashLogoFloat 3.8s ease-in-out infinite}}
 @keyframes yrelSplashLogoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
