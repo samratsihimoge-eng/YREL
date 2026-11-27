@@ -324,7 +324,7 @@ export default function Home() {
   const [savedLocations, setSavedLocations] = useState<Place[]>([]);
   const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
 
-  const autoCabArea = detectBookingArea(pickupPoint, dropPoint);
+  const autoCabArea = detectBookingArea(pickupPoint, dropPoint, distance);
   const airportRoute =
     isAirportBookingPlace(pickupPoint) || isAirportBookingPlace(dropPoint);
 
