@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Could not send SMS OTP. Please check the StartMessaging SMS template and account." }, { status: upstream.status >= 400 && upstream.status < 500 ? upstream.status : 502 });
     }
 
-    const requestId = result.requestId || result.data?.otpRequestId;
+    const requestId = result.data?.otpRequestId || result.requestId;
     if (!requestId) {
       console.error("StartMessaging send response missing request ID", result);
       return NextResponse.json({ error: "SMS provider did not return an OTP request ID." }, { status: 502 });
