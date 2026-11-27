@@ -1,5 +1,5 @@
 /* Customer booking rebuild: four first-class services and clear automatic route classification. */
-.service-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
+.service-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
 .service-tabs .service-tab{min-width:0!important;min-height:68px!important;padding:10px 8px!important;flex-direction:column!important;gap:5px!important;border-radius:17px!important;font-size:12px!important;line-height:1.2!important;white-space:normal!important;text-align:center!important}
 .service-tabs .service-emoji{font-size:21px!important;line-height:1!important}
 .auto-area-note{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:7px 10px!important;width:fit-content!important;max-width:100%!important;margin:4px 0 18px!important;padding:10px 14px!important;border:1px solid #e8c6ac!important;border-radius:999px!important;background:linear-gradient(110deg,rgba(255,246,235,.96),rgba(255,232,215,.93))!important;color:#76412f!important;font-size:12px!important;box-shadow:0 5px 15px rgba(107,60,39,.07)!important}
