@@ -338,7 +338,7 @@ export default function Home() {
     service === "cab" || service === "rental" || service === "driver"
       ? autoCabArea
       : area;
-  const rentalBookingArea = detectBookingArea(pickupPoint, dropPoint);
+  const rentalBookingArea = detectBookingArea(pickupPoint, dropPoint, distance);
 
   const words = {
     en: {
