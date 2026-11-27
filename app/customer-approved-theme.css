@@ -113,3 +113,15 @@ html,body{background:#fff8f1!important;color:#351044!important}
 .advance-confirmation-panel{border:1px solid #f2cdb0!important;border-radius:24px!important;background:linear-gradient(145deg,#fffdf9,#fff2e6)!important}
 .advance-confirmation-panel h2{color:#541078!important}
 .advance-confirmation-gotit{background:linear-gradient(110deg,#ff9800,#ef4826)!important;color:white!important}
+
+
+/* FINAL VISUAL POLISH — customer app: cool city-mist backdrop, retaining YREL orange/purple actions. */
+html,body{background:#eef1fa!important}
+.site-shell{background:radial-gradient(ellipse at 8% 4%,rgba(255,255,255,.98),transparent 34%),radial-gradient(ellipse at 96% 25%,rgba(255,169,92,.13),transparent 30%),linear-gradient(160deg,#f4f5fc 0%,#edf0f9 52%,#f5f1fa 100%)!important}
+.booking-section{background:transparent!important}
+.topbar.yrel-fixed-header{background:rgba(247,248,255,.94)!important;border-bottom-color:#dfe3f1!important}
+.yrel-bottom-nav{background:rgba(248,249,255,.96)!important;border-color:#dfe3f1!important}
+.yrel-login-screen{background:radial-gradient(circle at 12% 12%,rgba(255,255,255,.20),transparent 28%),radial-gradient(circle at 88% 78%,rgba(255,159,70,.20),transparent 26%),linear-gradient(145deg,#25244f 0%,#44306e 48%,#a64c57 100%)!important}
+.yrel-login-content{position:relative}
+.booking-card,.app-menu-panel,.auth-modal,.pin-map-panel{background:linear-gradient(145deg,#fff 0%,#f9f8ff 100%)!important;border-color:#dfe2f1!important}
+@media(max-width:640px){.site-shell{background:linear-gradient(160deg,#f4f5fc 0%,#edf0f9 58%,#f5f1fa 100%)!important}}
