@@ -272,3 +272,5 @@ html,body,.site-shell{background:#F6F7F9;color:#0F1B2D}body{font-family:'Plus Ja
 .route-dot{width:9px;height:9px;flex:0 0 9px;border-radius:50%}.pickup-dot{background:#16A34A}.drop-dot{background:#DC2626}
 .trust-strip>div>img{width:72px;height:72px;flex:0 0 72px;object-fit:cover;border-radius:14px}
 @media(max-width:640px){.route-map-art{height:180px}.route-distance{font-size:25px}.route-summary-details{padding:14px}.trust-strip>div>img{width:72px;height:72px;flex-basis:72px}}
+
+.yrel-emergency-sos{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:48px;margin-top:12px;padding:12px 16px;border:1px solid #B42318;border-radius:12px;background:#FFF1F0;color:#B42318;font-size:14px;font-weight:800;cursor:pointer}.yrel-emergency-sos:focus-visible{outline:3px solid rgba(180,35,24,.22);outline-offset:2px}
