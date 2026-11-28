@@ -96,7 +96,7 @@ export default function PartnerPage() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not check mobile number.");
       setAuthStep(result.registered ? "login" : "register");
-      setError(result.registered ? "Welcome back. Enter your 4-digit passcode." : "This number is not registered. Create your YREL Partner account.");
+      setError(result.registered ? "Welcome back. Send an SMS OTP to verify your Partner login." : "This number is not registered. Create your YREL Partner account.");
     } catch (e) { setError(e instanceof Error ? e.message : "Could not check mobile number."); }
     finally { setBusy(false); }
   }
@@ -132,16 +132,18 @@ export default function PartnerPage() {
 
   async function loginPartner() {
     const mobile = normalizedPhone(phone);
-    if (!mobile || !/^\d{4}$/.test(password)) { setError("Enter your mobile number and 4-digit passcode."); return; }
+    if (!mobile) { setError("Enter a valid 10-digit Indian mobile number."); return; }
     setBusy(true); setError("");
     try {
-      const response = await fetch("/api/auth/passcode-login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: mobile, passcode: password, accountType: "partner" }) });
+      const response = await fetch("/api/partner/sms-otp/send", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: mobile })
+      });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Login failed.");
-      const { error: sessionError } = await supabase.auth.setSession({ access_token: result.session.access_token, refresh_token: result.session.refresh_token });
-      if (sessionError) throw sessionError;
-      setPassword(""); setError("");
-    } catch (e) { setError(e instanceof Error ? e.message : "Login failed."); }
+      if (!response.ok) throw new Error(result.error || "Could not send Partner SMS OTP.");
+      setOtp(""); setOtpReqId(""); setOtpSent(true);
+      setError("6-digit SMS OTP sent. Please check your messages.");
+    } catch (e) { setError(e instanceof Error ? e.message : "Could not send Partner SMS OTP."); }
     finally { setBusy(false); }
   }
   async function authenticatePartner() {
@@ -163,16 +165,19 @@ export default function PartnerPage() {
 
   async function verifyPartnerOtp() {
     const mobile = normalizedPhone(phone);
-    if (!mobile || !otpReqId || !/^\d{6}$/.test(otp)) { setError("Enter the 6-digit WhatsApp OTP."); return; }
+    if (!mobile || !/^\d{6}$/.test(otp)) { setError("Enter the 6-digit SMS OTP."); return; }
     setBusy(true); setError("");
     try {
-      const response = await fetch("/api/auth/whatsapp/verify", {
+      const response = await fetch("/api/partner/sms-otp/verify", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: mobile, reqId: otpReqId, otp, accountType: "partner" })
+        body: JSON.stringify({ phone: mobile, otp })
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "OTP verification failed.");
-      const { error: authError } = await supabase.auth.verifyOtp({ token_hash: result.tokenHash, type: "magiclink" });
+      const { error: authError } = await supabase.auth.setSession({
+        access_token: result.session.access_token,
+        refresh_token: result.session.refresh_token
+      });
       if (authError) throw authError;
       setOtpSent(false); setOtp(""); setOtpReqId(""); setError("");
     } catch (e) { setError(e instanceof Error ? e.message : "OTP verification failed."); }
@@ -180,7 +185,7 @@ export default function PartnerPage() {
   }
 
   async function resendPartnerOtp() {
-    await authenticatePartner();
+    await loginPartner();
   }
 
   async function registerProfile() {
@@ -233,7 +238,7 @@ export default function PartnerPage() {
         <h1>{authStep === "phone" ? "Partner Login" : authStep === "login" ? "Enter Passcode" : "Create Partner Account"}</h1>
         <label>Mobile number</label><div className="partner-phone-row"><span>+91</span><input value={phone} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setAuthStep("phone"); setPassword(""); setError(""); }} placeholder="10-digit mobile number" inputMode="numeric" autoComplete="tel-national" maxLength={10}/></div>
         {authStep === "phone" && <button className="partner-primary" disabled={busy} onClick={() => void checkPartnerPhone()}>{busy ? "Please wait…" : "Next"}</button>}
-        {authStep === "login" && <><label>4-digit Passcode</label><input style={{display:"block",width:"100%",minHeight:58,boxSizing:"border-box",padding:"14px 16px",fontSize:18,borderRadius:16}} type="password" inputMode="numeric" maxLength={4} value={password} onChange={e => setPassword(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="Enter 4-digit passcode" autoComplete="current-password"/><button className="partner-primary" disabled={busy} onClick={() => void loginPartner()}>{busy ? "Please wait…" : "Login"}</button></>}
+        {authStep === "login" && <>{!otpSent ? <><p>Verify your registered Partner mobile number with a one-time SMS code.</p><button className="partner-primary" disabled={busy} onClick={() => void loginPartner()}>{busy ? "Sending OTP…" : "Send SMS OTP"}</button></> : <><label>6-digit SMS OTP</label><input style={{display:"block",width:"100%",minHeight:58,boxSizing:"border-box",padding:"14px 16px",fontSize:20,borderRadius:16,letterSpacing:5}} inputMode="numeric" maxLength={6} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Enter SMS OTP" autoComplete="one-time-code"/><button className="partner-primary" disabled={busy} onClick={() => void verifyPartnerOtp()}>{busy ? "Verifying…" : "Verify & Login"}</button><button className="partner-link" disabled={busy} onClick={() => void resendPartnerOtp()}>Resend SMS OTP</button></>}</>}
         {authStep === "register" && <>
           <label>Full name</label><input style={{display:"block",width:"100%",minHeight:58,boxSizing:"border-box",padding:"14px 16px",fontSize:18,borderRadius:16}} value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" autoComplete="name"/>
           <label>Email ID</label><input style={{display:"block",width:"100%",minHeight:58,boxSizing:"border-box",padding:"14px 16px",fontSize:18,borderRadius:16}} type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" autoComplete="email"/>
