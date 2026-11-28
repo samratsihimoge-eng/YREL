@@ -1318,10 +1318,10 @@ export default function Home() {
   async function createCustomerProfile() {
     if (!session?.user || !customer) { setNotice("Your Customer ID is still loading. Please wait a moment."); return; }
     const name = fullName.trim();
-    const digits = phone.replace(/\\D/g, "").slice(-10);
+    const digits = phone.replace(/\D/g, "").slice(-10);
     if (name && name.length < 2) { setNotice("Enter at least 2 characters for your name, or skip for now."); return; }
-    if (profileEmail && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(profileEmail.trim())) { setNotice("Enter a valid email address or leave it blank."); return; }
-    if (digits && !/^[6-9]\\d{9}$/.test(digits)) { setNotice("Enter a valid 10-digit Indian mobile number, or leave it blank."); return; }
+    if (profileEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileEmail.trim())) { setNotice("Enter a valid email address or leave it blank."); return; }
+    if (digits && !/^[6-9]\d{9}$/.test(digits)) { setNotice("Enter a valid 10-digit Indian mobile number, or leave it blank."); return; }
     setBusy(true); setNotice("");
     const updates: Record<string, unknown> = { full_name: name || customer.full_name || "YREL Customer", email: profileEmail.trim() || session.user.email || null };
     if (digits) { updates.phone = `+91${digits}`; updates.phone_verified = customer.phone === `+91${digits}` ? customer.phone_verified : false; }
