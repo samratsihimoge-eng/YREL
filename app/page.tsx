@@ -1837,7 +1837,7 @@ export default function Home() {
                 <button onClick={() => setMenuSection("privacy")}><span className="yrel-menu-icon" aria-hidden="true"><ShieldCheck size={18} /></span><span>Privacy Policy</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("terms")}><span className="yrel-menu-icon" aria-hidden="true"><FileText size={18} /></span><span>Terms & Conditions</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("cancellation")}><span className="yrel-menu-icon" aria-hidden="true"><Ban size={18} /></span><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("language")}><span className="yrel-menu-icon" aria-hidden="true"><Languages size={18} /></span><span>Language</span><ArrowRight size={17} /></button>
+                {/* Language selector omitted by current product requirement. */}
               </div>
             ) : (
               <div className="app-menu-detail">
@@ -1917,7 +1917,7 @@ export default function Home() {
             }
             onClick={() => changeService("driver")}
           >
-            <img className="service-photo service-photo-portrait" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=720&q=85" alt="Professional driver portrait" loading="lazy" />
+            <img className="service-photo" src="https://images.unsplash.com/photo-1509099836639-18ba17992f3d?auto=format&fit=crop&w=900&q=88" alt="Professional chauffeur beside a vehicle" loading="lazy" />
             <span>Book a Driver</span>
           </button>
 
@@ -2652,7 +2652,8 @@ export default function Home() {
                 <p>Contact us for help with YREL.</p>
                 <a className="support-call" href="tel:+919742809306"><Phone size={19} /> Call YREL Support</a>
                 <a className="support-whatsapp" href="https://wa.me/919742809306" target="_blank" rel="noreferrer"><MessageCircle size={19} /> WhatsApp Support</a>
-                <a className="support-chat" href="mailto:yrelcabs@gmail.com"><Mail size={19} /> Chat / Email Support</a>
+                <a className="support-chat" href="https://wa.me/919742809306?text=Hello%20YREL%20Support" target="_blank" rel="noreferrer"><MessageCircle size={19} /> Chat with YREL</a>
+                <a className="support-email" href="mailto:yrelcabs@gmail.com"><Mail size={19} /> Email Support</a>
               </div>
             ) : bottomPanel === "bookings" ? (
               <div className="app-menu-detail">
@@ -2672,10 +2673,10 @@ export default function Home() {
                   <div className="compact-profile-row"><small><BadgeCheck size={15} /> Customer ID</small><b>{customer.customer_code}</b></div>
                   <div className="compact-profile-row"><small><UserRound size={15} /> Full name</small>{profileEditMode ? <input className="email-input" value={profileNameDraft} onChange={(e) => setProfileNameDraft(e.target.value)} placeholder="Full name" /> : <b>{customer.full_name}</b>}</div>
                   <div className="compact-profile-row"><small><Phone size={15} /> Mobile number</small>{profileEditMode ? <div className="location-input profile-phone-input"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" maxLength={10} value={profilePhoneDraft} onChange={(e) => setProfilePhoneDraft(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile number" /></div> : <b>{customer.phone || "Not provided"} · {customer.phone_verified ? "Verified" : "Not verified"}</b>}</div>
-                  <div className="compact-profile-row"><small><Mail size={15} /> Email ID</small><b className="profile-email">{session.user.email || "Not available"}</b></div>
+                  <div className="compact-profile-row"><small><Mail size={15} /> Email ID</small>{session.user.email ? <b className="profile-email">{session.user.email}</b> : <button type="button" className="profile-add-email" onClick={() => setProfileEditMode(true)}>Add Email</button>}</div>
                   <p className="compact-profile-hint">Your Google account email is shown here. To change it, update your Google account.</p>
                   {profileEditMode ? <button className="book-button full compact-profile-action" onClick={saveCustomerProfile} disabled={busy}>{busy && <Loader2 className="spin" />} Save changes <ArrowRight size={18} /></button> : <button className="book-button full compact-profile-action" onClick={() => { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, "")); setProfileEditMode(true); setNotice(""); }}>Edit profile</button>}
-                  <button className="profile-signout-button compact-profile-action" onClick={signOut}><LogOut size={17} /> Sign out</button>
+                  <button className="profile-signout-button" onClick={signOut}><LogOut size={17} /> Sign out</button>
                   {notice && <div className="notice">{notice}</div>}
                 </> : <p>Please log in to view your profile.</p>}
               </div>
