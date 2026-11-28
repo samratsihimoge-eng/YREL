@@ -3988,3 +3988,32 @@ body { overflow-x:hidden; }
 @media(prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; }
 }
+
+
+/* Photorealistic vehicle tiles from the generated YREL fleet photo sheet */
+.vehicle-photo {
+  display:block;
+  width:76px;
+  height:54px;
+  flex:0 0 76px;
+  border-radius:12px;
+  background-image:url("/images/yrel-real-photos.webp");
+  background-repeat:no-repeat;
+  background-size:200% 200%;
+  background-position:0 0;
+  background-color:#FFF1E6;
+  box-shadow:0 2px 8px rgba(43,33,26,.08);
+}
+.vehicle-option { min-width:0; }
+.vehicle-option .vehicle-photo { margin:0 auto 8px; }
+.yrel-menu-icon {
+  display:inline-flex !important;
+  width:36px !important;
+  height:36px !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:#FF6B1A !important;
+  background:#FFF1E6 !important;
+  border-radius:12px !important;
+}
+.yrel-menu-icon svg { width:18px; height:18px; stroke-width:1.8; }
