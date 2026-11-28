@@ -261,18 +261,17 @@ const formatDeparture = (value: string) =>
   });
 
 const VehicleIcon = ({ vehicle }: { vehicle: string }) => {
-  const vehicleEmoji: Record<string, string> = {
-    Auto: "🛺",
-    Hatchback: "🚙",
-    Sedan: "🚗",
-    Ertiga: "🚐",
-    SUV: "🚙",
-    "Innova Crysta": "🚐",
-  };
+  const photoPosition =
+    vehicle === "Sedan" ? "50% 0%" :
+    vehicle === "SUV" || vehicle === "Ertiga" || vehicle === "MPV" || vehicle === "Innova Crysta" ? "0% 100%" :
+    vehicle === "Driver" ? "100% 100%" : "0% 0%";
   return (
-    <span className="vehicle-emoji" role="img" aria-label={vehicle}>
-      {vehicleEmoji[vehicle] || "🚘"}
-    </span>
+    <span
+      className="vehicle-photo"
+      role="img"
+      aria-label={`${vehicle} vehicle photograph`}
+      style={{ backgroundPosition: photoPosition }}
+    />
   );
 };
 
@@ -1832,13 +1831,13 @@ export default function Home() {
             </div>
             {menuSection === "list" ? (
               <div className="app-menu-options">
-                <button onClick={() => { loadSavedLocations(session?.user?.id); setMenuSection("saved"); }}><span className="yrel-menu-icon" aria-hidden="true">📍</span><span>Saved Locations</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("how")}><span className="yrel-menu-icon" aria-hidden="true">📖</span><span>How it works</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("services")}><span className="yrel-menu-icon" aria-hidden="true">🚕</span><span>Services</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("privacy")}><span className="yrel-menu-icon" aria-hidden="true">🛡️</span><span>Privacy Policy</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("terms")}><span className="yrel-menu-icon" aria-hidden="true">📄</span><span>Terms & Conditions</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("cancellation")}><span className="yrel-menu-icon" aria-hidden="true">🚫</span><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("language")}><span className="yrel-menu-icon" aria-hidden="true">🌐</span><span>Language</span><ArrowRight size={17} /></button>
+                <button onClick={() => { loadSavedLocations(session?.user?.id); setMenuSection("saved"); }}><span className="yrel-menu-icon" aria-hidden="true"><MapPin size={18} /></span><span>Saved Locations</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("how")}><span className="yrel-menu-icon" aria-hidden="true"><BookOpen size={18} /></span><span>How it works</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("services")}><span className="yrel-menu-icon" aria-hidden="true"><CarFront size={18} /></span><span>Services</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("privacy")}><span className="yrel-menu-icon" aria-hidden="true"><ShieldCheck size={18} /></span><span>Privacy Policy</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("terms")}><span className="yrel-menu-icon" aria-hidden="true"><FileText size={18} /></span><span>Terms & Conditions</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("cancellation")}><span className="yrel-menu-icon" aria-hidden="true"><Ban size={18} /></span><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("language")}><span className="yrel-menu-icon" aria-hidden="true"><Languages size={18} /></span><span>Language</span><ArrowRight size={17} /></button>
               </div>
             ) : (
               <div className="app-menu-detail">
