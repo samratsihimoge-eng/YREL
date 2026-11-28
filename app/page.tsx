@@ -1900,7 +1900,7 @@ export default function Home() {
             }
             onClick={() => changeService("cab")}
           >
-            <span className="service-emoji" aria-hidden="true">🚕</span>
+            <CarTaxiFront className="service-icon" aria-hidden="true" size={34} strokeWidth={1.7} />
             <span>Book a Cab</span>
           </button>
 
@@ -1910,7 +1910,7 @@ export default function Home() {
             }
             onClick={() => changeService("driver")}
           >
-            <span className="service-emoji" aria-hidden="true">🧑‍✈️</span>
+            <UserRound className="service-icon" aria-hidden="true" size={34} strokeWidth={1.7} />
             <span>Book a Driver</span>
           </button>
 
@@ -1920,7 +1920,7 @@ export default function Home() {
             }
             onClick={() => changeService("rental")}
           >
-            <span className="service-emoji" aria-hidden="true">🚙</span>
+            <CarFront className="service-icon" aria-hidden="true" size={34} strokeWidth={1.7} />
             <span>Cab Rentals</span>
           </button>
         </div>
