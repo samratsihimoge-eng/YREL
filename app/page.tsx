@@ -2588,29 +2588,9 @@ export default function Home() {
       </section>
 
       <section className="trust-strip" id="how">
-        <div>
-          <ShieldCheck />
-          <span>
-            <b>Reliable bookings</b>
-            <small>Booking updates from YREL</small>
-          </span>
-        </div>
-
-        <div>
-          <MapPin />
-          <span>
-            <b>India-wide locations</b>
-            <small>Search cities, towns and villages</small>
-          </span>
-        </div>
-
-        <div>
-          <Clock3 />
-          <span>
-            <b>Simple scheduling</b>
-            <small>Choose a time that works</small>
-          </span>
-        </div>
+        <div><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=240&q=85" alt="Booking confirmation on mobile" loading="lazy" /><span><b>Reliable bookings</b><small>Clear booking updates from YREL</small></span></div>
+        <div><img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=240&q=85" alt="Indian city transport" loading="lazy" /><span><b>India-wide locations</b><small>Search cities, towns and villages</small></span></div>
+        <div><img src="https://images.unsplash.com/photo-150 timing?auto=format&fit=crop&w=240&q=85" alt="Planning a journey" loading="lazy" /><span><b>Simple scheduling</b><small>Choose a time that works</small></span></div>
       </section>
 
       <section className="dashboard-brand-banner dashboard-brand-banner-bottom" aria-label="YREL tagline">
@@ -2656,9 +2636,9 @@ export default function Home() {
 
       <nav className={`yrel-bottom-nav${instantSearchBooking ? " search-mode" : ""}${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`} aria-label="Main navigation">
         <button className={bottomPanel === null ? "active" : ""} aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); setMenuOpen(false); setMenuSection("list"); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={21} /><span>Home</span></button>
-        <button className={bottomPanel === "bookings" ? "active" : ""} aria-label="History" title="History" onClick={() => { if (!session) setAuthOpen(true); else { setMenuOpen(false); setMenuSection("list"); setBookingFilter("active"); setBottomPanel(bottomPanel === "bookings" ? null : "bookings"); } }}><ClipboardList size={21} /><span>History</span></button>
-        <button className={bottomPanel === "profile" ? "active" : ""} aria-label="Profile" title="Profile" onClick={() => { if (session && customer) { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, "")); setProfileEditMode(false); setNotice(""); setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "profile" ? null : "profile"); } else { setNotice(""); setAuthOpen(true); } }}><UserRound size={21} /><span>Profile</span></button>
+        <button className={bottomPanel === "bookings" ? "active" : ""} aria-label="Bookings" title="Bookings" onClick={() => { if (!session) setAuthOpen(true); else { setMenuOpen(false); setMenuSection("list"); setBookingFilter("active"); setBottomPanel(bottomPanel === "bookings" ? null : "bookings"); } }}><ClipboardList size={21} /><span>Bookings</span></button>
         <button className={bottomPanel === "support" ? "active" : ""} aria-label="Support" title="Support" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "support" ? null : "support"); }}><Headphones size={21} /><span>Support</span></button>
+        <button className={bottomPanel === "profile" ? "active" : ""} aria-label="Profile" title="Profile" onClick={() => { if (session && customer) { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, "")); setProfileEditMode(false); setNotice(""); setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "profile" ? null : "profile"); } else { setNotice(""); setAuthOpen(true); } }}><UserRound size={21} /><span>Profile</span></button>
       </nav>
 
       {bottomPanel && (
