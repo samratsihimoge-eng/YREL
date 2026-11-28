@@ -4017,3 +4017,67 @@ body { overflow-x:hidden; }
   border-radius:12px !important;
 }
 .yrel-menu-icon svg { width:18px; height:18px; stroke-width:1.8; }
+
+
+/* Premium customer sign-in: Google first, phone OTP as fallback */
+.yrel-google-login {
+  width:100%;
+  min-height:56px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  border:1px solid #E9DED5;
+  border-radius:999px;
+  background:#FFFFFF;
+  color:#2B211A;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:800;
+  box-shadow:0 8px 22px rgba(43,33,26,.07);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.yrel-google-login:hover:not(:disabled) {
+  transform:translateY(-1px);
+  border-color:#D9C8BB;
+  box-shadow:0 12px 26px rgba(43,33,26,.10);
+}
+.yrel-google-login:disabled { opacity:.65; cursor:wait; }
+.yrel-google-login svg { width:20px; height:20px; flex:0 0 20px; }
+.yrel-login-divider {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:22px 0;
+  color:#9A897D;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.12em;
+}
+.yrel-login-divider::before,.yrel-login-divider::after {
+  content:"";
+  height:1px;
+  flex:1;
+  background:#F0E5DC;
+}
+.yrel-login-screen .topbar,
+.topbar.yrel-fixed-header.yrel-chrome-hidden { display:none !important; }
+.yrel-login-screen { padding:24px 18px max(24px,env(safe-area-inset-bottom)) !important; }
+.yrel-login-content {
+  width:min(100%,440px) !important;
+  padding:clamp(24px,6vw,38px) clamp(20px,6vw,34px) !important;
+  border-radius:30px !important;
+  box-shadow:0 24px 70px rgba(74,48,30,.10) !important;
+}
+.yrel-login-brandline { margin-bottom:26px !important; }
+.yrel-login-logo { width:138px !important; height:78px !important; margin-bottom:20px !important; }
+.yrel-login-form { display:flex !important; flex-direction:column !important; }
+.yrel-login-form .wide-field { margin-bottom:14px !important; }
+.yrel-login-form .book-button.full { margin-top:6px !important; }
+.yrel-terms-note { margin-top:22px !important; }
+@media(max-width:520px) {
+  .yrel-login-screen { align-items:center !important; }
+  .yrel-login-content { padding:25px 20px 24px !important; border-radius:26px !important; }
+  .yrel-login-logo { width:124px !important; height:70px !important; }
+  .yrel-google-login { min-height:54px; }
+}
