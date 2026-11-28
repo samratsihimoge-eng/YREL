@@ -282,3 +282,16 @@ html,body,.site-shell{background:#F6F7F9;color:#0F1B2D}body{font-family:'Plus Ja
 .booking-section>.service-tabs{order:2}
 .booking-section>.yrel-welcome-hero{order:3}
 @media(max-width:640px){.booking-section{gap:14px}.booking-section>.booking-card{order:1}.booking-section>.service-tabs{order:2}.booking-section>.yrel-welcome-hero{order:3}.yrel-welcome-hero{margin:0}}
+
+
+/* Customer navigation and support finishing details */
+.menu-signout-button{margin-top:10px!important;border:1px solid #D92D20!important;background:#fff!important;color:#D92D20!important}
+.menu-signout-button .yrel-menu-icon{background:#FFF1F0!important;color:#D92D20!important}
+.support-icon-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+.support-icon-actions a{min-height:68px;display:grid;place-items:center;border:1px solid #E7EAF0;border-radius:14px;background:#fff;color:#FF6B00;box-shadow:0 5px 18px rgba(15,27,45,.05)}
+.support-icon-actions a:active{background:#FFF1E8}
+.support-icon-actions a svg{width:23px;height:23px;color:#FF6B00}
+.app-menu-options{gap:8px}
+.app-menu-options button{min-height:54px;border-radius:12px}
+.app-menu-options button:focus-visible,.support-icon-actions a:focus-visible{outline:3px solid rgba(255,107,0,.25);outline-offset:2px}
+@media(max-width:380px){.support-icon-actions{gap:8px}.support-icon-actions a{min-height:60px}}
