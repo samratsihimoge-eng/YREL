@@ -3711,3 +3711,122 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .booking-card { border-radius: 20px !important; }
   .book-button.full { width: 100%; min-height: 52px !important; }
 }
+
+/* Refined mobile customer authentication layout */
+.yrel-login-screen {
+  position: fixed !important;
+  z-index: 60 !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow-y: auto !important;
+  padding: 28px 20px !important;
+  background: #FFF9F2 !important;
+}
+.yrel-login-content {
+  width: min(100%, 430px) !important;
+  padding: 26px 22px 24px !important;
+  border: 0 !important;
+  border-radius: 24px !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 14px 38px rgba(122,106,94,.10) !important;
+  text-align: left !important;
+}
+.yrel-login-brandline {
+  margin-bottom: 26px !important;
+  text-align: left !important;
+}
+.yrel-login-logo {
+  display: block;
+  width: 92px;
+  height: 54px;
+  margin: 0 0 22px;
+  object-fit: contain;
+  object-position: left center;
+}
+.yrel-login-brandline h1 {
+  margin: 0 0 8px !important;
+  color: #2B211A !important;
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -.04em;
+}
+.yrel-login-brandline p {
+  margin: 0 !important;
+  color: #7A6A5E !important;
+  font-size: 14px !important;
+}
+.yrel-login-form { width: 100% !important; }
+.yrel-login-form .wide-field { max-width: none !important; margin: 0 0 18px !important; }
+.yrel-login-form .yrel-mobile-prompt {
+  display: block;
+  margin: 0 0 9px;
+  color: #7A6A5E;
+  font-size: 13px;
+  font-weight: 700;
+}
+.yrel-login-form .location-input {
+  height: 56px !important;
+  min-height: 56px !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  border: 1px solid #FFE8D6 !important;
+  border-radius: 16px !important;
+  background: #FFF1E6 !important;
+  color: #2B211A !important;
+}
+.yrel-login-form .phone-number-input {
+  height: 54px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #2B211A !important;
+  font-size: 16px !important;
+  box-shadow: none !important;
+}
+.yrel-login-form .book-button.full { margin-top: 5px !important; }
+.yrel-login-form .email-input {
+  height: 56px !important;
+  min-height: 56px !important;
+  margin: 0 !important;
+  padding: 0 16px !important;
+  border-radius: 16px !important;
+  background: #FFF1E6 !important;
+  font-size: 18px !important;
+  letter-spacing: .18em;
+}
+.yrel-terms-note {
+  margin: 22px 0 0 !important;
+  color: #7A6A5E !important;
+  font-size: 11px !important;
+  text-align: center !important;
+}
+.yrel-terms-note a { color: #FF6B1A !important; font-weight: 700; }
+.yrel-login-footer { display: none !important; }
+.yrel-splash-screen {
+  background: #FFF9F2 !important;
+  animation: yrelSplashFade 1.5s ease both;
+}
+.yrel-splash-screen > img {
+  width: min(56vw, 240px) !important;
+  height: auto !important;
+  object-fit: contain;
+}
+.yrel-splash-screen > span {
+  margin-top: 12px !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+}
+@keyframes yrelSplashFade {
+  0% { opacity: 1; }
+  78% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.yrel-profile-modal .wide-field { max-width: none !important; }
+.yrel-profile-modal .email-input { width: 100%; }
+@media(max-width:480px) {
+  .yrel-login-screen { align-items: center !important; padding: 18px !important; }
+  .yrel-login-content { padding: 25px 20px !important; }
+}
