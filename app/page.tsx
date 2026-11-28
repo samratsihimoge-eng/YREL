@@ -2690,7 +2690,6 @@ export default function Home() {
         </div>
       )}
 
-      {!authOpen && !instantSearchBooking && <RoadAnimation />}
       <footer className={`footer ${authOpen ? "yrel-login-footer" : "yrel-app-footer"}`}>
         <span>© {new Date().getFullYear()} YREL Technologies Private Limited</span>
         <span className="yrel-app-version">App Version 1.0</span>
@@ -2731,7 +2730,6 @@ export default function Home() {
               {notice && <div className="notice">{notice}</div>}
             </div>
           </div>
-          <RoadAnimation />
         </div>
       )}
 
