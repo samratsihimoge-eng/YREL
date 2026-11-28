@@ -1818,11 +1818,13 @@ export default function Home() {
             {menuSection === "list" ? (
               <div className="app-menu-options">
                 <button onClick={() => { loadSavedLocations(session?.user?.id); setMenuSection("saved"); }}><span className="yrel-menu-icon" aria-hidden="true"><MapPin size={18} /></span><span>Saved Locations</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("how")}><span className="yrel-menu-icon" aria-hidden="true"><BookOpen size={18} /></span><span>How it works</span><ArrowRight size={17} /></button>
+                <button onClick={() => { if (!session) setAuthOpen(true); else { setMenuOpen(false); setBookingFilter("active"); setBottomPanel("bookings"); } }}><span className="yrel-menu-icon" aria-hidden="true"><ClipboardList size={18} /></span><span>My Bookings</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("services")}><span className="yrel-menu-icon" aria-hidden="true"><CarFront size={18} /></span><span>Services</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("how")}><span className="yrel-menu-icon" aria-hidden="true"><BookOpen size={18} /></span><span>How it works</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("privacy")}><span className="yrel-menu-icon" aria-hidden="true"><ShieldCheck size={18} /></span><span>Privacy Policy</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("terms")}><span className="yrel-menu-icon" aria-hidden="true"><FileText size={18} /></span><span>Terms & Conditions</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("cancellation")}><span className="yrel-menu-icon" aria-hidden="true"><Ban size={18} /></span><span>Cancellation Policy</span><ArrowRight size={17} /></button>
+                {session && <button className="menu-signout-button" onClick={signOut}><span className="yrel-menu-icon" aria-hidden="true"><LogOut size={18} /></span><span>Sign out</span><ArrowRight size={17} /></button>}
                 {/* Language selector omitted by current product requirement. */}
               </div>
             ) : (
@@ -2631,10 +2633,12 @@ export default function Home() {
             {bottomPanel === "support" ? (
               <div className="app-menu-detail support-actions">
                 <p>Contact us for help with YREL.</p>
-                <a className="support-call" href="tel:+919742809306"><Phone size={19} /> Call YREL Support</a>
-                <a className="support-whatsapp" href="https://wa.me/919742809306" target="_blank" rel="noreferrer"><MessageCircle size={19} /> WhatsApp Support</a>
-                <a className="support-chat" href="https://wa.me/919742809306?text=Hello%20YREL%20Support" target="_blank" rel="noreferrer"><MessageCircle size={19} /> Chat with YREL</a>
-                <a className="support-email" href="mailto:yrelcabs@gmail.com"><Mail size={19} /> Email Support</a>
+                <div className="support-icon-actions" aria-label="Support contact options">
+                  <a className="support-call" href="tel:+919742809306" aria-label="Call YREL Support" title="Call"><Phone size={22} /></a>
+                  <a className="support-whatsapp" href="https://wa.me/919742809306" target="_blank" rel="noreferrer" aria-label="WhatsApp Support" title="WhatsApp"><MessageCircle size={22} /></a>
+                  <a className="support-chat" href="https://wa.me/919742809306?text=Hello%20YREL%20Support" target="_blank" rel="noreferrer" aria-label="Chat with YREL" title="Chat"><Headphones size={22} /></a>
+                  <a className="support-email" href="mailto:yrelcabs@gmail.com" aria-label="Email YREL Support" title="Email"><Mail size={22} /></a>
+                </div>
               </div>
             ) : bottomPanel === "bookings" ? (
               <div className="app-menu-detail">
