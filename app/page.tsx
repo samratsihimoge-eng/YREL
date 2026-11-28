@@ -1319,12 +1319,17 @@ export default function Home() {
     if (!session?.user || !customer) { setNotice("Your Customer ID is still loading. Please wait a moment."); return; }
     const name = fullName.trim();
     const digits = phone.replace(/[^0-9]/g, "").slice(-10);
-    if (name && name.length < 2) { setNotice("Enter at least 2 characters for your name, or skip for now."); return; }
+    if (name.length < 2) { setNotice("Please enter your name."); return; }
+    if (!profileDob) { setNotice("Please select your date of birth."); return; }
+    if (!profileGender) { setNotice("Please select your gender."); return; }
     if (profileEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileEmail.trim())) { setNotice("Enter a valid email address or leave it blank."); return; }
-    if (digits && !/^[6-9][0-9]{9}$/.test(digits)) { setNotice("Enter a valid 10-digit Indian mobile number, or leave it blank."); return; }
     setBusy(true); setNotice("");
-    const updates: Record<string, unknown> = { full_name: name || customer.full_name || "YREL Customer", email: profileEmail.trim() || session.user.email || null };
-    if (digits) { updates.phone = `+91${digits}`; updates.phone_verified = customer.phone === `+91${digits}` ? customer.phone_verified : false; }
+    const updates: Record<string, unknown> = {
+      full_name: name,
+      gender: profileGender,
+      date_of_birth: profileDob,
+      email: profileEmail.trim() || session.user.email || null
+    };
     const { data, error } = await supabase.from("customers").update(updates).eq("id", session.user.id)
       .select("id, customer_code, full_name, phone, phone_verified, gender, date_of_birth, email").single();
     setBusy(false);
@@ -2740,9 +2745,6 @@ export default function Home() {
             <p>Your dashboard is ready. Add a few details to complete your profile.</p>
             <label className="wide-field">Name *
               <input className="email-input" type="text" autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your name" />
-            </label>
-            <label className="wide-field">Mobile number (optional)
-              <div className="location-input yrel-profile-phone"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))} placeholder="Enter mobile number" /></div>
             </label>
             <label className="wide-field">Gender *
               <select className="email-input" value={profileGender} onChange={(e) => setProfileGender(e.target.value as typeof profileGender)}>
