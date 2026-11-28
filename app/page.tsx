@@ -1891,6 +1891,14 @@ export default function Home() {
         </div>
       )}
       <section className="booking-section" id="services">
+        <section className="yrel-welcome-hero" aria-label="YREL ride booking">
+          <div className="yrel-welcome-copy">
+            <span className="eyebrow">YOUR CITY. YOUR RIDE. YOUR TIME.</span>
+            <h1>Every journey,<br /><em>better connected.</em></h1>
+            <p>City rides, outstation journeys and trusted drivers — all in one place.</p>
+          </div>
+          <img src="/illustrations/yrel-route-illustration.svg" alt="YREL route and journey illustration" />
+        </section>
 
         <div className="service-tabs">
           <button
