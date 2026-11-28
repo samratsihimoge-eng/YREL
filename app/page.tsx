@@ -1279,7 +1279,7 @@ export default function Home() {
       const response = await fetch("/api/auth/sms-otp/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not send SMS OTP.");
-      setCustomerOtpReqId(result.requestId); setCustomerOtp(""); setCustomerOtpSent(true);
+      setCustomerOtpReqId(""); setCustomerOtp(""); setCustomerOtpSent(true);
       localStorage.setItem(PHONE_STORAGE_KEY, digits);
       setNotice("6-digit OTP sent by SMS. Please check your messages.");
     } catch (error) { setNotice(error instanceof Error ? error.message : "Could not send SMS OTP."); }
@@ -1288,10 +1288,10 @@ export default function Home() {
 
   async function verifyCustomerOtp() {
     const digits = phone.replace(/\D/g, "");
-    if (!customerOtpReqId || !/^\d{6}$/.test(customerOtp)) { setNotice("Enter the 6-digit SMS OTP."); return; }
+    if (!/^\d{6}$/.test(customerOtp)) { setNotice("Enter the 6-digit SMS OTP."); return; }
     setBusy(true); setNotice("");
     try {
-      const response = await fetch("/api/auth/sms-otp/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits, requestId: customerOtpReqId, otp: customerOtp }) });
+      const response = await fetch("/api/auth/sms-otp/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits, otp: customerOtp }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "OTP verification failed.");
       const { error } = await supabase.auth.setSession({ access_token: result.session.access_token, refresh_token: result.session.refresh_token });
