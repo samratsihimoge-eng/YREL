@@ -1238,7 +1238,7 @@ export default function Home() {
   async function registerCustomerAccount() {
     const digits = phone.replace(/\D/g, "");
     if (!fullName.trim() || fullName.trim().length < 2) { setNotice("Please enter your full name."); return; }
-    if (!/^[6-9]\d{9}$/.test(digits)) { setNotice("Please enter a valid 10-digit Indian mobile number."); return; }
+    if (!/^[6-9][0-9]{9}$/.test(digits)) { setNotice("Please enter a valid 10-digit Indian mobile number."); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountEmail)) { setNotice("Please enter a valid email address."); return; }
     if (!/^\d{4}$/.test(accountPassword)) { setNotice("Passcode must be exactly 4 digits."); return; }
     if (accountPassword !== confirmPassword) { setNotice("Passcodes do not match."); return; }
@@ -1258,7 +1258,7 @@ export default function Home() {
 
   async function loginCustomer() {
     const digits = phone.replace(/\D/g, "");
-    if (!/^[6-9]\d{9}$/.test(digits) || !/^\d{4}$/.test(accountPassword)) { setNotice("Enter your 10-digit mobile number and 4-digit passcode."); return; }
+    if (!/^[6-9][0-9]{9}$/.test(digits) || !/^\d{4}$/.test(accountPassword)) { setNotice("Enter your 10-digit mobile number and 4-digit passcode."); return; }
     setBusy(true); setNotice("");
     try {
       const response = await fetch("/api/auth/passcode-login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits, passcode: accountPassword, accountType: "customer" }) });
@@ -1273,7 +1273,7 @@ export default function Home() {
 
   async function sendCustomerOtp() {
     const digits = phone.replace(/\D/g, "");
-    if (!/^[6-9]\d{9}$/.test(digits)) { setNotice("Please enter a valid 10-digit Indian mobile number."); return; }
+    if (!/^[6-9][0-9]{9}$/.test(digits)) { setNotice("Please enter a valid 10-digit Indian mobile number."); return; }
     setBusy(true); setNotice("");
     try {
       const response = await fetch("/api/auth/sms-otp/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: digits }) });
@@ -1318,10 +1318,10 @@ export default function Home() {
   async function createCustomerProfile() {
     if (!session?.user || !customer) { setNotice("Your Customer ID is still loading. Please wait a moment."); return; }
     const name = fullName.trim();
-    const digits = phone.replace(/\D/g, "").slice(-10);
+    const digits = phone.replace(/[^0-9]/g, "").slice(-10);
     if (name && name.length < 2) { setNotice("Enter at least 2 characters for your name, or skip for now."); return; }
     if (profileEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileEmail.trim())) { setNotice("Enter a valid email address or leave it blank."); return; }
-    if (digits && !/^[6-9]\d{9}$/.test(digits)) { setNotice("Enter a valid 10-digit Indian mobile number, or leave it blank."); return; }
+    if (digits && !/^[6-9][0-9]{9}$/.test(digits)) { setNotice("Enter a valid 10-digit Indian mobile number, or leave it blank."); return; }
     setBusy(true); setNotice("");
     const updates: Record<string, unknown> = { full_name: name || customer.full_name || "YREL Customer", email: profileEmail.trim() || session.user.email || null };
     if (digits) { updates.phone = `+91${digits}`; updates.phone_verified = customer.phone === `+91${digits}` ? customer.phone_verified : false; }
@@ -1342,13 +1342,13 @@ export default function Home() {
     if (!customer || !session?.user) return;
 
     const name = profileNameDraft.trim();
-    const digits = profilePhoneDraft.replace(/\D/g, "");
+    const digits = profilePhoneDraft.replace(/[^0-9]/g, "").slice(-10);
 
     if (name.length < 2) {
       setNotice("Please enter a valid full name.");
       return;
     }
-    if (!/^[6-9]\d{9}$/.test(digits)) {
+    if (!/^[6-9][0-9]{9}$/.test(digits)) {
       setNotice("Please enter a valid 10-digit Indian mobile number.");
       return;
     }
@@ -2743,7 +2743,7 @@ export default function Home() {
               <input className="email-input" type="text" autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full name (optional)" />
             </label>
             <label className="wide-field">Mobile number (optional)
-              <div className="location-input yrel-profile-phone"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={(e) => setPhone(e.target.value.replace(/\\D/g, "").slice(0, 10))} placeholder="Enter mobile number" /></div>
+              <div className="location-input yrel-profile-phone"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))} placeholder="Enter mobile number" /></div>
             </label>
             <label className="wide-field">Gender (optional)
               <select className="email-input" value={profileGender} onChange={(e) => setProfileGender(e.target.value as typeof profileGender)}>
