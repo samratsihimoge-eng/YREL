@@ -397,6 +397,7 @@ export default function Home() {
   const [instantSearchBooking, setInstantSearchBooking] = useState<Booking | null>(null);
   const [advanceConfirmationBooking, setAdvanceConfirmationBooking] = useState<Booking | null>(null);
   const [instantSearchSeconds, setInstantSearchSeconds] = useState(60);
+  const [instantSearchElapsed, setInstantSearchElapsed] = useState(0);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation" | "saved">("list");
@@ -707,6 +708,13 @@ export default function Home() {
   useEffect(() => {
     if (!splashVisible && authReady && !session) setAuthOpen(true);
   }, [splashVisible, authReady, session]);
+
+  useEffect(() => {
+    if (!instantSearchBooking) { setInstantSearchElapsed(0); return; }
+    setInstantSearchElapsed(0);
+    const timer = window.setInterval(() => setInstantSearchElapsed((seconds) => seconds + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [instantSearchBooking?.id]);
 
   useEffect(() => {
     if (!instantSearchBooking) return;
@@ -1798,6 +1806,16 @@ export default function Home() {
         .yrel-bottom-nav-redesign>button.active .yrel-bottom-profile-photo{border:2px solid #f36b0b}
         .yrel-profile-initial{background:#fff1e7;color:#f36b0b;font-weight:900;font-size:16px}
         @media(max-width:420px){.yrel-service-tiles{gap:6px!important}.yrel-service-art{height:82px;font-size:58px}.yrel-service-tile>span:last-child{font-size:12px!important}}
+        .site-shell{background:#FFF4EC!important}
+        .yrel-service-art{width:90px!important;height:90px!important;flex:none;border-radius:50%;background:#FFE8D6!important;color:#FF6B00!important;display:flex;align-items:center;justify-content:center}
+        .yrel-service-art svg{color:#FF6B00!important}
+        .yrel-header-notifications{background:#FFE8D6!important;color:#FF6B00!important;box-shadow:none!important}
+        .booking-card .location-input{background:#fff!important;border:1px solid #FFD9B3!important}
+        .booking-card .location-input input{background:transparent!important}
+        .instant-search-screen h2.instant-search-title{color:#00A651!important;font-size:18px!important;font-weight:800!important;text-align:center;background:transparent!important;box-shadow:none!important;border:0!important}
+        .instant-search-screen h2.instant-search-title::after{content:"";display:inline-block;width:1.25em;text-align:left;animation:yrel-search-dots 1s steps(4,end) infinite}
+        .instant-search-elapsed{display:block;margin:8px 0 12px;color:#858b94;font-size:13px;font-weight:500;text-align:center}
+        @keyframes yrel-search-dots{0%{content:""}25%{content:"."}50%{content:".."}75%,100%{content:"..."}}
       `}</style>
 
       {splashVisible && (
@@ -2616,7 +2634,8 @@ export default function Home() {
             </svg>
             <img src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
           </div>
-          <h2>Searching for Available YREL Partner</h2>
+          <h2 className="instant-search-title">Searching for Available Viral Partner</h2>
+          <small className="instant-search-elapsed">{String(Math.floor(instantSearchElapsed / 60)).padStart(2,"0")}:{String(instantSearchElapsed % 60).padStart(2,"0")}</small>
           <p>We are checking for an available YREL partner near your pickup location.</p>
           <small>Booking ID: {instantSearchBooking.booking_code}</small>
           <button className="instant-search-cancel" onClick={() => cancelCustomerBooking(instantSearchBooking)} disabled={cancellingBookingId===instantSearchBooking.id}>{cancellingBookingId===instantSearchBooking.id ? "Cancelling…" : "Cancel Booking"}</button>
