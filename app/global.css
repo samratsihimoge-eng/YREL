@@ -237,3 +237,13 @@ img{max-width:100%}
 .service-photo-portrait{object-position:center 28%}
 .service-tab span{font-size:13px;letter-spacing:-.02em}
 @media(max-width:640px){.service-photo{height:58px;border-radius:10px}.service-tab span{font-size:10px}}
+
+
+.yrel-welcome-hero{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.9fr);align-items:center;gap:12px;min-height:230px;margin:0 0 18px;padding:28px 30px;overflow:hidden;border:1px solid #F3E1D3;border-radius:28px;background:linear-gradient(112deg,#FFF1E6 0%,#FFF9F2 58%,#FDEBE5 100%);box-shadow:var(--yrel-shadow-soft)}
+.yrel-welcome-copy{position:relative;z-index:2;max-width:440px}
+.yrel-welcome-copy .eyebrow{display:inline-block;margin-bottom:12px}
+.yrel-welcome-copy h1{margin:0;color:var(--yrel-ink);font-size:clamp(27px,4vw,43px);line-height:1.06;letter-spacing:-.065em;font-weight:800}
+.yrel-welcome-copy h1 em{color:var(--yrel-orange);font-style:normal}
+.yrel-welcome-copy p{max-width:360px;margin:12px 0 0;color:var(--yrel-muted);font-size:13px;line-height:1.65}
+.yrel-welcome-hero>img{display:block;width:100%;max-height:190px;object-fit:contain;mix-blend-mode:multiply}
+@media(max-width:640px){.yrel-welcome-hero{grid-template-columns:minmax(0,1fr) 42%;min-height:174px;padding:19px 16px;gap:2px;border-radius:22px}.yrel-welcome-copy .eyebrow{font-size:8px}.yrel-welcome-copy h1{font-size:clamp(22px,6vw,29px)}.yrel-welcome-copy p{font-size:10px;margin-top:8px}.yrel-welcome-hero>img{max-height:125px;width:125%;max-width:none;margin-left:-12%}}
