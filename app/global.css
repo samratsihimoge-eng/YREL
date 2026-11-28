@@ -230,3 +230,10 @@ img{max-width:100%}
 }
 @media(max-width:380px){.service-tab{font-size:10px}.vehicle-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.yrel-login-content{padding:24px 16px}.history-right{max-width:82px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* Photography-led service selection */
+.service-photo{display:block;width:100%;height:72px;object-fit:cover;border-radius:13px;filter:saturate(.88);background:#F7E9DC}
+.service-photo-portrait{object-position:center 28%}
+.service-tab span{font-size:13px;letter-spacing:-.02em}
+@media(max-width:640px){.service-photo{height:58px;border-radius:10px}.service-tab span{font-size:10px}}
