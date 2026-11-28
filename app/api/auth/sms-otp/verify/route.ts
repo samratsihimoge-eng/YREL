@@ -53,7 +53,10 @@ export async function POST(request: NextRequest) {
     for (let page = 1; page <= 10; page++) {
       const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
       if (error) throw error;
-      user = data.users.find((item) => item.phone === phone) || null;
+      user = data.users.find((item) => {
+        const storedDigits = String(item.phone || "").replace(/\\D/g, "").slice(-10);
+        return storedDigits === digits;
+      }) || null;
       if (user || data.users.length < 1000) break;
     }
 
