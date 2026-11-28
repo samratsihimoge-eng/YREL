@@ -233,9 +233,9 @@ export default function PartnerPage() {
       {registrationPending ? <>
         <h1>Verify Mobile Number</h1><p>Your Partner account has been created. Verify that this mobile number belongs to you to continue.</p>
         <button className="partner-primary" disabled={busy} onClick={() => void sendPartnerVerificationLink()}>{busy ? "Please wait…" : "Send Verification Link by SMS"}</button>
-        <p className="partner-hint">Open the SMS link. You will then return here to log in with your mobile number and 4-digit passcode.</p>
+        <p className="partner-hint">After phone verification, return here. Your Partner account still requires YREL Admin approval before trips.</p>
       </> : <>
-        <h1>{authStep === "phone" ? "Partner Login" : authStep === "login" ? "Enter Passcode" : "Create Partner Account"}</h1>
+        <h1>{authStep === "phone" ? "Partner Login" : authStep === "login" ? "Verify SMS OTP" : "Create Partner Account"}</h1>
         <label>Mobile number</label><div className="partner-phone-row"><span>+91</span><input value={phone} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setAuthStep("phone"); setPassword(""); setError(""); }} placeholder="10-digit mobile number" inputMode="numeric" autoComplete="tel-national" maxLength={10}/></div>
         {authStep === "phone" && <button className="partner-primary" disabled={busy} onClick={() => void checkPartnerPhone()}>{busy ? "Please wait…" : "Next"}</button>}
         {authStep === "login" && <>{!otpSent ? <><p>Verify your registered Partner mobile number with a one-time SMS code.</p><button className="partner-primary" disabled={busy} onClick={() => void loginPartner()}>{busy ? "Sending OTP…" : "Send SMS OTP"}</button></> : <><label>6-digit SMS OTP</label><input style={{display:"block",width:"100%",minHeight:58,boxSizing:"border-box",padding:"14px 16px",fontSize:20,borderRadius:16,letterSpacing:5}} inputMode="numeric" maxLength={6} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="Enter SMS OTP" autoComplete="one-time-code"/><button className="partner-primary" disabled={busy} onClick={() => void verifyPartnerOtp()}>{busy ? "Verifying…" : "Verify & Login"}</button><button className="partner-link" disabled={busy} onClick={() => void resendPartnerOtp()}>Resend SMS OTP</button></>}</>}
