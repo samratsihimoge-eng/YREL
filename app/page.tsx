@@ -1798,13 +1798,15 @@ export default function Home() {
           <div className="yrel-splash-loader" />
         </div>
       )}
-      <header className={`topbar yrel-fixed-header${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`}>
-        <button className="header-menu-button header-menu-left" onClick={() => { if (menuOpen) { setMenuOpen(false); setMenuSection("list"); } else { setBottomPanel(null); setMenuOpen(true); setMenuSection("list"); } }} aria-label="Toggle menu"><Menu size={23} /></button>
-        <div className="yrel-header-customer">
-          <button className="yrel-header-avatar" type="button" aria-label="Open profile" onClick={() => { if (session && customer) setBottomPanel("profile"); else setAuthOpen(true); }}><UserRound size={21} /></button>
-          <div className="yrel-header-identity"><strong>{customer?.full_name || "Welcome to YREL"}</strong><small>{customer?.customer_code || "Your ride, your fun"}</small></div>
-        </div>
-      </header>
+      {!authOpen && (
+        <header className={`topbar yrel-fixed-header${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`}>
+          <button className="header-menu-button header-menu-left" onClick={() => { if (menuOpen) { setMenuOpen(false); setMenuSection("list"); } else { setBottomPanel(null); setMenuOpen(true); setMenuSection("list"); } }} aria-label="Toggle menu"><Menu size={23} /></button>
+          <div className="yrel-header-customer">
+            <button className="yrel-header-avatar" type="button" aria-label="Open profile" onClick={() => { if (session && customer) setBottomPanel("profile"); else setAuthOpen(true); }}><UserRound size={21} /></button>
+            <div className="yrel-header-identity"><strong>{customer?.full_name || "Welcome to YREL"}</strong><small>{customer?.customer_code || "Your ride, your fun"}</small></div>
+          </div>
+        </header>
+      )}
 
       {pinMapTarget && (
         <div className="pin-map-backdrop" onClick={() => setPinMapTarget(null)}>
