@@ -1899,7 +1899,7 @@ export default function Home() {
             }
             onClick={() => changeService("cab")}
           >
-            <CarTaxiFront className="service-icon" aria-hidden="true" size={34} strokeWidth={1.7} />
+            <img className="service-photo" src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=720&q=85" alt="Premium modern car" loading="lazy" />
             <span>Book a Cab</span>
           </button>
 
@@ -1909,7 +1909,7 @@ export default function Home() {
             }
             onClick={() => changeService("driver")}
           >
-            <UserRound className="service-icon" aria-hidden="true" size={34} strokeWidth={1.7} />
+            <img className="service-photo service-photo-portrait" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=720&q=85" alt="Professional driver portrait" loading="lazy" />
             <span>Book a Driver</span>
           </button>
 
@@ -1919,7 +1919,7 @@ export default function Home() {
             }
             onClick={() => changeService("rental")}
           >
-            <CarFront className="service-icon" aria-hidden="true" size={34} strokeWidth={1.7} />
+            <img className="service-photo" src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=720&q=85" alt="Premium SUV rental" loading="lazy" />
             <span>Cab Rentals</span>
           </button>
         </div>
@@ -2133,7 +2133,7 @@ export default function Home() {
                       setNotice("");
                     }}
                   >
-                    <VehicleIcon vehicle={v} />
+                    <img className="vehicle-photo" src={v === "Auto" ? "https://images.unsplash.com/photo-1591768793355-74d04bb6608f?auto=format&fit=crop&w=500&q=82" : v === "SUV" || v === "Innova Crysta" ? "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=500&q=82" : v === "Sedan" ? "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=500&q=82" : "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=500&q=82"} alt={v + " vehicle"} loading="lazy" />
                     <span>{v}</span>
                     {!seatShareMode && ride === v && (
                       <Check className="vehicle-check" size={15} />
