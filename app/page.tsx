@@ -1305,7 +1305,7 @@ export default function Home() {
     setBusy(true); setNotice("");
     try {
       sessionStorage.setItem("yrel_oauth_in_progress", "1");
-      const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
+      const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: "https://aveeswa.in/" } });
       if (error) throw error;
     } catch (error) {
       sessionStorage.removeItem("yrel_oauth_in_progress");
