@@ -1800,10 +1800,10 @@ export default function Home() {
       )}
       <header className={`topbar yrel-fixed-header${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`}>
         <button className="header-menu-button header-menu-left" onClick={() => { if (menuOpen) { setMenuOpen(false); setMenuSection("list"); } else { setBottomPanel(null); setMenuOpen(true); setMenuSection("list"); } }} aria-label="Toggle menu"><Menu size={23} /></button>
-        <a className="brand header-brand" href="#" aria-label="YREL home">
-          <img className="brand-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL logo" />
-        </a>
-        <button className="header-notification-button" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "notifications" ? null : "notifications"); }} aria-label="Notifications" title="Notifications"><Bell size={22} /></button>
+        <div className="yrel-header-customer">
+          <button className="yrel-header-avatar" type="button" aria-label="Open profile" onClick={() => { if (session && customer) setBottomPanel("profile"); else setAuthOpen(true); }}><UserRound size={21} /></button>
+          <div className="yrel-header-identity"><strong>{customer?.full_name || "Welcome to YREL"}</strong><small>{customer?.customer_code || "Your ride, your fun"}</small></div>
+        </div>
       </header>
 
       {pinMapTarget && (
@@ -2624,21 +2624,10 @@ export default function Home() {
       )}
 
       <nav className={`yrel-bottom-nav${instantSearchBooking ? " search-mode" : ""}${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`} aria-label="Main navigation">
-        <button aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); setMenuOpen(false); setMenuSection("list"); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={22} /></button>
-        <button aria-label="Profile" title="Profile" onClick={() => {
-          if (session && customer) {
-            setProfileNameDraft(customer.full_name);
-            setProfilePhoneDraft((customer.phone || "").replace(/^\+91/, ""));
-            setProfileEditMode(false);
-            setNotice("");
-            setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "profile" ? null : "profile");
-          } else {
-            setNotice("");
-            setAuthOpen(true);
-          }
-        }}><UserRound size={22} /></button>
-        <button aria-label="My Bookings" title="My Bookings" onClick={() => { if (!session) setAuthOpen(true); else { setMenuOpen(false); setMenuSection("list"); setBookingFilter("active"); setBottomPanel(bottomPanel === "bookings" ? null : "bookings"); } }}><ClipboardList size={22} /></button>
-        <button className="support-nav-button" aria-label="Support" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "support" ? null : "support"); }}><Headphones size={21} /><span>Support</span></button>
+        <button className={bottomPanel === null ? "active" : ""} aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); setMenuOpen(false); setMenuSection("list"); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={21} /><span>Home</span></button>
+        <button className={bottomPanel === "bookings" ? "active" : ""} aria-label="History" title="History" onClick={() => { if (!session) setAuthOpen(true); else { setMenuOpen(false); setMenuSection("list"); setBookingFilter("active"); setBottomPanel(bottomPanel === "bookings" ? null : "bookings"); } }}><ClipboardList size={21} /><span>History</span></button>
+        <button className={bottomPanel === "profile" ? "active" : ""} aria-label="Profile" title="Profile" onClick={() => { if (session && customer) { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, "")); setProfileEditMode(false); setNotice(""); setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "profile" ? null : "profile"); } else { setNotice(""); setAuthOpen(true); } }}><UserRound size={21} /><span>Profile</span></button>
+        <button className={bottomPanel === "support" ? "active" : ""} aria-label="Support" title="Support" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "support" ? null : "support"); }}><Headphones size={21} /><span>Support</span></button>
       </nav>
 
       {bottomPanel && (
