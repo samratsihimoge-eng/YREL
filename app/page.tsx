@@ -2098,6 +2098,28 @@ export default function Home() {
 
           {service === "cab" && pickupPoint && dropPoint && distance !== null && !routeLoading && (
             <>
+{service === "cab" && pickupPoint && dropPoint && distance !== null && !routeLoading && (
+                <section className="route-summary-card" aria-label="Selected journey route">
+                  <div className="route-map-art">
+                    <svg viewBox="0 0 640 220" role="img" aria-label="Route from pickup to destination" preserveAspectRatio="xMidYMid slice">
+                      <rect width="640" height="220" fill="#EEF2F6"/>
+                      <path d="M-20 42 C110 12 130 108 245 90 S420 8 660 70 M-10 175 C110 125 180 190 310 155 S470 120 660 180" fill="none" stroke="#D7E0E9" strokeWidth="18"/>
+                      <path d="M80 210 C150 170 185 150 240 128 S360 110 430 74 S520 48 570 16" fill="none" stroke="#fff" strokeWidth="15" strokeLinecap="round"/>
+                      <path d="M80 210 C150 170 185 150 240 128 S360 110 430 74 S520 48 570 16" fill="none" stroke="#FF6B00" strokeWidth="7" strokeLinecap="round" strokeDasharray="12 8"/>
+                      <circle cx="80" cy="210" r="17" fill="#16A34A" stroke="#fff" strokeWidth="6"/><circle cx="570" cy="16" r="17" fill="#DC2626" stroke="#fff" strokeWidth="6"/>
+                      <g fill="#D4DDE6"><rect x="125" y="28" width="64" height="20" rx="6"/><rect x="300" y="22" width="85" height="24" rx="6"/><rect x="465" y="145" width="78" height="25" rx="6"/><rect x="220" y="185" width="65" height="18" rx="6"/></g>
+                    </svg>
+                  </div>
+                  <div className="route-summary-details">
+                    <div className="route-distance">{distance.toFixed(1)} km</div>
+                    <div className="route-time">{eta ? eta + " min approx." : "Time estimate unavailable"}</div>
+                    <div className="route-addresses">
+                      <span><i className="route-dot pickup-dot" />{pickupPoint.label}</span>
+                      <span><i className="route-dot drop-dot" />{dropPoint.label}</span>
+                    </div>
+                  </div>
+                </section>
+              )}
               <div className="field-label">Choose vehicle</div>
 
               <div className="vehicle-grid">
