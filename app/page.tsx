@@ -2590,7 +2590,7 @@ export default function Home() {
       <section className="trust-strip" id="how">
         <div><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=240&q=85" alt="Booking confirmation on mobile" loading="lazy" /><span><b>Reliable bookings</b><small>Clear booking updates from YREL</small></span></div>
         <div><img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=240&q=85" alt="Indian city transport" loading="lazy" /><span><b>India-wide locations</b><small>Search cities, towns and villages</small></span></div>
-        <div><img src="https://images.unsplash.com/photo-150 timing?auto=format&fit=crop&w=240&q=85" alt="Planning a journey" loading="lazy" /><span><b>Simple scheduling</b><small>Choose a time that works</small></span></div>
+        <div><img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=240&q=85" alt="Planning a journey" loading="lazy" /><span><b>Simple scheduling</b><small>Choose a time that works</small></span></div>
       </section>
 
       <section className="dashboard-brand-banner dashboard-brand-banner-bottom" aria-label="YREL tagline">
