@@ -2098,8 +2098,7 @@ export default function Home() {
 
           {service === "cab" && pickupPoint && dropPoint && distance !== null && !routeLoading && (
             <>
-{service === "cab" && pickupPoint && dropPoint && distance !== null && !routeLoading && (
-                <section className="route-summary-card" aria-label="Selected journey route">
+<section className="route-summary-card" aria-label="Selected journey route">
                   <div className="route-map-art">
                     <svg viewBox="0 0 640 220" role="img" aria-label="Route from pickup to destination" preserveAspectRatio="xMidYMid slice">
                       <rect width="640" height="220" fill="#EEF2F6"/>
@@ -2119,7 +2118,6 @@ export default function Home() {
                     </div>
                   </div>
                 </section>
-              )}
               <div className="field-label">Choose vehicle</div>
 
               <div className="vehicle-grid">
