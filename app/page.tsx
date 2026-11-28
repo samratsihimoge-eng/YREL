@@ -2563,13 +2563,13 @@ export default function Home() {
 
         <div className="service-tabs yrel-service-tiles" aria-label="Choose a YREL service">
           <button type="button" className={service === "cab" ? "service-tab yrel-service-tile active" : "service-tab yrel-service-tile"} onClick={() => changeService("cab")} aria-label="Book a Cab">
-            <span className="yrel-service-art yrel-cab-art" aria-hidden="true">🚘</span><span>Book a Cab</span>
+            <span className="yrel-service-art yrel-cab-art" aria-hidden="true"><CarFront size={66} strokeWidth={1.5} /></span><span>Book a Cab</span>
           </button>
           <button type="button" className={service === "driver" ? "service-tab yrel-service-tile active" : "service-tab yrel-service-tile"} onClick={() => changeService("driver")} aria-label="Book a Driver">
-            <span className="yrel-service-art yrel-driver-art" aria-hidden="true">👨🏻‍✈️</span><span>Book a Driver</span>
+            <span className="yrel-service-art yrel-driver-art" aria-hidden="true"><UserRound size={66} strokeWidth={1.5} /></span><span>Book a Driver</span>
           </button>
           <button type="button" className={service === "rental" ? "service-tab yrel-service-tile active" : "service-tab yrel-service-tile"} onClick={() => changeService("rental")} aria-label="Cab Rentals">
-            <span className="yrel-service-art yrel-rental-art" aria-hidden="true">🚙</span><span>Cab Rentals</span>
+            <span className="yrel-service-art yrel-rental-art" aria-hidden="true"><Car size={66} strokeWidth={1.5} /></span><span>Cab Rentals</span>
           </button>
         </div>
 
