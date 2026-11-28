@@ -1874,48 +1874,7 @@ export default function Home() {
         </div>
       )}
       <section className="booking-section" id="services">
-        <section className="yrel-welcome-hero" aria-label="YREL ride booking">
-          <div className="yrel-welcome-copy">
-            <span className="eyebrow">YOUR CITY. YOUR RIDE. YOUR TIME.</span>
-            <h1>Every journey,<br /><em>better connected.</em></h1>
-            <p>City rides, outstation journeys and trusted drivers — all in one place.</p>
-          </div>
-          <img src="/illustrations/yrel-route-illustration.svg" alt="YREL route and journey illustration" />
-        </section>
-
-        <div className="service-tabs">
-          <button
-            className={
-              service === "cab" ? "service-tab active" : "service-tab"
-            }
-            onClick={() => changeService("cab")}
-          >
-            <img className="service-photo" src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=720&q=85" alt="Premium modern car" loading="lazy" />
-            <span>Book a Cab</span>
-          </button>
-
-          <button
-            className={
-              service === "driver" ? "service-tab active" : "service-tab"
-            }
-            onClick={() => changeService("driver")}
-          >
-            <img className="service-photo" src="https://images.unsplash.com/photo-1509099836639-18ba17992f3d?auto=format&fit=crop&w=900&q=88" alt="Professional chauffeur beside a vehicle" loading="lazy" />
-            <span>Book a Driver</span>
-          </button>
-
-          <button
-            className={
-              service === "rental" ? "service-tab active" : "service-tab"
-            }
-            onClick={() => changeService("rental")}
-          >
-            <img className="service-photo" src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=720&q=85" alt="Premium SUV rental" loading="lazy" />
-            <span>Cab Rentals</span>
-          </button>
-        </div>
-
-        <div className="booking-card">
+<div className="booking-card">
           {service === "driver" && (
             <div className="choice-row">
               <button className={area === "city" ? "choice active" : "choice"} onClick={() => { setArea("city"); setDistance(null); }}>City</button>
@@ -2566,6 +2525,48 @@ export default function Home() {
               </div>
             )}
         </div>
+<section className="yrel-welcome-hero" aria-label="YREL ride booking">
+          <div className="yrel-welcome-copy">
+            <span className="eyebrow">YOUR CITY. YOUR RIDE. YOUR TIME.</span>
+            <h1>Every journey,<br /><em>better connected.</em></h1>
+            <p>City rides, outstation journeys and trusted drivers — all in one place.</p>
+          </div>
+          <img src="/illustrations/yrel-route-illustration.svg" alt="YREL route and journey illustration" />
+        </section>
+
+        <div className="service-tabs">
+          <button
+            className={
+              service === "cab" ? "service-tab active" : "service-tab"
+            }
+            onClick={() => changeService("cab")}
+          >
+            <img className="service-photo" src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=720&q=85" alt="Premium modern car" loading="lazy" />
+            <span>Book a Cab</span>
+          </button>
+
+          <button
+            className={
+              service === "driver" ? "service-tab active" : "service-tab"
+            }
+            onClick={() => changeService("driver")}
+          >
+            <img className="service-photo" src="https://images.unsplash.com/photo-1509099836639-18ba17992f3d?auto=format&fit=crop&w=900&q=88" alt="Professional chauffeur beside a vehicle" loading="lazy" />
+            <span>Book a Driver</span>
+          </button>
+
+          <button
+            className={
+              service === "rental" ? "service-tab active" : "service-tab"
+            }
+            onClick={() => changeService("rental")}
+          >
+            <img className="service-photo" src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=720&q=85" alt="Premium SUV rental" loading="lazy" />
+            <span>Cab Rentals</span>
+          </button>
+        </div>
+
+        
       </section>
 
       <section className="trust-strip" id="how">
