@@ -81,7 +81,7 @@ export default function AdminPage() {
     setMessage("");
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/admin` }
+      options: { redirectTo: "https://aveeswa.in/admin" }
     });
     if (error) { setMessage(error.message); setLoginBusy(false); }
   }
