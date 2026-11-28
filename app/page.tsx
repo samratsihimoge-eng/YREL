@@ -1789,7 +1789,7 @@ export default function Home() {
       {splashVisible && (
         <div className="yrel-splash-screen" role="status" aria-label="YREL loading">
           <img src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL" />
-          <span>Your city. Your fun. Just YREL it.</span>
+          <span><span style={{color:"#FF6B1A"}}>Your Ride</span><span style={{color:"#E8302A"}}>, Your Fun</span></span>
           <div className="yrel-splash-loader" />
         </div>
       )}
@@ -2699,15 +2699,15 @@ export default function Home() {
       {authOpen && (
         <div className="yrel-login-screen" role="dialog" aria-modal="true" aria-label="Customer account">
           <div className="yrel-login-content">
-            <div className="yrel-login-brandline"><h1><span>Your city.</span><span>Your fun.</span><span className="yrel-slogan-highlight">Just YREL it.</span></h1><p>Instant Booking <span>•</span> Pan India Service</p></div>
+            <div className="yrel-login-brandline"><img className="yrel-login-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL" /><h1>Welcome to YREL</h1><p>Login with your mobile number</p></div>
             <div className="yrel-login-form">
               <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}>
-                <span className="yrel-mobile-prompt">Enter your 10-digit mobile number</span>
+                <span className="yrel-mobile-prompt">Mobile Number</span>
                 <div className="location-input"><span>+91</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} readOnly={customerOtpSent} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setCustomerOtpSent(false); setCustomerOtpReqId(""); setCustomerOtp(""); }} placeholder="Enter mobile number" /></div>
               </label>
               {!customerOtpSent ? (
                 <button className="book-button full" onClick={checkCustomerPhone} disabled={busy}>
-                  {busy && <Loader2 className="spin" />}<span>Send OTP</span><ArrowRight size={18} />
+                  {busy && <Loader2 className="spin" />}<span>Continue</span><ArrowRight size={18} />
                 </button>
               ) : (
                 <>
@@ -2716,14 +2716,13 @@ export default function Home() {
                     <input className="email-input" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={customerOtp} onChange={e => setCustomerOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="6-digit OTP" />
                   </label>
                   <button className="book-button full" onClick={verifyCustomerOtp} disabled={busy || customerOtp.length !== 6}>
-                    {busy && <Loader2 className="spin" />}<span>Verify & Continue</span><ArrowRight size={18} />
+                    {busy && <Loader2 className="spin" />}<span>Verify</span><ArrowRight size={18} />
                   </button>
                   <button className="yrel-secondary-action" type="button" onClick={() => { setCustomerOtpSent(false); setCustomerOtpReqId(""); setCustomerOtp(""); setNotice(""); setPhone(""); localStorage.removeItem(PHONE_STORAGE_KEY); }}>Change mobile number</button>
                   <button className="pill" type="button" onClick={sendCustomerOtp} disabled={busy}>Resend SMS OTP</button>
                 </>
               )}
-              <div className="auth-divider"><span>OR</span></div>
-              <button className="yrel-google-action" type="button" onClick={loginWithGoogle} disabled={busy}><span className="yrel-google-mark">G</span><span>Continue with Google</span><ArrowRight size={18} /></button>
+              <p className="yrel-terms-note">By continuing you agree to <a href="#terms">Terms</a></p>
               {notice && <div className="notice">{notice}</div>}
             </div>
           </div>
@@ -2736,28 +2735,28 @@ export default function Home() {
           <div className="auth-modal yrel-profile-modal" onClick={(e) => e.stopPropagation()}>
             <button className="yrel-modal-close" type="button" aria-label="Skip profile setup" onClick={skipCustomerProfile}>×</button>
             <div className="modal-symbol"><UserRound /></div><span className="eyebrow">WELCOME TO YREL</span>
-            <h2 id="customer-profile-title">Your account is ready</h2>
+            <h2 id="customer-profile-title">Complete Your Profile</h2>
             <div className="yrel-customer-id"><span>YOUR CUSTOMER ID</span><strong>{customer.customer_code || "Creating..."}</strong></div>
-            <p>Your dashboard is ready. Add details for your convenience. Every field is optional.</p>
-            <label className="wide-field">Full name
-              <input className="email-input" type="text" autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full name (optional)" />
+            <p>Your dashboard is ready. Add a few details to complete your profile.</p>
+            <label className="wide-field">Name *
+              <input className="email-input" type="text" autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your name" />
             </label>
             <label className="wide-field">Mobile number (optional)
               <div className="location-input yrel-profile-phone"><span>+91</span><input className="phone-number-input" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))} placeholder="Enter mobile number" /></div>
             </label>
-            <label className="wide-field">Gender (optional)
+            <label className="wide-field">Gender *
               <select className="email-input" value={profileGender} onChange={(e) => setProfileGender(e.target.value as typeof profileGender)}>
-                <option value="">Select later</option><option value="male">Male</option><option value="female">Female</option><option value="prefer_not_to_say">Prefer not to say</option>
+                <option value="">Select gender</option><option value="male">Male</option><option value="female">Female</option><option value="prefer_not_to_say">Other</option>
               </select>
             </label>
-            <label className="wide-field">Date of birth (optional)
+            <label className="wide-field">Date of birth *
               <input className="email-input" type="date" max={new Date().toISOString().slice(0,10)} value={profileDob} onChange={(e) => setProfileDob(e.target.value)} />
             </label>
             <label className="wide-field">Email address (optional)
               <input className="email-input" type="email" autoComplete="email" value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} placeholder="Enter your email" />
             </label>
-            <button className="book-button full yrel-primary-action" onClick={createCustomerProfile} disabled={busy || profileLoading}>{busy && <Loader2 className="spin" />}<span>Save details</span><ArrowRight size={18} /></button>
-            <button className="yrel-secondary-action" type="button" onClick={skipCustomerProfile} disabled={busy}>Skip for now — go to dashboard</button>
+            <button className="book-button full yrel-primary-action" onClick={createCustomerProfile} disabled={busy || profileLoading}>{busy && <Loader2 className="spin" />}<span>Save & Continue</span><ArrowRight size={18} /></button>
+            <button className="yrel-secondary-action" type="button" onClick={skipCustomerProfile} disabled={busy}>Skip for Now — I will do later</button>
             {notice && <div className="notice">{notice}</div>}
             <p className="hint">You can update your profile anytime. Your Customer ID is already active.</p>
           </div>
