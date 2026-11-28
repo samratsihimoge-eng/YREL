@@ -264,3 +264,11 @@ html,body,.site-shell{background:#F6F7F9;color:#0F1B2D}body{font-family:'Plus Ja
 .profile-signout-button{display:flex;width:100%;min-height:52px;align-items:center;justify-content:center;gap:9px;margin:18px 0 4px;border:1px solid #D92D20;border-radius:12px;background:#fff;color:#D92D20;font-weight:800}
 .profile-add-email{border:1px solid #FF6B00;background:#fff;color:#FF6B00;border-radius:12px;min-height:38px;padding:0 14px;font-weight:800}.compact-profile-row{flex-wrap:wrap;min-width:0}.compact-profile-row>b,.profile-email{max-width:62%;overflow-wrap:anywhere;text-align:right}
 @media(max-width:640px){.service-tabs{gap:8px}.service-tab{min-height:110px;padding:10px;border-radius:14px}.service-photo{height:66px}.booking-card{padding:14px;border-radius:16px}.vehicle-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.vehicle-option{min-height:128px;border-radius:14px}.fare-panel{padding:16px;gap:12px}.trust-strip{padding:12px}.trust-strip>div>svg{width:64px;height:64px;flex-basis:64px}.yrel-bottom-nav{min-height:76px}.yrel-bottom-nav button{font-size:10px}.compact-profile-row>b,.profile-email{max-width:100%;text-align:left}}
+
+.route-summary-card{overflow:hidden;margin:18px 0 20px;border:1px solid #E7EAF0;border-radius:16px;background:#fff;box-shadow:var(--yrel-shadow-soft)}
+.route-map-art{height:180px;background:#EEF2F6}.route-map-art svg{display:block;width:100%;height:100%}
+.route-summary-details{padding:16px;display:grid;gap:5px}.route-distance{font-size:27px;font-weight:800;letter-spacing:-.04em;color:#0F1B2D}.route-time{font-size:13px;color:#697586}
+.route-addresses{display:grid;gap:8px;margin-top:8px}.route-addresses span{display:flex;align-items:center;gap:9px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#536174}
+.route-dot{width:9px;height:9px;flex:0 0 9px;border-radius:50%}.pickup-dot{background:#16A34A}.drop-dot{background:#DC2626}
+.trust-strip>div>img{width:72px;height:72px;flex:0 0 72px;object-fit:cover;border-radius:14px}
+@media(max-width:640px){.route-map-art{height:180px}.route-distance{font-size:25px}.route-summary-details{padding:14px}.trust-strip>div>img{width:72px;height:72px;flex-basis:72px}}
