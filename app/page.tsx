@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import {
   ArrowRight, ArrowDownUp, CarFront, CarTaxiFront, Car, BusFront, Check, Clock3, MapPin, Menu, ShieldCheck,
   UserRound, X, Navigation, CalendarDays, LogOut, Loader2, Users,
-  Home as HomeIcon, ClipboardList, Bell, Headphones, BookOpen, FileText, Ban, ArrowLeft, Phone, MessageCircle, Mail, Languages, BadgeCheck
+  Home as HomeIcon, ClipboardList, Bell, Headphones, BookOpen, FileText, Ban, ArrowLeft, Phone, MessageCircle, Mail, BadgeCheck
 } from "lucide-react";
 
 type Service = "cab" | "driver" | "rental";
@@ -86,7 +86,6 @@ type SeatShareBooking = {
 const PHONE_STORAGE_KEY = "yrel_pending_customer_phone";
 const BOOKING_DRAFT_STORAGE_KEY = "yrel_booking_draft_v1";
 const SAVED_LOCATIONS_KEY = "yrel_saved_locations_v1";
-const LANGUAGE_STORAGE_KEY = "yrel_customer_language_v2";
 
 const CITY_CAB: Record<string, { min: number; nonAc: number; ac: number }> = {
   Hatchback: { min: 105, nonAc: 18, ac: 22 },
@@ -400,7 +399,7 @@ export default function Home() {
   const [instantSearchSeconds, setInstantSearchSeconds] = useState(60);
   const [notice, setNotice] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation" | "language" | "saved">("list");
+  const [menuSection, setMenuSection] = useState<"list" | "how" | "services" | "privacy" | "terms" | "cancellation" | "saved">("list");
   const [bottomPanel, setBottomPanel] = useState<"support" | "notifications" | "bookings" | "profile" | null>(null);
   const [pinMapTarget, setPinMapTarget] = useState<"pickup" | "drop" | "save" | null>(null);
   const [pinMapCoords, setPinMapCoords] = useState<[number, number]>([12.9716, 77.5946]);
@@ -408,7 +407,7 @@ export default function Home() {
   const [mapLocationQuery, setMapLocationQuery] = useState("");
   const [draftRestored, setDraftRestored] = useState(false);
   const [savedLocations, setSavedLocations] = useState<Place[]>([]);
-  const [language, setLanguage] = useState<"en" | "kn" | "hi">("en");
+  const [language] = useState<"en" | "kn" | "hi">("en");
 
   const autoCabArea = getAutoCabArea(pickupPoint, dropPoint);
   const airportRoute =
@@ -820,19 +819,6 @@ export default function Home() {
       setDistance(null); setEta(null); setPinMapTarget(null); setActiveSearch(null); setMapLocationQuery("");
     } catch { setNotice("Could not identify this location. Please move the pin or try another search."); }
   }
-
-  // English is the default for this release. Explicit language selections are remembered.
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-      if (saved === "en" || saved === "kn" || saved === "hi") setLanguage(saved);
-    } catch { /* Keep English if storage is unavailable. */ }
-  }, []);
-
-  useEffect(() => {
-    try { localStorage.setItem(LANGUAGE_STORAGE_KEY, language); }
-    catch { /* Language remains active for this visit. */ }
-  }, [language]);
 
   // Splash timing is managed by the auth-ready effect above to prevent competing timers.
 
@@ -1825,7 +1811,7 @@ export default function Home() {
               <span className="app-panel-mark"><Menu size={19} /></span>
               <h2>{menuSection === "list" ? "Menu" : ({
                 how: "How it works", services: "Services", privacy: "Privacy Policy",
-                terms: "Terms & Conditions", cancellation: "Cancellation Policy", language: "Language", saved: "Saved Locations"
+                terms: "Terms & Conditions", cancellation: "Cancellation Policy", saved: "Saved Locations"
               } as const)[menuSection]}</h2>
               <button className="app-panel-close" onClick={() => { if (menuSection !== "list") setMenuSection("list"); else setMenuOpen(false); }} aria-label={menuSection !== "list" ? "Back to menu" : "Close menu"}>{menuSection !== "list" ? <ArrowLeft size={20} /> : <X size={20} />}</button>
             </div>
@@ -1836,7 +1822,7 @@ export default function Home() {
                 <button onClick={() => setMenuSection("services")}><span className="yrel-menu-icon" aria-hidden="true"><CarFront size={18} /></span><span>Services</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("privacy")}><span className="yrel-menu-icon" aria-hidden="true"><ShieldCheck size={18} /></span><span>Privacy Policy</span><ArrowRight size={17} /></button>
                 <button onClick={() => setMenuSection("terms")}><span className="yrel-menu-icon" aria-hidden="true"><FileText size={18} /></span><span>Terms & Conditions</span><ArrowRight size={17} /></button>
-                <button onClick={() => setMenuSection("cancellation")}><span className="yrel-menu-icon" aria-hidden="true"><Ban size={18} /></span><span>{language === "kn" ? "ರದ್ದತಿ ನೀತಿ" : language === "hi" ? "रद्द करने की नीति" : "Cancellation Policy"}</span><ArrowRight size={17} /></button>
+                <button onClick={() => setMenuSection("cancellation")}><span className="yrel-menu-icon" aria-hidden="true"><Ban size={18} /></span><span>Cancellation Policy</span><ArrowRight size={17} /></button>
                 {/* Language selector omitted by current product requirement. */}
               </div>
             ) : (
@@ -1879,11 +1865,6 @@ export default function Home() {
                   <p>You can save up to 5 locations. Drop a pin on the map or enter a location below.</p>
                   <button type="button" className="saved-location-save" disabled={savedLocations.length >= 5} onClick={() => { setMapLocationQuery(""); setPinMapCoords([12.9716,77.5946]); setPinMapTarget("save"); }}>＋ Save a new location</button>
                   {savedLocations.length === 0 ? <p className="saved-location-empty">You have not saved any locations yet.</p> : savedLocations.map((place, index) => <div className="saved-location-row" key={`${place.label}-${index}`}><span><MapPin size={17}/><b>{place.label}</b></span><div><button onClick={() => useSavedLocation(place,"pickup")}>Use Pickup</button><button onClick={() => useSavedLocation(place,"drop")}>Use Drop</button><button onClick={() => { const next=savedLocations.filter((_,i)=>i!==index); localStorage.setItem(`${SAVED_LOCATIONS_KEY}_${session?.user?.id || "guest"}`,JSON.stringify(next)); setSavedLocations(next); }}>Remove</button></div></div>)}
-                </div>}
-                {menuSection === "language" && <div className="language-options">
-                  <button className={language === "en" ? "language-option active" : "language-option"} onClick={() => { setLanguage("en"); setMenuSection("list"); }}><span>🇬🇧</span> English {language === "en" && <Check size={18}/>}</button>
-                  <button className={language === "kn" ? "language-option active" : "language-option"} onClick={() => { setLanguage("kn"); setMenuSection("list"); }}><span>ಕ</span> ಕನ್ನಡ {language === "kn" && <Check size={18}/>}</button>
-                  <button className={language === "hi" ? "language-option active" : "language-option"} onClick={() => { setLanguage("hi"); setMenuSection("list"); }}><span>अ</span> हिन्दी {language === "hi" && <Check size={18}/>}</button>
                 </div>}
               </div>
             )}
