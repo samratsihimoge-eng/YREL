@@ -2695,6 +2695,11 @@ export default function Home() {
           <div className="yrel-login-content">
             <div className="yrel-login-brandline"><img className="yrel-login-logo" src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL" /><h1>Welcome to YREL</h1><p>Login with your mobile number</p></div>
             <div className="yrel-login-form">
+              <button className="yrel-google-login" type="button" onClick={loginWithGoogle} disabled={busy}>
+                {busy ? <Loader2 className="spin" size={19} /> : <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.91c-.58 2.96-2.26 5.48-4.74 7.18l7.72 5.99c4.51-4.17 7.09-10.31 7.09-17.64Z"/><path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.53 2.56 10.78l7.97-6.19Z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.72-5.99c-2.14 1.45-4.88 2.3-8.17 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"/></svg>}
+                <span>Continue with Google</span>
+              </button>
+              <div className="yrel-login-divider"><span>OR CONTINUE WITH MOBILE</span></div>
               <label className="wide-field" style={{ display: "block", width: "100%", marginBottom: 22 }}>
                 <span className="yrel-mobile-prompt">Mobile Number</span>
                 <div className="location-input"><span>+91</span><input className="phone-number-input" style={{ display: "block", width: "100%", minWidth: 0, minHeight: 62, boxSizing: "border-box", padding: "16px 18px", border: "1px solid #dfc5b1", borderRadius: 18, background: "#fffdfb", fontSize: 18, lineHeight: 1.3 }} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} readOnly={customerOtpSent} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setCustomerOtpSent(false); setCustomerOtpReqId(""); setCustomerOtp(""); }} placeholder="Enter mobile number" /></div>
