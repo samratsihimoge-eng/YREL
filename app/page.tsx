@@ -391,7 +391,7 @@ export default function Home() {
   const [profileNameDraft, setProfileNameDraft] = useState("");
   const [profilePhoneDraft, setProfilePhoneDraft] = useState("");
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [bookingFilter, setBookingFilter] = useState<"all" | "active" | "completed" | "cancelled">("all");
+  const [bookingFilter, setBookingFilter] = useState<"all" | "active" | "completed" | "cancelled">("active");
   const [trackingBookingId, setTrackingBookingId] = useState<string | null>(null);
   const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
