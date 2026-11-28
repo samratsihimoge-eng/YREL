@@ -1776,6 +1776,30 @@ export default function Home() {
 
   return (
     <main className="site-shell">
+      <style jsx global>{`
+        .yrel-fixed-header{display:flex;align-items:center;gap:16px}
+        .yrel-header-customer-clean{flex:1;min-width:0;margin-left:0}
+        .yrel-header-notifications{position:relative;width:48px;height:48px;border:0;border-radius:50%;background:#fff;color:#f36b0b;display:grid;place-items:center;box-shadow:0 2px 12px rgba(15,27,45,.10);cursor:pointer;flex:none}
+        .yrel-notification-count{position:absolute;right:-3px;top:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#e53935;color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;border:2px solid #fff}
+        .yrel-service-tiles{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px!important;align-items:center;justify-items:center;margin:18px 0 22px!important}
+        .yrel-service-tile,.yrel-service-tile.active{width:100%!important;min-width:0!important;min-height:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#0f1b2d!important}
+        .yrel-service-tile:focus-visible{outline:2px solid #f36b0b;outline-offset:4px;border-radius:8px}
+        .yrel-service-tile>span:last-child{font-size:14px!important;font-weight:800!important;line-height:1.2;color:#0f1b2d!important;white-space:nowrap}
+        .yrel-service-art{height:90px;width:100%;display:flex;align-items:center;justify-content:center;font-size:66px;line-height:1;background:transparent!important;box-shadow:none!important;border:0!important}
+        .yrel-cab-art,.yrel-driver-art,.yrel-rental-art{filter:drop-shadow(0 5px 4px rgba(15,27,45,.10))}
+        .yrel-tagline-colors{background:transparent!important;box-shadow:none!important;border:0!important;text-align:center}
+        .yrel-tagline-colors span{color:#0f1b2d!important}.yrel-tagline-colors em{color:#f36b0b!important;font-style:normal}.yrel-tagline-colors strong{color:#7b2cbf!important}
+        .yrel-bottom-nav-redesign{height:68px!important;min-height:68px!important;background:#fff!important;box-shadow:0 -5px 18px rgba(15,27,45,.10)!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));padding:4px 8px!important;gap:2px!important}
+        .yrel-bottom-nav-redesign>button{height:60px!important;min-width:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;color:#77808d!important;background:transparent!important;border:0!important;border-radius:12px!important;font-weight:800!important;font-size:11px!important}
+        .yrel-bottom-nav-redesign>button svg{width:24px;height:24px}
+        .yrel-bottom-nav-redesign>button.active{color:#f36b0b!important;background:#fff1e7!important}
+        .yrel-bottom-nav-redesign>button.active svg{color:#f36b0b!important}
+        .yrel-bottom-profile-photo,.yrel-profile-initial{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid #929aa5;display:grid;place-items:center}
+        .yrel-bottom-nav-redesign>button.active .yrel-bottom-profile-photo{border:2px solid #f36b0b}
+        .yrel-profile-initial{background:#fff1e7;color:#f36b0b;font-weight:900;font-size:16px}
+        @media(max-width:420px){.yrel-service-tiles{gap:6px!important}.yrel-service-art{height:82px;font-size:58px}.yrel-service-tile>span:last-child{font-size:12px!important}}
+      `}</style>
+
       {splashVisible && (
         <div className="yrel-splash-screen" role="status" aria-label="YREL loading">
           <img src="https://raw.githubusercontent.com/samratsihimoge-eng/YREL/main/Yrel_logo_png.png" alt="YREL" />
@@ -1786,10 +1810,13 @@ export default function Home() {
       {!authOpen && (
         <header className={`topbar yrel-fixed-header${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`}>
           <button className="header-menu-button header-menu-left" onClick={() => { if (menuOpen) { setMenuOpen(false); setMenuSection("list"); } else { setBottomPanel(null); setMenuOpen(true); setMenuSection("list"); } }} aria-label="Toggle menu"><Menu size={23} /></button>
-          <div className="yrel-header-customer">
-            <button className="yrel-header-avatar" type="button" aria-label="Open profile" onClick={() => { if (session && customer) setBottomPanel("profile"); else setAuthOpen(true); }}><UserRound size={21} /></button>
+          <div className="yrel-header-customer yrel-header-customer-clean">
             <div className="yrel-header-identity"><strong>{customer?.full_name || "Welcome to YREL"}</strong><small>{customer?.customer_code || "Your ride, your fun"}</small></div>
           </div>
+          <button className="yrel-header-notifications" type="button" aria-label="Open notifications" onClick={() => { setMenuOpen(false); setBottomPanel("notifications"); }}>
+            <Bell size={22} />
+            {bookings.length > 0 && <span className="yrel-notification-count">{Math.min(bookings.length,99)}</span>}
+          </button>
         </header>
       )}
 
@@ -2534,35 +2561,15 @@ export default function Home() {
           <img src="/illustrations/yrel-route-illustration.svg" alt="YREL route and journey illustration" />
         </section>
 
-        <div className="service-tabs">
-          <button
-            className={
-              service === "cab" ? "service-tab active" : "service-tab"
-            }
-            onClick={() => changeService("cab")}
-          >
-            <img className="service-photo" src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=720&q=85" alt="Premium modern car" loading="lazy" />
-            <span>Book a Cab</span>
+        <div className="service-tabs yrel-service-tiles" aria-label="Choose a YREL service">
+          <button type="button" className={service === "cab" ? "service-tab yrel-service-tile active" : "service-tab yrel-service-tile"} onClick={() => changeService("cab")} aria-label="Book a Cab">
+            <span className="yrel-service-art yrel-cab-art" aria-hidden="true">🚘</span><span>Book a Cab</span>
           </button>
-
-          <button
-            className={
-              service === "driver" ? "service-tab active" : "service-tab"
-            }
-            onClick={() => changeService("driver")}
-          >
-            <img className="service-photo" src="https://images.unsplash.com/photo-1509099836639-18ba17992f3d?auto=format&fit=crop&w=900&q=88" alt="Professional chauffeur beside a vehicle" loading="lazy" />
-            <span>Book a Driver</span>
+          <button type="button" className={service === "driver" ? "service-tab yrel-service-tile active" : "service-tab yrel-service-tile"} onClick={() => changeService("driver")} aria-label="Book a Driver">
+            <span className="yrel-service-art yrel-driver-art" aria-hidden="true">👨🏻‍✈️</span><span>Book a Driver</span>
           </button>
-
-          <button
-            className={
-              service === "rental" ? "service-tab active" : "service-tab"
-            }
-            onClick={() => changeService("rental")}
-          >
-            <img className="service-photo" src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=720&q=85" alt="Premium SUV rental" loading="lazy" />
-            <span>Cab Rentals</span>
+          <button type="button" className={service === "rental" ? "service-tab yrel-service-tile active" : "service-tab yrel-service-tile"} onClick={() => changeService("rental")} aria-label="Cab Rentals">
+            <span className="yrel-service-art yrel-rental-art" aria-hidden="true">🚙</span><span>Cab Rentals</span>
           </button>
         </div>
 
@@ -2576,7 +2583,7 @@ export default function Home() {
       </section>
 
       <section className="dashboard-brand-banner dashboard-brand-banner-bottom" aria-label="YREL tagline">
-        <h1><span>Your city.</span> <em>Your fun.</em> <strong>Just YREL it.</strong></h1>
+        <h1 className="yrel-tagline-colors"><span>Your City,</span> <em>Your Fun,</em> <strong>Just YREL it..!</strong></h1>
         <p><span className="banner-live-dot" /> Instant Booking <i>•</i> Pan India Service</p>
       </section>
 
@@ -2616,11 +2623,13 @@ export default function Home() {
         </section>
       )}
 
-      <nav className={`yrel-bottom-nav${instantSearchBooking ? " search-mode" : ""}${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`} aria-label="Main navigation">
-        <button className={bottomPanel === null ? "active" : ""} aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); setMenuOpen(false); setMenuSection("list"); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={21} /><span>Home</span></button>
-        <button className={bottomPanel === "bookings" ? "active" : ""} aria-label="Bookings" title="Bookings" onClick={() => { if (!session) setAuthOpen(true); else { setMenuOpen(false); setMenuSection("list"); setBookingFilter("active"); setBottomPanel(bottomPanel === "bookings" ? null : "bookings"); } }}><ClipboardList size={21} /><span>Bookings</span></button>
-        <button className={bottomPanel === "support" ? "active" : ""} aria-label="Support" title="Support" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "support" ? null : "support"); }}><Headphones size={21} /><span>Support</span></button>
-        <button className={bottomPanel === "profile" ? "active" : ""} aria-label="Profile" title="Profile" onClick={() => { if (session && customer) { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, "")); setProfileEditMode(false); setNotice(""); setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "profile" ? null : "profile"); } else { setNotice(""); setAuthOpen(true); } }}><UserRound size={21} /><span>Profile</span></button>
+      <nav className={`yrel-bottom-nav yrel-bottom-nav-redesign${instantSearchBooking ? " search-mode" : ""}${splashVisible || authOpen ? " yrel-chrome-hidden" : ""}`} aria-label="Main navigation">
+        <button className={bottomPanel === null ? "active" : ""} aria-label="Home" title="Home" onClick={() => { setInstantSearchBooking(null); setBottomPanel(null); setMenuOpen(false); setMenuSection("list"); window.scrollTo({ top: 0, behavior: "smooth" }); }}><HomeIcon size={24} /><span>Home</span></button>
+        <button className={bottomPanel === "bookings" ? "active" : ""} aria-label="Bookings" title="Bookings" onClick={() => { if (!session) setAuthOpen(true); else { setMenuOpen(false); setMenuSection("list"); setBookingFilter("active"); setBottomPanel(bottomPanel === "bookings" ? null : "bookings"); } }}><ClipboardList size={24} /><span>Bookings</span></button>
+        <button className={bottomPanel === "support" ? "active" : ""} aria-label="Support" title="Support" onClick={() => { setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "support" ? null : "support"); }}><Headphones size={24} /><span>Support</span></button>
+        <button className={bottomPanel === "profile" ? "active" : ""} aria-label="Profile" title="Profile" onClick={() => { if (session && customer) { setProfileNameDraft(customer.full_name); setProfilePhoneDraft((customer.phone || "").replace(/^\\+91/, "")); setProfileEditMode(false); setNotice(""); setMenuOpen(false); setMenuSection("list"); setBottomPanel(bottomPanel === "profile" ? null : "profile"); } else { setNotice(""); setAuthOpen(true); } }}>
+          {session?.user?.user_metadata?.picture || session?.user?.user_metadata?.avatar_url ? <img className="yrel-bottom-profile-photo" src={String(session.user.user_metadata.picture || session.user.user_metadata.avatar_url)} alt="" /> : <span className="yrel-profile-initial">S</span>}<span>Profile</span>
+        </button>
       </nav>
 
       {bottomPanel && (
